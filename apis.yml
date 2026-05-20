@@ -32,6 +32,10 @@ apis:
       Explore the APIs for our products, be creative, and invent your own ways
       of interacting with your data.
 common:
+  - type: GitHubOrganization
+    url: https://github.com/Forsta
+  - type: LinkedIn
+    url: https://www.linkedin.com/company/forstainfo
   - type: Website
     url: https://www.forsta.com/
   - type: Documentation
