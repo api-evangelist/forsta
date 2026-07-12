@@ -32,6 +32,8 @@ apis:
       Explore the APIs for our products, be creative, and invent your own ways
       of interacting with your data.
 common:
+  - type: DomainSecurity
+    url: security/forsta-domain-security.yml
   - type: GitHubOrganization
     url: https://github.com/Forsta
   - type: LinkedIn
@@ -40,6 +42,8 @@ common:
     url: https://www.forsta.com/
   - type: Documentation
     url: https://docs.developer.focusvision.com/
+  - url: https://www.forsta.com/resources/blog/
+    type: Blog
 maintainers:
   - FN: Kin Lane
     email: kin@apievangelist.com
