@@ -1,0 +1,14 @@
+{
+  "repo": "forsta",
+  "feeds": [
+    {
+      "source": "https://www.forsta.com/resources/blog/",
+      "feed_url": "https://www.forsta.com/feed/",
+      "title": "",
+      "saved": 0,
+      "method": "discovered"
+    }
+  ],
+  "fetched": "2026-07-11T11:50:51Z",
+  "post_count": 32
+}
