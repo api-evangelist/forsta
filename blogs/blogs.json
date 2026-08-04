@@ -2,6 +2,13 @@
   "repo": "forsta",
   "feeds": [
     {
+      "source": "https://www.forsta.com/feed/",
+      "feed_url": "https://www.forsta.com/feed/",
+      "title": "",
+      "saved": 0,
+      "method": "feed"
+    },
+    {
       "source": "https://www.forsta.com/resources/blog/",
       "feed_url": "https://www.forsta.com/feed/",
       "title": "",
@@ -9,6 +16,6 @@
       "method": "discovered"
     }
   ],
-  "fetched": "2026-07-11T11:50:51Z",
-  "post_count": 32
+  "fetched": "2026-08-01T15:49:00Z",
+  "post_count": 40
 }
