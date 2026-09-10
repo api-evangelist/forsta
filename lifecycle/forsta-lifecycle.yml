@@ -1,0 +1,46 @@
+generated: '2026-09-10'
+method: searched
+source: >-
+  https://docs.developer.focusvision.com/docs/decipher/api (Accessing the API / Security),
+  https://legal.forsta.com/forsta-sla/, https://status.hxplatform.com/, and derivation from the
+  eight harvested OpenAPI documents in openapi/
+versioning:
+  scheme: uri-path
+  current: v1
+  base_path: /api/v1/
+  docs: https://docs.developer.focusvision.com/docs/decipher/api
+  policy: >-
+    Version 2 will only be cut if a backwards-incompatible change is needed. New parameters to
+    existing functions are added with default values wherever possible.
+deprecation:
+  policy_url: https://docs.developer.focusvision.com/docs/decipher/api
+  stated_commitment: >-
+    "Old versions will be maintained for at least 3 years after being obsolete." Stated in the
+    Decipher REST API introduction; there is no separate deprecation-policy page and no
+    dated deprecation calendar.
+  sunset_header: false
+  deprecation_header: false
+  note: >-
+    RFC 8594 Sunset / Deprecation headers are not documented and appear in no spec. The docs also
+    note a legacy "data API" using HTTP Basic that "will eventually be deprecated", with no date.
+sla:
+  url: https://legal.forsta.com/forsta-sla/
+  document: https://legal.forsta.com/wp-content/uploads/sites/7/2026/06/Forsta-SLA-Final_MAR_2026.pdf
+  uptime_target: not stated on the public HTML page - the SLA is distributed as a PDF only
+  note: >-
+    legal.forsta.com/forsta-sla/ renders only a "Download PDF" link; the numeric availability
+    commitment is inside the PDF, so it is not recorded here rather than guessed.
+status_page: https://status.hxplatform.com/
+status_page_api: https://status.hxplatform.com/api/v2/summary.json
+status_page_detail: >-
+  Atlassian Statuspage (page id lwnf0ks3swrs, titled "Forsta Status"), also reachable at
+  https://forsta.statuspage.io/. Components are grouped per product and per region, e.g.
+  "Forsta Plus US", "Forsta Plus EURO".
+deprecated_operations:
+  - openapi/forsta-panel-management-integration-openapi.yml#panelistRead
+deprecated_operation_count: 1
+support:
+  help_center: https://forstasurveys.zendesk.com/hc/en-us
+  note: >-
+    The Zendesk help centers (forstasurveys, forstaplus, forstavisualizations) return HTTP 403 to
+    a non-browser client; article URLs are cited from the provider's own documentation links.

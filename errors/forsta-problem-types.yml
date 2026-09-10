@@ -1,0 +1,101 @@
+generated: '2026-09-10'
+method: derived
+source: >-
+  openapi/forsta-decipher-rest-api-openapi.yml (components.schemas.error + per-operation 4xx/5xx
+  responses), openapi/forsta-panel-management-integration-openapi.yml,
+  openapi/forsta-panel-management-community-openapi.yml,
+  openapi/forsta-panel-management-vendor-callback-openapi.yml,
+  openapi/forsta-sample-marketplace-partner-contract-openapi.yml; error semantics prose read from
+  the "Error States" section of https://docs.developer.focusvision.com/docs/decipher/api
+format: vendor-json
+note: >-
+  NOT RFC 9457. The Decipher REST API returns a flat JSON object with two reserved keys,
+  `$error` (human-readable message) and `$code` (the HTTP status repeated in the body).
+  Every error response across all harvested specs is served as application/json; no
+  application/problem+json media type appears anywhere in the contract set. There is no
+  machine-stable error identifier: the discriminator is the HTTP status plus free-text prose,
+  so an agent cannot branch on a code that is guaranteed not to change wording.
+envelope:
+  media_type: application/json
+  fields:
+    - name: $error
+      description: Human-readable error message.
+    - name: $code
+      description: The HTTP status code, repeated in the body.
+  example:
+    $code: 401
+    $error: invalid key. Verify the spelling of your key by accessing the Research Hub
+  reason_phrase_carries_detail: >-
+    The Decipher API also puts the message in the HTTP reason phrase, e.g.
+    `HTTP/1.0 401 invalid key. Verify the spelling of your key`.
+not_used:
+  - '201 Created is explicitly not used by the Decipher API.'
+  - 'Conditional requests, ETag and caching are explicitly not implemented.'
+problems:
+  - status: 400
+    title: Bad request
+    detail: >-
+      An invalid parameter not covered by another status - for example a survey that cannot be
+      loaded due to an error, an invalid property, or a validation failure.
+    occurrences: 29
+    source_operation: openapi/forsta-decipher-rest-api-openapi.yml#updateSurveyFile
+  - status: 401
+    title: Invalid authentication
+    detail: >-
+      The API key is invalid, expired, or not valid from this IP or for this action. On the Panel
+      Management APIs the equivalent message is "Access token is missing or invalid".
+    occurrences: 30
+    source_operation: openapi/forsta-panel-management-integration-openapi.yml#terminateSession
+  - status: 402
+    title: Payment required
+    detail: You have exceeded your monthly API calls.
+    occurrences: 1
+    source_operation: openapi/forsta-panel-management-vendor-callback-openapi.yml#vendorCallbackAugeoRedeem
+  - status: 403
+    title: Invalid authorization
+    detail: >-
+      The API key is valid but the caller is not allowed access to this survey or lacks the
+      required permission (e.g. report.view / report.edit).
+    occurrences: 12
+    source_operation: openapi/forsta-decipher-rest-api-openapi.yml#getSurveyCampaignBlocks
+  - status: 404
+    title: Not found
+    detail: The survey, panel, panelist, note or other resource id does not exist.
+    occurrences: 36
+    source_operation: openapi/forsta-panel-management-integration-openapi.yml#terminateSession
+  - status: 405
+    title: Method not allowed
+    detail: The HTTP method is not supported on this resource - e.g. DELETE on something that cannot be deleted.
+    occurrences: 0
+    note: Documented in the Error States prose and in the shared components.schemas.error example; not attached to an individual operation response.
+  - status: 409
+    title: Conflict
+    detail: The request conflicts with the current state of the resource.
+    occurrences: 2
+    source_operation: openapi/forsta-decipher-rest-api-openapi.yml#getSurveyConjointReport
+  - status: 422
+    title: Unprocessable entity
+    detail: Validation failure on the Sample Marketplace partner contract.
+    occurrences: 5
+    source_operation: openapi/forsta-sample-marketplace-partner-contract-openapi.yml#demo.post_estimate
+  - status: 428
+    title: Reactivation required
+    detail: >-
+      The survey is hibernated and must be reactivated before it can be accessed.
+    occurrences: 0
+    docs: https://forstasurveys.zendesk.com/hc/en-us/articles/4409469957531-Forsta-Surveys-REST-API#7:_Response_Codes_and_Error_States
+    note: Documented in the Error States prose only; no operation declares a 428 response.
+  - status: 429
+    title: Too many requests
+    detail: Too many concurrent requests. Retry after backing off; no Retry-After header is documented.
+    occurrences: 1
+    source_operation: openapi/forsta-decipher-rest-api-openapi.yml
+  - status: 500
+    title: Unexpected server error
+    detail: An unexpected server error.
+    occurrences: 13
+    source_operation: openapi/forsta-decipher-rest-api-openapi.yml#createSurveyDataDelphiConversion
+gaps:
+  - No stable machine-readable error type or code namespace - the body repeats the HTTP status only.
+  - 428 and 405 are documented in prose but declared on no operation, so a generated client will not model them.
+  - 13 of the 4xx/5xx responses carry an empty description in the spec.

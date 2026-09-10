@@ -1,0 +1,137 @@
+generated: '2026-09-10'
+method: searched
+source: >-
+  https://docs.developer.focusvision.com/docs/decipher/api (the Decipher REST API
+  info.description: Introduction, Accessing the API, API Keys, Error States, Accounting,
+  Content-types and RESTfulness, Dates, Security, Additional features, Impersonation) plus
+  derivation from the eight harvested OpenAPI documents in openapi/
+scope: >-
+  Conventions below describe the Decipher REST API (Forsta Surveys), which is the only Forsta
+  contract that publishes cross-cutting semantics. The Panel Management and Sample Marketplace
+  contracts publish no equivalent prose; where they differ, it is called out per field.
+authentication:
+  style: api-key-header
+  header: x-apikey
+  detail: >-
+    A 64-character key: the first 32 characters identify the key permanently, the last 32 are the
+    secret. Keys are created in the Research Hub / Portal under "API access" and can be restricted
+    by permitted call, permitted method, forced parameter values, IP network (CIDR) and expiry.
+    A key sent over plain HTTP is deactivated immediately as compromised.
+  variants:
+    - api: Panel Management Integration API
+      style: bearer token or sesKey query parameter
+    - api: Panel Management Community API
+      style: seskey query parameter
+    - api: Sample Marketplace
+      style: OAuth 2.0 client credentials (AWS Cognito token endpoint) or HTTP Basic
+  impersonation:
+    header: x-impersonate
+    detail: >-
+      A staff or supervisor key may act as another user for the duration of a call by sending the
+      user's email address or numeric id. Logged in the audit log of both parties.
+  see: authentication/forsta-authentication.yml
+idempotency:
+  supported: false
+  coverage: none
+  detail: >-
+    No idempotency key, no request-deduplication window, and no conditional-request support. The
+    documentation states plainly that ETag, caching and conditional requests (if-modified-since)
+    are "not used REST features". Retrying a POST re-executes it. Several mutating operations are
+    naturally idempotent by shape (PUT replace on datasources, survey files, quotas, translations),
+    but that is a property of those operations, not a contract the provider offers.
+  see: errors/forsta-problem-types.yml
+reversibility:
+  grade: documented
+  detail: >-
+    Reversal operations exist for four of the write surfaces and are declared in the contract, but
+    no document states the window inside which any of them works, so this grades `documented`
+    rather than `verified`. Do NOT assume a window: none is published.
+  operations:
+    - write: createSurveyStateLive
+      reversal: createSurveyStateClose
+      window: not stated
+      note: Launch a survey / close a survey. Closing does not delete collected data.
+    - write: createSurveyArchive
+      reversal: createSurveyUnarchive
+      window: not stated
+      note: >-
+        Archiving is reversible via un-archive, but deleteArchive ("Purge collected data in
+        archive") is NOT - it is terminal data destruction with no reversal operation.
+    - write: createSurveyCampaignSend
+      reversal: createSurveyCampaignSendCancel
+      window: not stated
+      note: >-
+        A scheduled campaign send can be cancelled; once mail has left, cancellation cannot recall
+        it and the docs do not say at what point that boundary falls.
+    - write: createSurveySectionCheckout
+      reversal: createSurveySectionRevert
+      window: not stated
+      note: Abandon section changes and revert to the checked-in version.
+  irreversible:
+    - operationId: deleteArchive
+      note: Purges collected data in an archive. No reversal operation exists.
+    - operationId: deleteSurveyDataEdit
+      note: Delete or disqualify survey data.
+    - operationId: deleteSurveyDatasourceData
+      note: Truncates a datasource.
+    - operationId: deleteRHApiKey
+      note: Retires an API key.
+pagination:
+  style: none-standardized
+  detail: >-
+    There is no catalog-wide pagination contract. `top=<n>` truncates an array response to the
+    first n objects and a `limit` parameter appears on two Decipher operations; there is no
+    cursor, no offset, no page parameter, and no total-count or next-link response field anywhere
+    in the eight specs. Large result sets are handled by the async task mechanism instead.
+field_selection:
+  parameter: select
+  detail: >-
+    Every API supports projection: pass `select` as a comma-separated property list, e.g.
+    `select=id,login,active`.
+content_negotiation:
+  default: application/json
+  alternatives:
+    - media_type: application/xml
+      detail: >-
+        Any resource can be returned as XML per the IBM JSONX specification by sending the
+        header `accept: application/xml`.
+    - media_type: Excel 2007
+      detail: Any array-returning API can return xlsx by passing `contentType=excel`.
+  method_override:
+    parameter: _method
+    detail: Clients limited to POST can name the real verb in a `_method` argument.
+async:
+  parameter: forceTask
+  detail: >-
+    Any call can be forced into a background task by passing `forceTask` with any value. The call
+    returns an `ident`; poll getStatus (/api/v1/status) for completion, and getStatusContent
+    (/api/v1/status/content) when the result is a zip. Synchronous calls carry a 30-minute network
+    timeout, which is why long exports (e.g. SPSS SAV conversion) must use this path.
+  operations: [getStatus, deleteStatus]
+versioning:
+  scheme: uri-path
+  current: v1
+  base_path: /api/v1/
+  detail: >-
+    "In the distant future, we might upgrade the API to version 2. This will happen only if we
+    need to make backwards incompatible changes. If at all possible, new parameters to existing
+    functions will be added with default values."
+  see: lifecycle/forsta-lifecycle.yml
+dates:
+  format: ISO-8601
+  detail: A timezone is REQUIRED on every datetime parameter; a bare local datetime is rejected.
+error_envelope:
+  media_type: application/json
+  shape: '{"$error": "<message>", "$code": <http-status>}'
+  see: errors/forsta-problem-types.yml
+rate_limit_signaling:
+  header: x-usage-today
+  detail: >-
+    Every response carries `x-usage-today: <calls> <resource>` - calls made and resource units
+    consumed so far today. There is no X-RateLimit-Limit/Remaining/Reset family and no
+    Retry-After. 429 signals too many CONCURRENT requests; 402 signals a monthly call allowance
+    exceeded.
+  see: rate-limits/forsta-rate-limits.yml
+request_tracing:
+  supported: false
+  detail: No request-id or correlation-id header is documented or declared in any spec.

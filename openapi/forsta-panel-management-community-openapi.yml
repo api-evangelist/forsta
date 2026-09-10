@@ -1,0 +1,4633 @@
+openapi: 3.1.1
+info:
+  title: Panel Management Community API
+  version: ''
+servers:
+  - url: https://{server}
+    description: Replace server with your instance domain.
+    variables:
+      server:
+        default: staging.panel.dev.focusvision.com/
+        description: Server domain
+security:
+  - ApiKey: []
+paths:
+  /api.pro#method=portal.auth.login:
+    post:
+      operationId: portal.auth.login
+      summary: Create a panelist session
+      description: Create a panelist session and return panelist information needed for future API requests. The session remains active for 60 minutes. For existing sessions, a login request resets the session timer back to 60 minutes. Another way to reset the session's expiration timer is by making a request to [/api.pro?method=portal.auth.validate](#tag/Auth/operation/portal.auth.validate)
+      tags:
+        - Auth
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.auth.login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                panelid:
+                  type: integer
+                  description: The panelid the session will log as the current panel.
+                portalid:
+                  type: integer
+                  description: The portalid the session will log as the current community.
+                username:
+                  type: string
+                  description: The email address associated with the panelist.
+                password:
+                  type: string
+                  description: The password associated with the panelist.
+              required:
+                - panelid
+                - portalid
+                - username
+                - password
+            example:
+              panelid: 1
+              portalid: 1
+              username: demo
+              password: demo
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: The login was successful.
+                      seskey:
+                        type: string
+                        description: The sessionKey of the user session.
+                      panelistid:
+                        type: integer
+                        description: The id of the panelist who has logged in.
+                      email:
+                        type: string
+                        description: The email address of the panelist who has logged in.
+                      fullname:
+                        type: string
+                        description: The full name of the panelist who has logged in.
+                      firstname:
+                        type: string
+                        description: The first name of the panelist who has logged in.
+                      lastname:
+                        type: string
+                        description: The last name of the panelist who has logged in.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    seskey: ce512c91
+                    panelistid: 15
+                    email: demo@example.com
+                    fullname: Demo Panelist
+                    firstname: Demo
+                    lastname: Panelist
+                error-0:
+                  description: Panelist with supplied username is not found.
+                  summary: Username incorrect
+                  value:
+                    success: false
+                    error: Invalid username/password.
+                    errno: '0'
+                error-1:
+                  description: The password entered for panelist is not correct.
+                  summary: Password incorrect
+                  value:
+                    success: false
+                    error: Invalid username/password.
+                    errno: '0'
+                error-2:
+                  description: There have been 255 failed attempts from this IP address within the past 15 minutes.
+                  summary: IP locked
+                  value:
+                    success: false
+                    error: Invalid username/password.
+                    errno: '0'
+                error-3:
+                  description: Panelist is not confirmed.
+                  summary: Panelist not confirmed
+                  value:
+                    success: false
+                    error: Invalid username/password.
+                    errno: '0'
+                error-4:
+                  description: If community setting "Allow login for unsubscribed panelist" is "No" and panelist is not subscribed.
+                  summary: Panelist not subscribed
+                  value:
+                    success: false
+                    error: Invalid username/password.
+                    errno: '0'
+                error-5:
+                  description: If community setting "Allow login for blacklisted panelist" is "No" and panelist is blacklisted.
+                  summary: Panelist blacklisted
+                  value:
+                    success: false
+                    error: Invalid username/password.
+                    errno: '0'
+                error-6:
+                  description: The supplied portal ID is invalid for panelist.
+                  summary: Portal ID incorrect
+                  value:
+                    success: false
+                    error: The supplied community portal ID invalid.
+                    errno: '20102'
+  /api.pro#method=portal.auth.logout:
+    post:
+      operationId: portal.auth.logout
+      summary: Logout the current
+      description: Logout of the current open API session.
+      tags:
+        - Auth
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.auth.logout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+            example:
+              seskey: ce512c91
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: The logout was successful.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+                error-3:
+                  description: Session is not found or is expired for supplied session key.
+                  summary: Session incorrect
+                  value:
+                    success: false
+                    error: Session not found
+                    errno: '30200'
+  /api.pro#method=portal.auth.validate:
+    post:
+      operationId: portal.auth.validate
+      summary: Checks the current seskey
+      description: Checks that the current seskey is valid and return panelist information needed for future API requests.
+      tags:
+        - Auth
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.auth.validate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+            example:
+              seskey: ce512c91
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: The validation was successful.
+                      panelistid:
+                        type: integer
+                        description: The panelistid of the validated panelist
+                      email:
+                        type: string
+                        description: The email address of the validated panelist.
+                      fullname:
+                        type: string
+                        description: The full name of the validated panelist.
+                      seskey:
+                        type: string
+                        description: A valid login hash.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    seskey: ce512c91
+                    panelistid: 15
+                    email: demo@example.com
+                    fullname: Demo Panelist
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.email.sendOptOutConfirmation:
+    post:
+      operationId: portal.email.sendOptOutConfirmation
+      summary: Sends an opt-out confirmation email to a panelist.
+      description: Sends an opt-out confirmation email to a panelist. The system will automatically use the pre-defined email template from the community the panelist belongs to. When the panelist clicks on the link embedded in the email the system will mark the panelist as unsubscribed. If a custom API powered community is used then panelists will be redirected to "Receiver URL for landing pages" which is setup in the community properties.<br><br> <b>Example redirect:</b><br> <code>https://www.customcommunity.com/landing.php?kslp=AkjdJDEcnj3ddf</code><br><br> The <code>kslp</code> parameter specifies the appropriate landing page which can be obtained using <code>integration.community.getLandingPage</code> call.
+      tags:
+        - Email
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.email.sendOptOutConfirmation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mobile:
+                  type: boolean
+                  description: If true send an SMS, if false send an Email.
+                  default: false
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+            example:
+              seskey: ce512c91
+              mobile: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: The email was successful.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                error-0:
+                  description: Due to an internal error, sending the email failed.
+                  summary: Internal error
+                  value:
+                    success: false
+                    error: Failed to send optout email.
+                    errno: '0'
+                error-1:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-2:
+                  description: The supplied mobile is not a boolean value.
+                  summary: Mobile invalid
+                  value:
+                    success: false
+                    error: The mobile flag type is invalid
+                    errno: '20102'
+                error-3:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-4:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.email.sendReferFriend:
+    post:
+      operationId: portal.email.sendReferFriend
+      summary: Send a refer a friend email to the supplied email address.
+      description: Send a refer a friend email to the supplied email address. The system will automatically use the pre-defined email template from the community the panelist belongs to. If a custom API powered community is used then panelists will be redirected to "Receiver URL for landing pages" which is setup in the community properties.<br><br> <b>Example redirect:</b><br> <code>https://www.customcommunity.com/landing.php?kslp=AkjdJDEcnj3ddf</code><br><br> The <code>kslp</code> parameter specifies the appropriate landing page which can be obtained using <code>integration.community.getLandingPage</code> call.
+      tags:
+        - Email
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.email.sendReferFriend
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: The email address to refer.
+                points:
+                  type: integer
+                  description: The points rewarded to the referrer.
+                mobile:
+                  type: boolean
+                  description: If true send an SMS, if false send an Email.
+                  default: false
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+                - email
+                - points
+            example:
+              seskey: ce512c91
+              email: person@example.com
+              points: 100
+              mobile: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: The email was successful.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                error-0:
+                  description: Due to an internal error, sending the email failed.
+                  summary: Internal error
+                  value:
+                    success: false
+                    error: Failed to send refer friend email.
+                    errno: '0'
+                error-1:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-2:
+                  description: The supplied email is not a valid email address.
+                  summary: Email invalid
+                  value:
+                    success: false
+                    error: The supplied email address is invalid
+                    errno: '20102'
+                error-3:
+                  description: The supplied points value is not numeric.
+                  summary: Points invalid
+                  value:
+                    success: false
+                    error: The supplied points value is invalid
+                    errno: '20103'
+                error-4:
+                  description: The supplied mobile is not a boolean value.
+                  summary: Mobile invalid
+                  value:
+                    success: false
+                    error: The mobile flag type is invalid
+                    errno: '20104'
+                error-5:
+                  description: The supplied email address is a member or has been sent a referral by the current panelist. Additional referrals cannot be sent to this email address.
+                  summary: Email member already referred
+                  value:
+                    success: false
+                    error: The person you were trying to refer is already a member or has already been referred by you
+                    errno: '20202'
+                error-6:
+                  description: The supplied email address is opted-out of referrals and cannot be sent additional referrals.
+                  summary: Email referral opt-out
+                  value:
+                    success: false
+                    error: The person you were trying to refer does not wish to be referred again
+                    errno: '20302'
+                error-7:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-8:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.email.sendResetPassword:
+    post:
+      operationId: portal.email.sendResetPassword
+      summary: Send a reset password email
+      description: Send a reset password email to the e-mail address provided. The system will automatically use the pre-defined email template from the community the panelist belongs to. If a custom API powered community is used then panelists will be redirected to "Receiver URL for landing pages" which is setup in the community properties.<br><br> <b>Example redirect:</b><br> <code>https://www.customcommunity.com/landing.php?kslp=AkjdJDEcnj3ddf</code><br><br> The <code>kslp</code> parameter specifies the appropriate landing page which can be obtained using <code>integration.community.getLandingPage</code> call.
+      tags:
+        - Email
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.email.sendResetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                panelid:
+                  type: integer
+                  description: The panelid that the email address is registered to.
+                email:
+                  type: string
+                  description: The email address to send the email to.
+                mobile:
+                  type: boolean
+                  description: If true send an SMS, if false send an Email.
+                  default: false
+              required:
+                - panelid
+                - email
+            example:
+              panelid: 1
+              email: demo@example.com
+              mobile: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: The email was successful.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                error-0:
+                  description: Due to an internal error, sending the email failed.
+                  summary: Internal error
+                  value:
+                    success: false
+                    error: Failed to send reset password email.
+                    errno: '0'
+                error-1:
+                  description: Panel with supplied panel ID is not found.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: Panel ID does not exist, or is currently inaccessible.
+                    errno: '10000'
+                error-2:
+                  description: The supplied panel ID is not numeric.
+                  summary: Panel ID invalid
+                  value:
+                    success: false
+                    error: Panel ID is invalid
+                    errno: '20101'
+                error-3:
+                  description: The supplied email is not a valid email address.
+                  summary: Email invalid
+                  value:
+                    success: false
+                    error: The supplied email address is invalid
+                    errno: '20102'
+                error-4:
+                  description: Panelist with supplied email address is not found.
+                  summary: Email not found
+                  value:
+                    success: false
+                    error: The supplied email address could not be found
+                    errno: '20102'
+                error-5:
+                  description: The supplied mobile is not a boolean value.
+                  summary: Mobile invalid
+                  value:
+                    success: false
+                    error: The mobile flag type is invalid
+                    errno: '20103'
+  /api.pro#method=portal.email.sendOptInConfirmation:
+    post:
+      operationId: portal.email.sendOptInConfirmation
+      summary: Sends an opt-in email to the e-mail address provided.
+      description: Sends an opt-in email to the e-mail address provided. The system will automatically use the pre-defined email template from the community the panelist belongs to. If a custom API powered community is used then panelists will be redirected to "Receiver URL for landing pages" which is setup in the community properties.<br><br> <b>Example redirect:</b><br> <code>https://www.customcommunity.com/landing.php?kslp=AkjdJDEcnj3ddf</code><br><br> The <code>kslp</code> parameter specifies the appropriate landing page which can be obtained using <code>integration.community.getLandingPage</code> call.
+      tags:
+        - Email
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.email.sendOptInConfirmation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                panelid:
+                  type: integer
+                  description: The panelid that the email address is registered to.
+                email:
+                  type: string
+                  description: The email address to send the email to.
+                mobile:
+                  type: boolean
+                  description: If true send an SMS, if false send an Email.
+                  default: false
+              required:
+                - panelid
+                - email
+            example:
+              panelid: 1
+              email: demo@example.com
+              mobile: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: The email was successful.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                error-0:
+                  description: Due to an internal error, sending the email failed.
+                  summary: Internal error
+                  value:
+                    success: false
+                    error: Failed to send optin email.
+                    errno: '0'
+                error-1:
+                  description: Panelist cannot resend confirmation because panelist is unconfirmed.
+                  summary: Panelist unconfirmed
+                  value:
+                    success: false
+                    error: Failed to send optin email.
+                    errno: '0'
+                error-2:
+                  description: Panel with supplied panel ID is not found.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: Panel ID does not exist, or is currently inaccessible.
+                    errno: '10000'
+                error-3:
+                  description: The supplied panel ID is not numeric.
+                  summary: Panel ID invalid
+                  value:
+                    success: false
+                    error: Panel ID is invalid
+                    errno: '20101'
+                error-4:
+                  description: The supplied email is not a valid email address.
+                  summary: Email invalid
+                  value:
+                    success: false
+                    error: The supplied email address is invalid
+                    errno: '20102'
+                error-5:
+                  description: Panelist with supplied email address is not found.
+                  summary: Email not found
+                  value:
+                    success: false
+                    error: The supplied email address could not be found
+                    errno: '20102'
+                error-6:
+                  description: The supplied mobile is not a boolean value.
+                  summary: Mobile invalid
+                  value:
+                    success: false
+                    error: The mobile flag type is invalid
+                    errno: '20103'
+  /api.pro#method=portal.panel.validateSource:
+    post:
+      operationId: portal.panel.validateSource
+      summary: Validate sourceid for panelid.
+      description: Validate that the given sourceid is valid for the given panelid.
+      tags:
+        - Panel
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.panel.validateSource
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                panelid:
+                  type: integer
+                  description: The panelid in which the sourceid should be found.
+                sourceid:
+                  type: integer
+                  description: The sourceid to be validated.
+              required:
+                - panelid
+                - sourceid
+            example:
+              panelid: 1
+              sourceid: 10
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: The validation was successful.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                error-0:
+                  description: Panel with supplied panel ID is not found.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: Panel ID does not exist, or is currently inaccessible.
+                    errno: '10000'
+                error-1:
+                  description: The supplied panel ID is not numeric.
+                  summary: Panel ID invalid
+                  value:
+                    success: false
+                    error: Panel ID is invalid
+                    errno: '20101'
+  /api.pro#method=portal.panel.validateEmail:
+    post:
+      operationId: portal.panel.validateEmail
+      summary: Validate the email into panelid.
+      description: Validate that the given email is valid for the given panelid.
+      tags:
+        - Panel
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.panel.validateEmail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                panelid:
+                  type: integer
+                  description: The panelid in which the email address should be registered.
+                email:
+                  type: string
+                  description: The email address to be validated.
+              required:
+                - panelid
+                - email
+            example:
+              panelid: 1
+              email: demo@example.com
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: The validation was successful.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                error-0:
+                  description: Panel with supplied panel ID is not found.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: Panel ID does not exist, or is currently inaccessible.
+                    errno: '10000'
+                error-1:
+                  description: The supplied email address is used by another panelist on the panel.
+                  summary: Email duplicate
+                  value:
+                    success: false
+                    error: The supplied email address is already in use
+                    errno: '20002'
+                error-2:
+                  description: The supplied panel ID is not numeric.
+                  summary: Panel ID invalid
+                  value:
+                    success: false
+                    error: Panel ID is invalid
+                    errno: '20101'
+                error-3:
+                  description: The supplied email is not a valid email address.
+                  summary: Email invalid
+                  value:
+                    success: false
+                    error: The supplied email address is invalid
+                    errno: '20102'
+  /api.pro#method=portal.panelist.create:
+    post:
+      operationId: portal.panelist.create
+      summary: Create a new panelist.
+      description: <br><br><b>NOTE:</b><br>In most cases, <code>portal.email.sendOptInConfirmation</code> will need to be called after panelist is created successfully.
+      tags:
+        - Panelist
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.panelist.create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                panelid:
+                  type: integer
+                  description: The panelid in which the new panelist should be assigned.
+                datapoints:
+                  type: array
+                  description: Array of data points and values to assign to the new panelist.
+                  items:
+                    required:
+                      - label
+                      - answer
+                    properties:
+                      label:
+                        type: string
+                        description: The datapoint label, may also be one of the reserved labels (email, password, identifier, sourceid, etc.). Email is the only required field.<br> Please note, that data point labels are <strong>case sensitive</strong>!
+                      answer:
+                        oneOf:
+                          - type:
+                              - string
+                              - 'null'
+                          - type:
+                              - number
+                              - 'null'
+                        description: The panelist's data point or system field value. Checkboxes should be passed-in as a comma-separated list. Password can be plain text or a bcrypt hash.
+                referral:
+                  type:
+                    - string
+                    - 'null'
+                  description: A referral hash, as returned by <code>portal.panelist.referralHash</code>, or NULL if this isn't a referral.
+                points:
+                  type: string
+                  description: Initial number of points awarded for joining
+              required:
+                - panelid
+                - datapoints
+            example:
+              panelid: 1
+              datapoints:
+                - label: email
+                  answer: demo@example.com
+                - label: password
+                  answer: demopassword
+                - label: QGENDER
+                  answer: Female
+              referral: 4a2642645e73235ee9daafb0b2df287b
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: The panelist creation was successful.
+                      panelistid:
+                        type: integer
+                        description: The panelistid of the newly created panelist.
+                      verification:
+                        type: string
+                        description: The confirmation hash - needed for <code>portal.panelist.confirm</code>.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    panelistid: 2
+                    verification: c50dea019651460501d2b9dcc0a8aafa
+                error-0:
+                  description: Panel with supplied panel ID is not found.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: Panel ID does not exist, or is currently inaccessible.
+                    errno: '10000'
+                error-1:
+                  description: At least one of the supplied datapoints does not contain a label.
+                  summary: Datapoints invalid
+                  value:
+                    success: false
+                    error: Answer data did not contain dataid or label!
+                    errno: '20000'
+                error-2:
+                  description: The supplied datapoints do not contain a answer.
+                  summary: Datapoints invalid
+                  value:
+                    success: false
+                    error: No answer data supplied!
+                    errno: '20000'
+                error-3:
+                  description: At least one of the supplied datapoints is not defined in this panel.
+                  summary: Datapoint unknown
+                  value:
+                    success: false
+                    error: The following labels for which you tried to store data are not defined for this panel…
+                    errno: '20000'
+                error-4:
+                  description: The supplied panel ID is not numeric.
+                  summary: Panel ID invalid
+                  value:
+                    success: false
+                    error: Panel ID is invalid
+                    errno: '20101'
+                error-5:
+                  description: The supplied referral hash was not valid.
+                  summary: Referral hash invalid
+                  value:
+                    success: false
+                    error: The supplied referral hash is invalid
+                    errno: '20103'
+                error-6:
+                  description: The supplied points is not numeric.
+                  summary: Points invalid
+                  value:
+                    success: false
+                    error: The supplied initial points value is invalid
+                    errno: '20104'
+                error-7:
+                  description: The supplied email is not a valid email address.
+                  summary: Email invalid
+                  value:
+                    success: false
+                    error: The supplied email address is invalid
+                    errno: '40006'
+  /api.pro#method=portal.panelist.update:
+    post:
+      operationId: portal.panelist.update
+      summary: Update the current panelist's information.
+      tags:
+        - Panelist
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.panelist.update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                datapoints:
+                  type: array
+                  description: Array of data points and values to assign to the panelist.
+                  items:
+                    required:
+                      - label
+                      - answer
+                    properties:
+                      label:
+                        type: string
+                        description: The datapoint label, may also be one of the reserved labels (email, password, identifier, sourceid, etc.). Email is the only required field.<br> Please note, that data point labels are <strong>case sensitive</strong>!
+                      answer:
+                        oneOf:
+                          - type:
+                              - string
+                              - 'null'
+                          - type:
+                              - number
+                              - 'null'
+                        description: The panelist's data point or system field value. Checkboxes should be passed-in as a comma-separated list. Password can be plain text or a bcrypt hash.
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+                - datapoints
+            example:
+              seskey: ce512c91
+              datapoints:
+                - label: QGENDER
+                  answer: Female
+                - label: QCHECKBOX
+                  answer: 2,4,5,8
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: The update was successful.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                error-0:
+                  description: At least one of the supplied datapoints does not contain a label.
+                  summary: Datapoints invalid
+                  value:
+                    success: false
+                    error: Answer data did not contain dataid or label!
+                    errno: '20000'
+                error-1:
+                  description: The subscribed is invalid. Subscribed can only be set to "yes" or "no".
+                  summary: Subscribed invalid
+                  value:
+                    success: false
+                    error: The supplied value for label 'subscribed' is invalid
+                    errno: '20000'
+                error-2:
+                  description: At least one of the supplied datapoints is not defined in this panel.
+                  summary: Datapoint unknown
+                  value:
+                    success: false
+                    error: The following labels for which you tried to store data are not defined for this panel…
+                    errno: '20000'
+                error-3:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-4:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-5:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+                error-6:
+                  description: The supplied email is not a valid email address.
+                  summary: Email invalid
+                  value:
+                    success: false
+                    error: The supplied email address is invalid
+                    errno: '40003'
+  /api.pro#method=portal.panelist.optOut:
+    post:
+      operationId: portal.panelist.optOut
+      summary: Unsubscribes a panelist
+      description: This method unsubscribes a panelist. The panelist is not deleted, only marked as unsubscribed.
+      tags:
+        - Panelist
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.panelist.optOut
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+            example:
+              seskey: ce512c91
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: The opt out was successful.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.panelist.read:
+    post:
+      operationId: portal.panelist.read
+      summary: Panelist information
+      description: This method returns a panelist information for a specific datapoint.
+      tags:
+        - Panelist
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.panelist.read
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                datapoints:
+                  type: array
+                  description: An array of datapoint Labels
+                  items:
+                    type: string
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+                - datapoints
+            example:
+              seskey: ce512c91
+              datapoints:
+                - QGENDER
+                - IDENTIFIER
+                - QCHECKBOX
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: Retrieving panelist information was successful.
+                      values:
+                        type: array
+                        description: Array of datapoint values requested.
+                        items:
+                          properties:
+                            label:
+                              type: string
+                              description: The datapoint label, may also be one of the reserved labels (email, password, identifier, sourceid, etc.).
+                            answer:
+                              oneOf:
+                                - type:
+                                    - string
+                                    - 'null'
+                                - type:
+                                    - number
+                                    - 'null'
+                              description: The panelist's data point value. Checkboxes are a comma-separated list.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    values:
+                      - label: QGENDER
+                        answer: Female
+                      - label: IDENTIFIER
+                        answer: Demo1
+                      - label: QCHECKBOX
+                        answer: 2,4,5
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.panelist.confirm:
+    post:
+      operationId: portal.panelist.confirm
+      summary: Confirms panelist join to the panel
+      description: Confirms that a panelist wished to join the panel, and that the email address used to sign-up is valid.
+      tags:
+        - Panelist
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.panelist.confirm
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                panelid:
+                  type: integer
+                  description: The panelid of the panel the panelist wishes to join.
+                panelistid:
+                  type: integer
+                  description: The id of the panelist that wishes to join.
+                verification:
+                  type: string
+                  description: The verification hash returned by the <code>portal.panelist.create</code> function.
+              required:
+                - panelid
+                - panelistid
+                - verification
+            example:
+              panelid: 1
+              panelistid: 15
+              verification: c50dea019651460501d2b9dcc0a8aafa
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: Confirming the panelist was successful.
+                      panelistid:
+                        type: integer
+                        description: The panelistid of the confirmed panelist.
+                      seskey:
+                        type: string
+                        description: The sessionKey of the confirmed panelist.
+                      fullname:
+                        type: string
+                        description: The full name of the confirmed panelist.
+                      email:
+                        type: string
+                        description: The email address of the confirmed panelist.
+                      firstname:
+                        type: string
+                        description: The first name of the panelist who has logged in.
+                      lastname:
+                        type: string
+                        description: The last name of the panelist who has logged in.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    panelistid: 15
+                    seskey: ce512c91
+                    fullname: Demo Panelist
+                    email: demo@example.com
+                    firstname: Demo
+                    lastname: Panelist
+                error-0:
+                  description: Panel with supplied panel ID is not found.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: Panel ID does not exist, or is currently inaccessible.
+                    errno: '10000'
+                error-1:
+                  description: The supplied panel ID is not numeric.
+                  summary: Panel ID invalid
+                  value:
+                    success: false
+                    error: Panel ID is invalid
+                    errno: '20101'
+                error-2:
+                  description: The supplied panelist ID is not numeric.
+                  summary: Panelist ID invalid
+                  value:
+                    success: false
+                    error: The supplied panelist ID is invalid
+                    errno: '20102'
+                error-3:
+                  description: The supplied verification is not valid.
+                  summary: Verification invalid
+                  value:
+                    success: false
+                    error: The registration confirmation code is invalid
+                    errno: '20103'
+                error-4:
+                  description: Panelist with supplied panelist ID is not found.
+                  summary: Panelist not found
+                  value:
+                    success: false
+                    error: The supplied panelist ID could not be found
+                    errno: '20302'
+  /api.pro#method=portal.panelist.referralHash:
+    post:
+      operationId: portal.panelist.referralHash
+      summary: Returns the referral hash.
+      tags:
+        - Panelist
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.panelist.referralHash
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: The email address of the referrer.
+                points:
+                  type: integer
+                  description: The number of points awarded.
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+                - email
+                - points
+            example:
+              seskey: ce512c91
+              email: person@example.com
+              points: 25
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: Retrieving the referral hash was unsuccessful.
+                      referralHash:
+                        type: string
+                        description: A hash used in <code>portal.panelist.create</code> in order for a referrer to get their points.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    referralHash: 4a2642645e73235ee9daafb0b2df287b
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: The supplied email is not a valid email address.
+                  summary: Email invalid
+                  value:
+                    success: false
+                    error: The supplied email address is invalid
+                    errno: '20102'
+                error-2:
+                  description: The supplied points value is not numeric.
+                  summary: Points invalid
+                  value:
+                    success: false
+                    error: The supplied points value is invalid
+                    errno: '20103'
+                error-3:
+                  description: The supplied email address is a member or has been sent a referral by the current panelist. Additional referrals cannot be sent to this email address.
+                  summary: Email member already referred
+                  value:
+                    success: false
+                    error: The person you were trying to refer is already a member or has already been referred by you
+                    errno: '20202'
+                error-4:
+                  description: The supplied email address is opted-out of referrals and cannot be sent additional referrals.
+                  summary: Email referral opt-out
+                  value:
+                    success: false
+                    error: The person you were trying to refer does not wish to be referred again
+                    errno: '20302'
+                error-5:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-6:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.panelist.contactFrequenciesGet:
+    post:
+      operationId: portal.panelist.contactFrequenciesGet
+      summary: Gets the currently set panelist contact frequencies.
+      description: <br><br><b>Notice:</b><br>Panelists don't have a contact frequencies record by default.
+      tags:
+        - Panelist
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.panelist.contactFrequenciesGet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+            example:
+              seskey: ce512c91
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: Retrieving the contact frequencies was successful.
+                      maxMessages:
+                        type: integer
+                        description: The number of messages the panelist wants to receive in the specified time frame.
+                      nextMessage:
+                        type: string
+                        description: Date string of the projected time, when panelist is ready to receive the next email invitation (YYYY-MM-DD HH:MM:SS).
+                      timeFrame:
+                        type: string
+                        description: The time frame (week or day).
+                      SMSFrom:
+                        type: string
+                        description: The time when it is acceptable to start sending SMS to the panelist.
+                      SMSTo:
+                        type: string
+                        description: The time after which the panelist does not wish to receive SMS.
+              examples:
+                success-1:
+                  summary: Success
+                  value:
+                    success: true
+                    maxMessages: 5
+                    nextMessage: '2014-12-08 11:34:00'
+                    timeFrame: week
+                    SMSFrom: '09:00:00'
+                    SMSTo: '21:00:00'
+                success-2:
+                  summary: Success - no record
+                  value:
+                    success: true
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.panelist.contactFrequenciesSet:
+    post:
+      operationId: portal.panelist.contactFrequenciesSet
+      summary: Set the contact frequencies for the current panelist
+      description: <br><b>Notice:</b><br><br>The<code>SMSFrom</code> and <code>SMSTo</code> settings are only of importance, if you're sending SMS invitations from your panel.
+      tags:
+        - Panelist
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.panelist.contactFrequenciesSet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                maxMessages:
+                  type:
+                    - integer
+                    - 'null'
+                  description: Set the number of messages a panelist wants to receive per time frame. A value of NULL means unlimited.
+                timeFrame:
+                  type: string
+                  enum:
+                    - week
+                    - day
+                  description: The time frame (week or day) in which we apply the maxMessages limit.
+                SMSFrom:
+                  type: string
+                  description: The time when it is acceptable to start sending SMS to the panelist. The time format is expected in 24 hour HH:MM:SS. If omitted, it will default to 09:00:00.
+                SMSTo:
+                  type: string
+                  description: The time after which the panelist does not wish to receive SMS. The time format is expected in 24 hour HH:MM:SS. If omitted, it will default to 21:00:00.
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+                - maxMessages
+                - timeFrame
+            examples:
+              Example 1:
+                description: Set limit of 5 invitations by email/sms per week.
+                value:
+                  seskey: ce512c91
+                  maxMessages: 5
+                  timeFrame: week
+              Example 2:
+                description: Set limit of 1 invitations by email/sms per day. No SMS between 8pm and 5pm.
+                value:
+                  seskey: ce512c91
+                  maxMessages: 1
+                  timeFrame: day
+                  SMSFrom: '17:00:00'
+                  SMSTo: '20:00:00'
+              Example 3:
+                description: Set unlimited number of invitations by email/sms per day.
+                value:
+                  seskey: ce512c91
+                  maxMessages: null
+                  timeFrame: day
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: Setting the contact frequencies was successful.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                error-0:
+                  description: 'Missing a time constraint: SMSFrom or SMSTo.'
+                  summary: SMSFrom and SMSTo invalid
+                  value:
+                    success: false
+                    error: Both time constraints must be supplied or none.
+                    errno: '0'
+                error-1:
+                  description: The supplied SMSFrom needs to be a valid time.
+                  summary: SMSFrom invalid
+                  value:
+                    success: false
+                    error: Invalid time stamp received
+                    errno: '0'
+                error-2:
+                  description: The supplied SMSTo needs to be a valid time.
+                  summary: SMSTo invalid
+                  value:
+                    success: false
+                    error: Invalid time stamp received
+                    errno: '0'
+                error-3:
+                  description: The time frame is invalid. The time frame can only be set to "day" or "week".
+                  summary: Time frame invalid
+                  value:
+                    success: false
+                    error: Time frame out of range, allowed values are 'day' and 'week'
+                    errno: '0'
+                error-4:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-5:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-6:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.points.total:
+    post:
+      operationId: portal.points.total
+      summary: Get the panelist's currently available reward points.
+      description: Get the panelist's currently available reward points. This total excludes any reward points already used or any pending point redemption.
+      tags:
+        - Points
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.points.total
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+            example:
+              seskey: ce512c91
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: Retrieving the total points was successful.
+                      points:
+                        type: integer
+                        description: Retrieving the panelist's current total reward points.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    points: 1845
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.points.earned:
+    post:
+      operationId: portal.points.earned
+      summary: Get points of panelist
+      description: Get the amount of points the panelist has earned so far. This includes points from referrals, registration points and surveys.
+      tags:
+        - Points
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.points.earned
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+            example:
+              seskey: ce512c91
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: Retrieving the total points was successful.
+                      points:
+                        type: integer
+                        description: Retrieving the amount of points the panelist has earned so far.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    points: 1845
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.points.surveys:
+    post:
+      operationId: portal.points.surveys
+      summary: Get the amount of points the panelist has received for completing surveys.
+      tags:
+        - Points
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.points.surveys
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+            example:
+              seskey: ce512c91
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: Retrieving the total points was successful.
+                      points:
+                        type: integer
+                        description: Retrieving the amount of points the panelist has received for completing surveys.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    points: 1845
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.points.referred:
+    post:
+      operationId: portal.points.referred
+      summary: Get the amount of points the panelist has received for referring other panelists.
+      tags:
+        - Points
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.points.referred
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+            example:
+              seskey: ce512c91
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: Retrieving the total points was successful.
+                      points:
+                        type: integer
+                        description: Retrieving the amount of points the panelist has earned for referring other panelists.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    points: 1845
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.points.other:
+    post:
+      operationId: portal.points.other
+      summary: Get points that were given to the panelist by an administrator
+      tags:
+        - Points
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.points.other
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+            example:
+              seskey: ce512c91
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: Retrieving the total points was successful.
+                      points:
+                        type: integer
+                        description: Retrieving the amount of points that were given to the panelist by an administrator.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    points: 1845
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.quickpoll.available:
+    post:
+      operationId: portal.quickpoll.available
+      summary: Available quick polls for the user session.
+      description: This method returns available quick polls for the user session. It is possible to return just a single random poll and fetch all available polls in the order created or optionally in random order. It is also possible to return quick polls using programmed pagination that utilizes limit and offset parameters. The count value always equals to the total number of items available regardless if the limit and the offset parameters are used.
+      tags:
+        - Quickpoll
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.quickpoll.available
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                randomize:
+                  type: boolean
+                  description: Randomize the returned quick polls.
+                  default: false
+                limit:
+                  type:
+                    - integer
+                    - 'null'
+                  description: Max number of items to return.
+                  default: null
+                offset:
+                  type:
+                    - integer
+                    - 'null'
+                  description: Offset the output for pagination.
+                  default: null
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+            example:
+              seskey: ce512c91
+              limit: 10
+              offset: 20
+              randomize: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: The call was successful.
+                      count:
+                        type: string
+                        description: The total count of items available (regardless of limit and offset)
+                      limit:
+                        type:
+                          - integer
+                          - 'null'
+                        description: The limit supplied in the call
+                      offset:
+                        type:
+                          - integer
+                          - 'null'
+                        description: The offset supplied in the call
+                      quickpolls:
+                        type: array
+                        description: An array of quickpolls
+                        items:
+                          properties:
+                            quickpollid:
+                              type: string
+                              description: The quick poll ID
+                            startdate:
+                              type: string
+                              description: Start date of the quick poll
+                            enddate:
+                              type: string
+                              description: End date of the quick poll
+                            questiontype:
+                              type: string
+                              enum:
+                                - radio
+                                - checkbox
+                              description: The question type of the quick poll (radio/checkbox)
+                            qtext:
+                              type: string
+                              description: The (localized) question text
+                            options:
+                              type: array
+                              description: An array of options
+                              items:
+                                properties:
+                                  optionid:
+                                    type: string
+                                    description: The option ID of the choice
+                                  optiontext:
+                                    type: string
+                                    description: The (localized) choice text
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    count: '1'
+                    limit: null
+                    offset: null
+                    quickpolls:
+                      - quickpollid: '4'
+                        startdate: '2013-07-28 12:00:00'
+                        enddate: '2013-08-21 12:00:00'
+                        questiontype: radio
+                        qtext: Another random quickpoll
+                        options:
+                          - optionid: '9'
+                            optiontext: Choice 1
+                          - optionid: '10'
+                            optiontext: Choice 2
+                          - optionid: '11'
+                            optiontext: Choice 3
+                          - optionid: '12'
+                            optiontext: Choice 4
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.quickpoll.availableCount:
+    post:
+      operationId: portal.quickpoll.availableCount
+      summary: This method returns available quick poll count for the panelist.
+      tags:
+        - Quickpoll
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.quickpoll.availableCount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+            example:
+              seskey: ce512c91
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: The call was successful.
+                      count:
+                        type: string
+                        description: The number of items available
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    count: '1'
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.quickpoll.completed:
+    post:
+      operationId: portal.quickpoll.completed
+      summary: Get completed quick polls for the user session.
+      description: This method returns completed quick polls for the user session. It is also possible to return quick polls using programmed pagination that utilizes limit and offset parameters. The count value always equals to the total number of items available regardless if the limit and the offset parameters are used.
+      tags:
+        - Quickpoll
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.quickpoll.completed
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                limit:
+                  type:
+                    - integer
+                    - 'null'
+                  description: Max number of items to return.
+                  default: null
+                offset:
+                  type:
+                    - integer
+                    - 'null'
+                  description: Offset the output for pagination.
+                  default: null
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+            example:
+              seskey: ce512c91
+              limit: 10
+              offset: 20
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: The call was successful.
+                      count:
+                        type: string
+                        description: The total count of items (regardless of limit and offset)
+                      limit:
+                        type:
+                          - integer
+                          - 'null'
+                        description: The limit supplied in the call
+                      offset:
+                        type:
+                          - integer
+                          - 'null'
+                        description: The offset supplied in the call
+                      quickpolls:
+                        type: array
+                        description: An array of quickpolls
+                        items:
+                          properties:
+                            quickpollid:
+                              type: string
+                              description: The quick poll ID
+                            startdate:
+                              type: string
+                              description: Start date of the quick poll
+                            enddate:
+                              type: string
+                              description: End date of the quick poll
+                            questiontype:
+                              type: string
+                              enum:
+                                - radio
+                                - checkbox
+                              description: The question type of the quick poll (radio/checkbox)
+                            qtext:
+                              type: string
+                              description: The (localized) question text
+                            options:
+                              type: array
+                              description: An array of options
+                              items:
+                                properties:
+                                  optionid:
+                                    type: string
+                                    description: The option ID of the choice
+                                  optiontext:
+                                    type: string
+                                    description: The (localized) choice text
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    count: '1'
+                    limit: null
+                    offset: null
+                    quickpolls:
+                      - quickpollid: '5'
+                        startdate: '2013-07-28 12:00:00'
+                        enddate: '2013-08-21 12:00:00'
+                        questiontype: radio
+                        qtext: Another random quickpoll
+                        options:
+                          - optionid: '13'
+                            optiontext: Choice 1
+                          - optionid: '14'
+                            optiontext: Choice 2
+                          - optionid: '15'
+                            optiontext: Choice 3
+                          - optionid: '16'
+                            optiontext: Choice 4
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.quickpoll.completedCount:
+    post:
+      operationId: portal.quickpoll.completedCount
+      summary: Returns completed quick poll count for the panelist.
+      tags:
+        - Quickpoll
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.quickpoll.completedCount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+            example:
+              seskey: ce512c91
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: The call was successful.
+                      count:
+                        type: string
+                        description: The number of items available
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    count: '1'
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.quickpoll.saveResponse:
+    post:
+      operationId: portal.quickpoll.saveResponse
+      summary: Save the response from the panelist.
+      description: This method is used to save the response received from the panelist.
+      tags:
+        - Quickpoll
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.quickpoll.saveResponse
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quickpollid:
+                  type: integer
+                  description: A valid quick poll ID
+                response:
+                  type: array
+                  description: Panelists response; Array of optionids (must be one for radio questions)
+                  items:
+                    type: integer
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+                - quickpollid
+                - response
+            example:
+              seskey: ce512c91
+              quickpollid: 42
+              response:
+                - 259
+                - 260
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: The call was successful.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: The supplied quick poll ID is not numeric.
+                  summary: Quick poll ID invalid
+                  value:
+                    success: false
+                    error: Supplied quick poll id is invalid.
+                    errno: '20102'
+                error-2:
+                  description: Quick poll with the supplied quick poll ID is not found.
+                  summary: Quick poll not found
+                  value:
+                    success: false
+                    error: Supplied quick poll id is invalid.
+                    errno: '20102'
+                error-3:
+                  description: Quick poll with the supplied quick poll ID has a response recorded for panelist. Additional responses cannot be saved.
+                  summary: Quick poll already answered
+                  value:
+                    success: false
+                    error: Answers for supplied quick poll id already received.
+                    errno: '20102'
+                error-4:
+                  description: The quick poll with the supplied quick poll ID is closed and responses can no longer be saved.
+                  summary: Quick poll expired
+                  value:
+                    success: false
+                    error: Quick poll is closed.
+                    errno: '20102'
+                error-5:
+                  description: The response supplied is empty.
+                  summary: Empty response
+                  value:
+                    success: false
+                    error: Quick poll response can not be empty.
+                    errno: '20103'
+                error-6:
+                  description: Quick poll with the supplied quick poll ID can only have one choice for a response.
+                  summary: Response invalid
+                  value:
+                    success: false
+                    error: Supplied quick poll response is invalid. There can only be one selected choice for radio questions.
+                    errno: '20103'
+                error-7:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-8:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.quickpoll.stats:
+    post:
+      operationId: portal.quickpoll.stats
+      summary: Get the result for a quick polls by ID.
+      description: This method returns the result for a single quick polls using ID. The result set is calculated among all the panelist who participated. If a quick poll ID is supplied then results for this poll are returned. If omitted, results of a random past quick poll that the panelist has participated in are returned. If quick poll ID is omitted and the panelist has no history of participating in any quick polls, an error is returned.
+      tags:
+        - Quickpoll
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.quickpoll.stats
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quickpollid:
+                  type: integer
+                  description: A valid quick poll ID (If omitted, a random quick poll is returned)
+                  default: null
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+            example:
+              seskey: ce512c91
+              quickpollid: 42
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: The call was successful.
+                      quickpollid:
+                        type: string
+                        description: The ID of the quick poll that was selected (randomly or not)
+                      startdate:
+                        type: string
+                        description: Start date of the quick poll
+                      enddate:
+                        type: string
+                        description: End date of the quick poll
+                      questiontype:
+                        type: string
+                        enum:
+                          - radio
+                          - checkbox
+                        description: The question type of the quick poll (radio/checkbox)
+                      qtext:
+                        type: string
+                        description: The (localized) question text
+                      answercount:
+                        type: string
+                        description: Total number of panelists who have answered the quick poll
+                      options:
+                        type: array
+                        description: An array of options
+                        items:
+                          properties:
+                            optionid:
+                              type: string
+                              description: The option ID of the choice
+                            optiontext:
+                              type: string
+                              description: The (localized) choice text
+                            frequency:
+                              type: string
+                              description: Total number of times that this answer was selected
+                            percentage:
+                              type: string
+                              description: Percentage of how often this answer was selected
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    quickpollid: '5'
+                    startdate: '2013-07-28 12:00:00'
+                    enddate: '2013-08-21 12:00:00'
+                    questiontype: radio
+                    qtext: Another random quickpoll
+                    options:
+                      - optionid: '22'
+                        optiontext: Choice 1
+                        frequency: '25'
+                        percentage: '43'
+                      - optionid: '23'
+                        optiontext: Choice 2
+                        frequency: '33'
+                        percentage: '57'
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: The panelist does not have any responses recored for any quick polls.
+                  summary: Empty quick poll history
+                  value:
+                    success: false
+                    error: Panelist has no history of participating in quick polls.
+                    errno: '20102'
+                error-2:
+                  description: The supplied quick poll ID is not numeric.
+                  summary: Quick poll ID invalid
+                  value:
+                    success: false
+                    error: Supplied quick poll id is invalid.
+                    errno: '20102'
+                error-3:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-4:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.redemption.create:
+    post:
+      operationId: portal.redemption.create
+      summary: Create a Redemption request.
+      tags:
+        - Redemption
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.redemption.create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  description: The redemption typeid or type.
+                value:
+                  type: integer
+                  description: Value of the requested reward. Required for Tremendous, TangoCard and Virtual Incentives
+                sku:
+                  type: string
+                  description: SKU of the requested reward.
+                currency:
+                  type: string
+                  description: Currency code required for Tremendous
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+                - type
+            example:
+              seskey: ce512c91
+              type: '2'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: The creation was successful.
+                      transactionId:
+                        type: integer
+                        description: The transaction ID resulting from this request.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    transactionId: 42
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Redemption with supplied redemption type is not found.
+                  summary: Type not found
+                  value:
+                    success: false
+                    error: The redemption type you are trying to use does not exist.
+                    errno: '20102'
+                error-2:
+                  description: The redemption type supplied does not exist or is disabled for community.
+                  summary: Type disabled
+                  value:
+                    success: false
+                    error: The redemption type you are trying to use is not available for this community.
+                    errno: '20102'
+                error-3:
+                  description: The redemption type supplied is disabled for panel.
+                  summary: Type disabled
+                  value:
+                    success: false
+                    error: The redemption type you are trying to use has been disabled.
+                    errno: '20102'
+                error-4:
+                  description: Redemption with supplied redemption type has an error.
+                  summary: Type Error
+                  value:
+                    success: false
+                    error: The redemption type you are trying to use has been disabled because of a previous error.
+                    errno: '20102'
+                error-5:
+                  description: The redemption type supplied is not available through the API.
+                  summary: Type invalid
+                  value:
+                    success: false
+                    error: The redemption type you are trying to use can not be used via API.
+                    errno: '20102'
+                error-6:
+                  description: Panelist does not have enough points to claim redemption.
+                  summary: Insufficient points
+                  value:
+                    success: false
+                    error: The number of points to redeem exceeds the total points available. Remember that any points currently pending approval are not available for redemption.
+                    errno: '20402'
+                error-7:
+                  description: Due to an internal error, processing the redemption failed.
+                  summary: Internal error
+                  value:
+                    success: false
+                    error: There was a problem processing the redemption request.
+                    errno: '20402'
+                error-8:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-9:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+                error-10:
+                  description: Maximum daily redemption exceeded. Wait 24 hours and try again.
+                  summary: Maximum daily redemption exceeded
+                  value:
+                    success: false
+                    error: Maximum daily redemption exceeded
+                    errno: '40001'
+  /api.pro#method=portal.redemption.read:
+    post:
+      operationId: portal.redemption.read
+      summary: Returns redemption requests made by the active panelist.
+      tags:
+        - Redemption
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.redemption.read
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                limit:
+                  type:
+                    - integer
+                    - 'null'
+                  description: Limit the output (i.e. 20, 100 OR 100).
+                  default: null
+                offset:
+                  type:
+                    - integer
+                    - 'null'
+                  description: Offset the output for pagination.
+                  default: false
+                filter:
+                  type: string
+                  enum:
+                    - pending
+                    - approved
+                    - denied
+                  description: 'Filter redemptions by status (default: no filter)'
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+            example:
+              seskey: ce512c91
+              limit: 100
+              filter: approved
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: Retrieving the redemption request was successful.
+                      limit:
+                        type:
+                          - integer
+                          - 'null'
+                        description: The limit supplied in the call
+                      offset:
+                        type:
+                          - integer
+                          - 'null'
+                        description: The offset supplied in the call
+                      count:
+                        type: string
+                        description: The total count of items available (regardless of limit and offset)
+                      requests:
+                        type: array
+                        description: Array of redemption requests made by the active panelist.
+                        items:
+                          properties:
+                            name:
+                              type: string
+                              description: Localized vendor name that was configured in the Redemption Manager
+                            points:
+                              type: string
+                              description: The number of points redeemed.
+                            status:
+                              type: string
+                              enum:
+                                - pending
+                                - approved
+                                - denied
+                              description: 'Current status: pending, approved or denied.'
+                            dateModified:
+                              type: string
+                              description: Date and time of last status change in yyyy-mm-dd hh:mm:ss format.
+                            dateCreated:
+                              type: string
+                              description: Date and time panelist requested the redemption in yyyy-mm-dd hh:mm:ss format.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    limit: null
+                    offset: null
+                    count: '2'
+                    requests:
+                      - name: 10% Off Store Coupon
+                        points: '-100'
+                        status: pending
+                        dateModified: '2011-11-01 08:32:12'
+                        dateCreated: '2011-11-01 08:32:12'
+                      - name: $10 PayPal Gift
+                        points: '-200'
+                        status: approved
+                        dateModified: '2011-10-31 20:12:43'
+                        dateCreated: '2011-10-28 16:24:49'
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: The supplied filter is invalid. Filter can only be set to "pending", "approved" or "denied".
+                  summary: Filter invalid
+                  value:
+                    success: false
+                    error: The supplied redemption status is invalid
+                    errno: '20104'
+                error-2:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-3:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.reward.types:
+    post:
+      operationId: portal.reward.types
+      summary: Returns the reward types available.
+      tags:
+        - Reward
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.reward.types
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+            example:
+              seskey: ce512c91
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: Retrieving the reward types was successful.
+                      types:
+                        type:
+                          - array
+                          - 'null'
+                        description: Array of reward types available.
+                        items:
+                          properties:
+                            type:
+                              type: string
+                              description: Redemption reward type.
+                            name:
+                              type: string
+                              description: Type display name.
+                            rewardImage:
+                              type: string
+                              description: The reward image.
+                            available:
+                              type: boolean
+                              description: Whether or not this redemption type is available to the current panelist.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    types:
+                      - type: '1'
+                        name: $1 VISA Gift Card
+                        rewardImage: rewardimage_a68bb50a4dafff037703aecaf8e615e2.png
+                        available: true
+                      - type: '2'
+                        name: $5 VISA Gift Card
+                        rewardImage: rewardimage_9f8a915a6d0a8cf6dcc83affecdd12b2.png
+                        available: true
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.reward.skus:
+    post:
+      operationId: portal.reward.skus
+      summary: Get list of available SKUs request.
+      tags:
+        - Reward
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.reward.skus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                typeId:
+                  type: integer
+                  description: The redemption typeid.
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+                - typeId
+            example:
+              seskey: ce512c91
+              typeId: '2'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: Reward name
+                    image:
+                      type: string
+                      description: URL for the reward image
+                    currency:
+                      type: string
+                      description: Currency code
+                    denominations:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          points:
+                            type: integer
+                            description: Required points to redeem the reward
+                          value:
+                            type: integer
+                            description: Value of the reward
+                          sku:
+                            type: string
+                            descriotion: SKU of the reward
+              example:
+                - name: Amazon giftcard
+                  image: https://test.fake-inventory.com/sku.gif
+                  currency: USD
+                  denominations:
+                    - points: 100
+                      value: 100
+                      sku: TEST-SKU
+  /api.pro#method=portal.reward.history:
+    post:
+      operationId: portal.reward.history
+      summary: Returns the reward history of the panelist.
+      tags:
+        - Reward
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.reward.history
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+                limit:
+                  type:
+                    - integer
+                    - 'null'
+                  description: Max number of surveys to return.
+                  default: null
+                offset:
+                  type:
+                    - integer
+                    - 'null'
+                  description: Offset the output for pagination.
+                  default: null
+              required:
+                - seskey
+            example:
+              seskey: ce512c91
+              limit: 10
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: Retrieving the reward history was successful.
+                      limit:
+                        type:
+                          - integer
+                          - 'null'
+                        description: The limit supplied in the call
+                      offset:
+                        type:
+                          - integer
+                          - 'null'
+                        description: The offset supplied in the call
+                      count:
+                        type: string
+                        description: The total count of items available (regardless of limit and offset)
+                      records:
+                        type: array
+                        description: An array of rewards the panelist has received.
+                        items:
+                          properties:
+                            points:
+                              type: string
+                              description: The number of points awarded for a completed survey.
+                            time:
+                              type: string
+                              description: The ISO 8601 time the survey was finished.
+                            project:
+                              type:
+                                - string
+                                - 'null'
+                              description: Name of the project, as defined in  Panel Management, or NULL.
+                            note:
+                              type: string
+                              description: Reason for points.
+                            name:
+                              type: string
+                              deprecated: true
+                              description: This will contain whichever of the project or note fields is not NULL. You can use it, but it's not recommended.
+                            portalDisplayName:
+                              type: string
+                              description: Multilingual survey name from campaign properties
+                            projectid:
+                              type: integer
+                              description: The project ID.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    limit: null
+                    offset: null
+                    count: '2'
+                    records:
+                      - points: '200'
+                        time: '2011-10-15 18:34:29'
+                        project: Sample project
+                        note: Successful referral
+                        portalDisplayName: Sample portal
+                        projectid: 2
+                      - points: '200'
+                        time: '2011-10-02 13:56:28'
+                        project: Sample project
+                        note: Successful referral
+                        portalDisplayName: Sample portal
+                        projectid: 2
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: The limit supplied is not numeric.
+                  summary: Limit invalid
+                  value:
+                    success: false
+                    error: The supplied limit is invalid
+                    errno: '20102'
+                error-2:
+                  description: The offset supplied in not numeric.
+                  summary: Offset invalid
+                  value:
+                    success: false
+                    error: The supplied offset is invalid
+                    errno: '20103'
+                error-3:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-4:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.reward.historyCount:
+    post:
+      operationId: portal.reward.historyCount
+      summary: Returns the number of reward history items of the panelist.
+      tags:
+        - Reward
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.reward.historyCount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+            example:
+              seskey: ce512c91
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: Retrieving the reward history was successful.
+                      count:
+                        type: string
+                        description: The total count of items available
+              examples:
+                success:
+                  value:
+                    success: true
+                    count: '2'
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.survey.completed:
+    post:
+      operationId: portal.survey.completed
+      summary: This method returns a list of completed surveys.
+      tags:
+        - Survey
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.survey.completed
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                limit:
+                  type:
+                    - integer
+                    - 'null'
+                  description: Max number of surveys to return.
+                  default: null
+                offset:
+                  type:
+                    - integer
+                    - 'null'
+                  description: Offset the output for pagination.
+                  default: null
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+            example:
+              seskey: ce512c91
+              limit: 10
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: The list of completed surveys was successful.
+                      limit:
+                        type:
+                          - integer
+                          - 'null'
+                        description: The limit supplied in the call
+                      offset:
+                        type:
+                          - integer
+                          - 'null'
+                        description: The offset supplied in the call
+                      count:
+                        type: integer
+                        description: The total count of items available (regardless of limit and offset)
+                      surveys:
+                        type: array
+                        description: Array of surveys the panelist has completed or been terminated from.
+                        items:
+                          properties:
+                            subject:
+                              type: string
+                              description: Multilingual survey name from the campaign
+                            body:
+                              type: string
+                              description: Multilingual survey description from the campaign
+                            status:
+                              type: string
+                              enum:
+                                - completed
+                                - profile
+                                - quota
+                              description: Survey status, 'completed', 'profile' or 'quota'.
+                            time:
+                              type: string
+                              description: The ISO 8601 time the survey was finished.
+                            points:
+                              type: integer
+                              description: The number of points awarded for a completed survey/
+                            projectid:
+                              type: integer
+                              description: The project ID.
+                            categoryids:
+                              type: array
+                              description: Array of category IDs
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    limit: null
+                    offset: null
+                    count: 2
+                    surveys:
+                      - subject: Vacation survey
+                        body: Take this survey to win a new iPad
+                        status: completed
+                        time: 2013-06-14 11:32
+                        points: 200
+                        projectid: 45
+                      - subject: Foo bar survey
+                        body: Take this survey to earn 200 reward points
+                        status: quota
+                        time: 2013-06-13 09:32
+                        points: 200
+                        projectid: 34
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.survey.completedByCategory:
+    post:
+      operationId: portal.survey.completedByCategory
+      summary: Returns a list of completed surveys - filtered by category id.
+      tags:
+        - Survey
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.survey.completedByCategory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                limit:
+                  type:
+                    - integer
+                    - 'null'
+                  description: Max number of surveys to return.
+                  default: null
+                offset:
+                  type:
+                    - integer
+                    - 'null'
+                  description: Offset the output for pagination.
+                  default: null
+                categoryid:
+                  type: integer
+                  description: Category ID
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+                - categoryid
+            example:
+              seskey: ce512c91
+              limit: 10
+              offset: 20
+              categoryid: 42
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: The list of completed surveys was successful.
+                      limit:
+                        type:
+                          - integer
+                          - 'null'
+                        description: The limit supplied in the call
+                      offset:
+                        type:
+                          - integer
+                          - 'null'
+                        description: The offset supplied in the call
+                      count:
+                        type: string
+                        description: The total count of items available (regardless of limit and offset)
+                      surveys:
+                        type: array
+                        description: Array of surveys the panelist has completed or been terminated from.
+                        items:
+                          properties:
+                            subject:
+                              type: string
+                              description: Multilingual survey name from the campaign
+                            body:
+                              type: string
+                              description: Multilingual survey description from the campaign
+                            status:
+                              type: string
+                              enum:
+                                - completed
+                                - profile
+                                - quota
+                              description: Survey status, 'completed', 'profile' or 'quota'.
+                            time:
+                              type: string
+                              description: The ISO 8601 time the survey was finished.
+                            points:
+                              type: integer
+                              description: The number of points awarded for a completed survey/
+                            projectid:
+                              type: integer
+                              description: The project ID.
+                            categoryids:
+                              type: array
+                              description: Array of category IDs
+                              items:
+                                type: integer
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    limit: null
+                    offset: null
+                    count: '2'
+                    surveys:
+                      - subject: Vacation survey
+                        body: Take this survey to win a new iPad
+                        status: completed
+                        time: 2013-06-14 11:32
+                        points: 200
+                        projectid: 45
+                        categoryids: []
+                      - subject: Foo bar survey
+                        body: Take this survey to earn 200 reward points
+                        status: quota
+                        time: 2013-06-13 09:32
+                        points: 200
+                        projectid: 34
+                        categoryids:
+                          - 1
+                          - 2
+                error-0:
+                  description: Category ID is required and must be numeric.
+                  summary: Category ID invalid
+                  value:
+                    success: false
+                    error: Category ID missing or invalid
+                    errno: '0'
+                error-1:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-2:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-3:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.survey.completedCount:
+    post:
+      operationId: portal.survey.completedCount
+      summary: Retrieves the number of surveys completed by the panelist.
+      tags:
+        - Survey
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.survey.completedCount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+            example:
+              seskey: ce512c91
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: The call status.
+                      count:
+                        type: integer
+                        description: The number of items available
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    count: 42
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.survey.completedCountByCategoryID:
+    post:
+      operationId: portal.survey.completedCountByCategory
+      summary: Retrieves the number of surveys completed by the panelist - filtered by category id.
+      tags:
+        - Survey
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.survey.completedCountByCategory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                categoryid:
+                  type: integer
+                  description: A valid category id
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+                - categoryid
+            example:
+              seskey: ce512c91
+              categoryid: 42
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: The call status.
+                      count:
+                        type: integer
+                        description: The number of items available
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    count: 42
+                error-0:
+                  description: Category ID is required and must be numeric.
+                  summary: Category ID invalid
+                  value:
+                    success: false
+                    error: Category ID missing or invalid
+                    errno: '0'
+                error-1:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-2:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-3:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.survey.available:
+    post:
+      operationId: portal.survey.available
+      summary: Returns all available surveys for the panelist.
+      tags:
+        - Survey
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.survey.available
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                limit:
+                  type:
+                    - integer
+                    - 'null'
+                  description: Max number of surveys to return.
+                  default: null
+                offset:
+                  type:
+                    - integer
+                    - 'null'
+                  description: Offset the output for pagination.
+                  default: null
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+            example:
+              seskey: ce512c91
+              limit: 10
+              offset: 20
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: The call status.
+                      limit:
+                        type:
+                          - integer
+                          - 'null'
+                        description: The limit supplied in the call
+                      offset:
+                        type:
+                          - integer
+                          - 'null'
+                        description: The offset supplied in the call
+                      count:
+                        type: integer
+                        description: The total count of items available (regardless of limit and offset)
+                      surveys:
+                        type: array
+                        description: An array of surveys to which the panelist has been invited, but has not yet taken. It will not include surveys from closed projects, or from invitations that have expired.
+                        items:
+                          properties:
+                            subject:
+                              type: string
+                              description: Multilingual survey name from the campaign
+                            body:
+                              type: string
+                              description: Multilingual survey description from the campaign
+                            status:
+                              type:
+                                - string
+                                - 'null'
+                              description: '''started'' if the panelist has started, but not completed the survey, otherwise NULL.'
+                            time:
+                              type: string
+                              description: The time this invitation was sent.
+                            points:
+                              type: integer
+                              description: The number of points awarded for a completed survey.
+                            url:
+                              type: string
+                              format: url
+                              description: URL to take the panelist to the survey, as defined in the project.
+                            previewurl:
+                              type:
+                                - string
+                                - 'null'
+                              format: url
+                              description: URL to take the panelist to the original invitation. If the campaign did not have an invitation (community launch only) this field will be NULL.
+                            type:
+                              type:
+                                - string
+                                - 'null'
+                              enum:
+                                - emailhtml
+                                - SMS
+                              description: The type of invitation that was used. If the type is not available (community launch only), this field will be NULL.
+                            endtime:
+                              type: string
+                              description: The time when the campaign expires and the survey links will stop working.
+                            invited:
+                              type: string
+                              description: The time when the panelist was invited.
+                            purpose:
+                              type: string
+                              enum:
+                                - invitation
+                                - automated
+                                - diary
+                                - profiler
+                                - portal
+                              description: The campaign purpose.
+                            projectid:
+                              type: integer
+                              description: The project ID
+                            categoryids:
+                              type: array
+                              description: Array of category IDs
+                              items:
+                                type: integer
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    limit: null
+                    offset: null
+                    count: 1
+                    surveys:
+                      - subject: Today's 5 minute Survey
+                        body: This survey is about your favorite type of car.
+                        status: null
+                        time: '2011-10-15 12:18:19'
+                        points: 200
+                        url: http://www.example.com/receiver.pro?seskey=ce512c91
+                        previewurl: http://www.example.com/portalinvite.pro?seskey=ce512c91
+                        type: emailhtml
+                        endtime: '2012-01-15 20:00:00'
+                        invited: '2011-10-15 12:18:19'
+                        purpose: invitation
+                        projectid: 10
+                        categoryids:
+                          - 1
+                          - 2
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.survey.availableByCategory:
+    post:
+      operationId: portal.survey.availableByCategory
+      summary: Returns all available surveys for the panelist - filtered by category id.
+      tags:
+        - Survey
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.survey.availableByCategory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                limit:
+                  type:
+                    - integer
+                    - 'null'
+                  description: Max number of surveys to return.
+                  default: null
+                offset:
+                  type:
+                    - integer
+                    - 'null'
+                  description: Offset the output for pagination.
+                  default: null
+                categoryid:
+                  type: integer
+                  description: A valid category id
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+                - categoryid
+            example:
+              seskey: ce512c91
+              limit: 10
+              offset: 20
+              categoryid: 42
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: The call status.
+                      limit:
+                        type:
+                          - integer
+                          - 'null'
+                        description: The limit supplied in the call
+                      offset:
+                        type:
+                          - integer
+                          - 'null'
+                        description: The offset supplied in the call
+                      count:
+                        type: integer
+                        description: The total count of items available (regardless of limit and offset)
+                      surveys:
+                        type: array
+                        description: An array of surveys to which the panelist has been invited, but has not yet taken. It will not include surveys from closed projects, or from invitations that have expired.
+                        items:
+                          properties:
+                            subject:
+                              type: string
+                              description: Multilingual survey name from the campaign
+                            body:
+                              type: string
+                              description: Multilingual survey description from the campaign
+                            status:
+                              type:
+                                - string
+                                - 'null'
+                              description: '''started'' if the panelist has started, but not completed the survey, otherwise NULL.'
+                            time:
+                              type: string
+                              description: The time this invitation was sent.
+                            points:
+                              type: integer
+                              description: The number of points awarded for a completed survey.
+                            url:
+                              type: string
+                              format: url
+                              description: URL to take the panelist to the survey, as defined in the project.
+                            previewurl:
+                              type:
+                                - string
+                                - 'null'
+                              format: url
+                              description: URL to take the panelist to the original invitation. If the campaign did not have an invitation (community launch only) this field will be NULL.
+                            type:
+                              type:
+                                - string
+                                - 'null'
+                              enum:
+                                - emailhtml
+                                - SMS
+                              description: The type of invitation that was used. If the type is not available (community launch only), this field will be NULL.
+                            endtime:
+                              type: string
+                              description: The time when the campaign expires and the survey links will stop working.
+                            invited:
+                              type: string
+                              description: The time when the panelist was invited.
+                            purpose:
+                              type: string
+                              enum:
+                                - invitation
+                                - automated
+                                - diary
+                                - profiler
+                                - portal
+                              description: The campaign purpose.
+                            projectid:
+                              type: integer
+                              description: The project ID
+                            categoryids:
+                              type: array
+                              description: Array of category IDs
+                              items:
+                                type: integer
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    limit: null
+                    offset: null
+                    count: 1
+                    surveys:
+                      - subject: Today's 5 minute Survey
+                        body: This survey is about your favorite type of car.
+                        status: null
+                        time: '2011-10-15 12:18:19'
+                        points: 200
+                        url: http://www.example.com/receiver.pro?seskey=ce512c91
+                        previewurl: http://www.example.com/portalinvite.pro?seskey=ce512c91
+                        type: emailhtml
+                        endtime: '2012-01-15 20:00:00'
+                        invited: '2011-10-15 12:18:19'
+                        purpose: invitation
+                        projectid: 10
+                        categoryids:
+                          - 1
+                          - 2
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.survey.availableCount:
+    post:
+      operationId: portal.survey.availableCount
+      summary: Retrieves the number of surveys available to the panelist.
+      tags:
+        - Survey
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.survey.availableCount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+            example:
+              seskey: ce512c91
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: The call status.
+                      count:
+                        type: integer
+                        description: The number of items available
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    count: 42
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.survey.availableCountByCategoryID:
+    post:
+      operationId: portal.survey.availableCountByCategory
+      summary: Retrieves the number of surveys available to the panelist - filtered by category id.
+      tags:
+        - Survey
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.survey.availableCountByCategory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                categoryid:
+                  type: integer
+                  description: A valid category id
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+                - categoryid
+            example:
+              seskey: ce512c91
+              categoryid: 42
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: The call status.
+                      count:
+                        type: integer
+                        description: The number of items available
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    count: 42
+                error-0:
+                  description: Category ID is required and must be numeric.
+                  summary: Category ID invalid
+                  value:
+                    success: false
+                    error: Category ID missing or invalid
+                    errno: '0'
+                error-1:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-2:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-3:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.survey.registerUrl:
+    post:
+      operationId: portal.survey.registerUrl
+      summary: Returns URL for the primary registration survey URL
+      description: Returns URL for the primary registration survey URL. This registration URL is only available if Decipher or Kinesis Survey is used for the initial registration survey.
+      tags:
+        - Survey
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.survey.registerUrl
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                panelid:
+                  type: integer
+                  description: The Panel ID.
+                portalid:
+                  type: integer
+                  description: The Community Portal ID.
+                mobile:
+                  type: boolean
+                  description: Should a mobile link be returned or not.
+                  default: false
+              required:
+                - panelid
+                - portalid
+            example:
+              panelid: 77
+              portalid: 21
+              mobile: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: Retrieving the registration url was successful.
+                      url:
+                        type: string
+                        description: The Survey Link.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    url: http://www.example.com/surveyinstall/html.pro?ID=469&amp;ks_cid=22
+                error-0:
+                  description: The feature setting internal services must be enabled.
+                  summary: Internal services disabled
+                  value:
+                    success: false
+                    error: Internal services must not be disabled!
+                    errno: '10000'
+                error-1:
+                  description: Panel with supplied panel ID is not found.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: Panel ID does not exist, or is currently inaccessible.
+                    errno: '10000'
+                error-2:
+                  description: The supplied panel ID is not numeric.
+                  summary: Panel ID invalid
+                  value:
+                    success: false
+                    error: Panel ID is invalid
+                    errno: '20101'
+                error-3:
+                  description: The supplied portal ID is not numeric.
+                  summary: Portal invalid
+                  value:
+                    success: false
+                    error: The supplied community portal ID invalid
+                    errno: '20102'
+                error-4:
+                  description: Community with supplied portal ID is not found.
+                  summary: Portal ID not found
+                  value:
+                    success: false
+                    error: The supplied community portal ID could not be found
+                    errno: '20102'
+                error-5:
+                  description: The supplied mobile is not a boolean value.
+                  summary: Mobile invalid
+                  value:
+                    success: false
+                    error: The mobile flag type is invalid
+                    errno: '20102'
+                error-6:
+                  description: Panel with supplied panel ID does not have a registration survey.
+                  summary: Registration survey not found
+                  value:
+                    success: false
+                    error: This panel is not connected to a registration survey! This can be done by creating a survey and linking it to your panel.
+                    errno: '40001'
+  /api.pro#method=portal.survey.registerUpdateUrl:
+    post:
+      operationId: portal.survey.registerUpdateUrl
+      summary: Returns URL for the profile update survey URL
+      description: Returns URL for the profile update survey URL. This registration URL is only available if Decipher or Kinesis Survey is used for the profile update survey.
+      tags:
+        - Survey
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.survey.registerUpdateUrl
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mobile:
+                  type: boolean
+                  description: Should a mobile link be returned or not.
+                  default: false
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+                - seskey
+            example:
+              seskey: ce512c91
+              mobile: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/error'
+                  - type: object
+                    properties:
+                      success:
+                        type: boolean
+                        description: Retrieving the registration url was successful.
+                      url:
+                        type: string
+                        format: url
+                        description: The Survey Link.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    url: http://www.example.com/surveyinstall/?ID=512&amp;ks_identifier=F6EF7EWQ&amp;ks_hash=5aae5a28b5bcf4142f94e40b75f143c5
+                error-0:
+                  description: The feature setting internal services must be enabled.
+                  summary: Internal services disabled
+                  value:
+                    success: false
+                    error: Internal services must not be disabled!
+                    errno: '10000'
+                error-1:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-2:
+                  description: The supplied mobile is not a boolean value.
+                  summary: Mobile invalid
+                  value:
+                    success: false
+                    error: The mobile flag type is invalid
+                    errno: '20102'
+                error-3:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-4:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+                error-5:
+                  description: Panel with supplied panel ID does not have a registration update survey.
+                  summary: Registration update survey not found
+                  value:
+                    success: false
+                    error: This panel is not connected to a registration update survey! This can be done by creating a registration update survey and linking it to your panel.
+                    errno: '40001'
+  /api.pro#method=portal.system.carriers:
+    post:
+      operationId: portal.system.carriers
+      summary: Get all the carriers
+      tags:
+        - System
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/method'
+          schema:
+            enum:
+              - portal.system.carriers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Getting a list of carriers was successful.
+                  carriers:
+                    type: array
+                    description: An array of carrier IDs and names that are valid for this installation. NULL if no carriers are found.
+                    items:
+                      properties:
+                        carrierid:
+                          type: integer
+                          description: Carriers ID.
+                        name:
+                          type: string
+                          description: Carriers name.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    carriers:
+                      - carrierid: 1
+                        name: AT&amp;T
+                      - carrierid: 2
+                        name: Verizon
+                      - carrierid: 3
+                        name: Sprint
+                      - carrierid: 4
+                        name: T-Mobile
+                      - carrierid: 5
+                        name: Cricket
+components:
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: query
+      name: seskey
+  parameters:
+    method:
+      name: method
+      in: query
+      required: true
+      description: Method
+      schema:
+        type: string
+  schemas:
+    error:
+      type: object
+      properties:
+        success:
+          type: boolean
+        error:
+          description: The error message.
+          type: string
+        errno:
+          description: The error code.
+          type: string
+x-tagGroups:
+  - name: Data Input and Output
+    tags:
+      - Auth
+      - Email
+      - Panel
+      - Panelist
+      - Points
+      - Quickpoll
+      - Redemption
+      - Reward
+      - Survey
+      - System

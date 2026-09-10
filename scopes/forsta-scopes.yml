@@ -1,0 +1,17 @@
+generated: '2026-09-10'
+method: derived
+source: openapi/forsta-sample-marketplace-partner-contract-openapi.yml, openapi/forsta-sample-marketplace-partner-setup-openapi.yml
+schemes:
+- name: OAuth2
+  source: openapi/forsta-sample-marketplace-partner-contract-openapi.yml
+  flows:
+  - flow: clientCredentials
+    tokenUrl: /oauth2/token/
+  description: See https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html
+- name: OAuth2
+  source: openapi/forsta-sample-marketplace-partner-setup-openapi.yml
+  flows:
+  - flow: clientCredentials
+    tokenUrl: /oauth2/token/
+  description: See https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html
+scopes: []

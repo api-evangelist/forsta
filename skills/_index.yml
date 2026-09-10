@@ -1,0 +1,28 @@
+generated: '2026-09-10'
+method: generated
+source: >-
+  Grounded in openapi/forsta-decipher-rest-api-openapi.yml. Every operationId named in every skill
+  was verified to exist verbatim in the harvested spec before the skill was written. Forsta
+  publishes no AGENTS.md or first-party agent skills - searched docs.developer.focusvision.com
+  and the ForstaGlobal GitHub organization.
+skills:
+  - file: forsta-launch-and-monitor-survey.md
+    name: Launch and monitor a Forsta (Decipher) survey
+    api: openapi/forsta-decipher-rest-api-openapi.yml
+    operations: [getHello, getRHCompanySurveys, createRHCompanySurvey, getSurveyStateLiveWarnings, createSurveyStateLive, getSurveySummaryCompletions, getSurveyQuota, createSurveyStateClose]
+  - file: forsta-export-survey-data.md
+    name: Export Forsta survey data without timing out
+    api: openapi/forsta-decipher-rest-api-openapi.yml
+    operations: [getSurveyDatamap, getSurveyLayouts, getSurveyData, getStatus, getStatusContent, deleteStatus]
+  - file: forsta-run-email-campaign.md
+    name: Run a Forsta survey email campaign
+    api: openapi/forsta-decipher-rest-api-openapi.yml
+    operations: [getSurveyCampaigns, createSurveyCampaign, updateSurveyCampaignList, editSurveyCampaignInvite, createSurveyCampaignSend, getSurveyCampaignSends, createSurveyCampaignSendCancel, getSurveyCampaignBounces, getSurveyCampaignOptouts, getSurveyCampaignSpam, getSurveyCampaignsSupressions, createBulkBounced]
+  - file: forsta-manage-api-keys.md
+    name: Provision and rotate Forsta API keys
+    api: openapi/forsta-decipher-rest-api-openapi.yml
+    operations: [getHRApiKeys, createRHApiKey, getRHApiKey, updateRHApiKey, rekeyRHApiKey, deleteRHApiKey, getRHUsage]
+  - file: forsta-crosstab-reporting.md
+    name: Produce a Forsta crosstab report
+    api: openapi/forsta-decipher-rest-api-openapi.yml
+    operations: [getSurveyCrosstabsConfiguration, getSurveyCrosstabsValidate, createSurveyCrosstabsExecute, getSurveyCrosstabsSaved, createSurveyCrosstabsSavedExecute, createSurveyCrosstabsSavedExport, updateSurveyCrosstabsNets, updateSurveyCrosstabsWeightingRim]

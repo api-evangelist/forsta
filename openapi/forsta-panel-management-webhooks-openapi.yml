@@ -1,0 +1,209 @@
+openapi: 3.1.0
+info:
+  title: Data sent by webhooks
+  version: 1.0.0
+  license:
+    name: Forsta
+    identifier: Forsta
+    url: http://forsta.com
+  description: |
+    Data sent by webhooks
+
+    # Signed payload
+
+       During creation of a webhook there is an option to send payload signed. Once it is selected
+    pair keys are generated and public key is shown to be saved and used to verify received payload.
+    Sample of payload verification in PHP might look like this:
+
+     ```PHP 
+     $hash = hash('sha256', $payload);
+     $valid = EllipticCurve\Ecdsa::verify($hash, $signature, EllipticCurve\PublicKey::fromPem($publicKeyPem));
+     echo "\n\nSignature valid with pubkey?:\n";
+     var_dump($valid);
+    ```
+
+    Where:
+     + $payload - JSON string of received request body
+     + $signature - signature is in a header of the request 'X-KP-Webhook-Signature'
+     + $publicKeyPem - public key generated during webhook creation
+servers:
+  - url: CLIENT SERVER URL
+    description: Panel Management servers
+tags:
+  - name: Panelists
+    description: Endpoints related to panelists
+  - name: Survey Activity
+    description: Endpoints related to survey activities
+  - name: Survey Invitation
+    description: Endpoints related to survey invitations
+paths:
+  /webhookPanelistEvents:
+    post:
+      operationId: webhookPanelistEvents
+      security:
+        - signedPayloadAuth: []
+      summary: Payload format for events about panelists
+      tags:
+        - Panelists
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  identifier:
+                    type: string
+                    description: Request identifier
+                  timestamp:
+                    type: integer
+                    description: Timestamp of the request
+                  panel_id:
+                    type: integer
+                    description: Panel ID related to the event
+                  event:
+                    type: string
+                    description: Event name, possible options 'panelist-created', 'panelist-updated', 'panelist-deleted', 'panelist-optin'
+                  event_id:
+                    type: integer
+                    description: Event ID
+                  data:
+                    type: array
+                    description: Data only present for events 'panelist-created' and 'panelist-updated'
+                    items:
+                      type: object
+                      properties:
+                        label:
+                          type: string
+                          description: Question or panelist's property
+                        answer:
+                          type: string
+                          description: Value provided by a panelist
+              example:
+                - identifier: req123
+                  timestamp: 1724359389
+                  panel_id: 1
+                  event: panelist-updated
+                  event_id: 123
+                  data:
+                    - label: email
+                      answer: test@forsta.com
+                    - label: emailok
+                      answer: 'yes'
+  /webhookSurveyActivityEvents:
+    post:
+      operationId: webhookSurveyActivityEvents
+      security:
+        - signedPayloadAuth: []
+      summary: Payload format for events about survey activities
+      tags:
+        - Survey Activity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  identifier:
+                    type: string
+                    description: Request identifier
+                  timestamp:
+                    type: integer
+                    description: Timestamp of the request
+                  panel_id:
+                    type: integer
+                    description: Panel ID related to the event
+                  event:
+                    type: string
+                    description: Event name, possible option 'survey-activity'. Tracks survey statuses 'started','completed', 'profile', 'quota'
+                  project_id:
+                    type: integer
+                    description: Project ID
+                  started_at:
+                    type: integer
+                    description: Timestamp of the start
+                  status:
+                    type: string
+                    description: Status of the survey activity
+                  event_id:
+                    type: integer
+                    description: Event ID
+            example:
+              - identifier: req123
+                timestamp: 1724359389
+                panel_id: 1
+                event: survey-activity
+                project_id: 1
+                started_at: 1724359389
+                status: started
+                event_id: 123123
+  /webhookSurveyInvitationEvents:
+    post:
+      operationId: webhookSurveyInvitationEvents
+      security:
+        - signedPayloadAuth: []
+      summary: Payload format for events about survey invitations
+      tags:
+        - Survey Invitation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  identifier:
+                    type: string
+                    description: Request identifier
+                  timestamp:
+                    type: integer
+                    description: Timestamp of the request
+                  panel_id:
+                    type: integer
+                    description: Panel ID related to the event
+                  event:
+                    type: string
+                    description: Event name, possible option 'survey-invitation'
+                  project_id:
+                    type: integer
+                    description: Project ID
+                  started_at:
+                    type: integer
+                    description: For invitations always has value "null"
+                  status:
+                    type: string
+                    description: Status of the survey invitation
+                  event_id:
+                    type: integer
+                    description: Event ID
+            example:
+              - identifier: req123
+                timestamp: 1724359389
+                panel_id: 1
+                event: survey-invitation
+                project_id: 1
+                started_at: null
+                status: invited
+                event_id: 123123
+components:
+  securitySchemes:
+    signedPayloadAuth:
+      type: apiKey
+      in: header
+      name: X-KP-Webhook-Signature
+      description: |
+        Security scheme for signed payloads.
+        Include a signature of the payload in the "X-KP-Webhook-Signature" header.
+x-tagGroups:
+  - name: Data sent by webhooks
+    tags:
+      - Panelists
+      - Survey Activity
+      - Survey Invitation

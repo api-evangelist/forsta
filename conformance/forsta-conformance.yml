@@ -1,0 +1,89 @@
+generated: '2026-09-10'
+method: searched
+source: >-
+  the eight harvested OpenAPI documents in openapi/, plus
+  https://forstaplus.zendesk.com/hc/en-us/articles/6172565389723-SaaS-Information and
+  https://legal.forsta.com/
+standards:
+  - id: openapi-3
+    conforms: true
+    evidence: >-
+      Eight published documents - OpenAPI 3.0.0 (Sample Marketplace x3), 3.0.1 (Decipher REST API),
+      3.1.0 (Panel Management webhooks and vendor callbacks) and 3.1.1 (Panel Management
+      Integration and Community).
+  - id: oauth2
+    conforms: true
+    evidence: >-
+      components.securitySchemes.OAuth2 with a clientCredentials flow in
+      openapi/forsta-sample-marketplace-partner-contract-openapi.yml and
+      openapi/forsta-sample-marketplace-partner-setup-openapi.yml. Scoped to the Sample
+      Marketplace partner surface only; no scopes are declared.
+  - id: oidc
+    conforms: false
+    evidence: >-
+      No openIdConnect security scheme, and no /.well-known/openid-configuration served on any of
+      the six hosts probed (see well-known/forsta-well-known.yml). The Panel Management
+      Integration API does expose an `oidcName` parameter, which implies OIDC is used for end-user
+      login into the panel product, but the API itself publishes no OIDC discovery surface.
+  - id: rfc9457-problem-details
+    conforms: false
+    evidence: >-
+      All 52 error responses across the spec set are application/json carrying the vendor
+      `{"$error","$code"}` envelope; application/problem+json appears nowhere.
+  - id: idempotency
+    conforms: false
+    evidence: >-
+      No Idempotency-Key parameter in any spec, and the Decipher documentation states conditional
+      requests and ETag are not implemented. See conventions/forsta-conventions.yml.
+  - id: pagination
+    conforms: false
+    evidence: >-
+      No cursor/offset/page parameter and no next-link or total-count response field in any of the
+      eight specs; only a `top` truncation argument and two `limit` parameters.
+  - id: json-api
+    conforms: false
+    evidence: Plain JSON resource representations; no application/vnd.api+json.
+  - id: iso-8601
+    conforms: true
+    evidence: >-
+      "Date times use the ISO-8601 standard. You must specify a timezone in all datetime
+      parameters." - Decipher REST API documentation.
+  - id: jsonx
+    conforms: true
+    evidence: >-
+      Any Decipher resource can be retrieved as XML in the IBM JSONX serialization by sending
+      `accept: application/xml`.
+  - id: webhook-signing
+    conforms: true
+    evidence: >-
+      Panel Management webhooks sign the payload with ECDSA over SHA-256 and deliver the signature
+      in the X-KP-Webhook-Signature header, with the verifying public key issued at webhook
+      creation (openapi/forsta-panel-management-webhooks-openapi.yml).
+  - id: soc2-type-ii
+    conforms: true
+    evidence: >-
+      "The Forsta Plus platform ... has been SOC 2 Type II audited by an independent AICPA
+      accredited firm" - Forsta Plus SaaS Information article,
+      https://forstaplus.zendesk.com/hc/en-us/articles/6172565389723-SaaS-Information
+  - id: iso-27001
+    conforms: true
+    evidence: >-
+      "an Information Security Policy built on the ISO 27001 framework" - same source. Note this
+      is a claim of a policy BUILT ON the framework, not a statement of certification against it.
+  - id: gdpr
+    conforms: true
+    evidence: >-
+      Forsta publishes a sub-processor list and a Vendor Data Processing Agreement at
+      legal.forsta.com/legal/forsta-sub-processor-list/ and
+      legal.forsta.com/wp-content/uploads/sites/7/2025/06/Forsta-Vendor-Data-Processing-Agreement-20241213.pdf
+domain_standard:
+  market: market research / customer experience insights
+  standard: none identified
+  note: >-
+    REWARD-ONLY and correctly empty. Market research and CX have no machine-readable interchange
+    standard that a contract can declare the way SCIM, FHIR, OData or OpenRTB can be declared.
+    The nearest candidates - ESOMAR codes and the Insights Association standards - are conduct
+    codes, not wire formats, and Forsta's contracts declare neither. Nothing was invented to fill
+    this slot.
+compliance_published: true
+compliance_url: https://forstaplus.zendesk.com/hc/en-us/articles/6172565389723-SaaS-Information

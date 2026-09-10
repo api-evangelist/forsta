@@ -1,0 +1,34 @@
+generated: '2026-09-10'
+method: searched
+source: >-
+  https://pypi.org/project/decipher/ and the "Accessing the API" section of
+  https://docs.developer.focusvision.com/docs/decipher/api
+name: beacon
+description: >-
+  `beacon` is the command-line front end shipped inside the official `decipher` Python package. The
+  Decipher REST API documentation names it as the supported way to call the API from a shell,
+  in preference to curl.
+install:
+  - method: pip
+    command: pip install decipher
+    package: packages/forsta-packages.yml#decipher
+    version: 29.2.1
+    published: '2026-01-22'
+commands:
+  - command: beacon login
+    description: >-
+      Interactively authenticate and record an API key (or a temporary session credential) in a
+      local file. A session login expires in 15 minutes to 24 hours depending on the company's
+      security settings; an API key lasts until revoked or rekeyed.
+  - command: beacon get <resource> [name=value ...]
+    description: >-
+      Issue a GET against any REST resource path below /api/v1/, e.g.
+      `beacon get surveys/your/survey/datamap format=json`.
+auth:
+  mechanism: x-apikey header
+  key_source: Research Hub / Portal user menu -> "API access" -> Create API key
+  note: >-
+    Keys may be scoped by permitted call, permitted method, forced parameters, IP network and
+    expiry date. A key used over plain HTTP is deactivated immediately as compromised.
+apis:
+  - openapi/forsta-decipher-rest-api-openapi.yml

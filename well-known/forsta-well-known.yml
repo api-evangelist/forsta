@@ -1,0 +1,124 @@
+generated: '2026-09-10'
+method: probed
+source: live GET of the named /.well-known/ path list on every host this record knows
+note: >-
+  Zero documents were served. Three of the four hosts probed are catch-alls that answer HTTP 200
+  with an HTML shell for any path: docs.developer.focusvision.com (a Vite/React single-page app,
+  2,198-byte shell for every path), focusvision.com (493,005-byte marketing homepage for every
+  path) and selfserve.decipherinc.com (a login shell for unknown top-level paths, but a correct
+  404 under /.well-known/). Each of those hosts also answered 200 on the negative-control path
+  that cannot exist, so every 200 on them is discarded. www.forsta.com and forsta.com return a
+  genuine 404 (WordPress 404 body) on every well-known path. No WellKnown or SecurityTxt pointer
+  is emitted, because the provider serves no document on this surface.
+hit_count: 0
+path_echo_control: failed
+soft_404_control:
+  - host: https://docs.developer.focusvision.com
+    path: /.well-known/forsta-negative-control-7f3ab91c.json
+    status: 200
+    bytes: 2198
+    verdict: catch-all SPA shell; all 200s on this host discarded
+  - host: https://focusvision.com
+    path: /.well-known/forsta-negative-control-7f3ab91c.json
+    status: 200
+    bytes: 493005
+    verdict: catch-all marketing homepage; all 200s on this host discarded
+  - host: https://selfserve.decipherinc.com
+    path: /.well-known/forsta-negative-control-7f3ab91c.json
+    status: 404
+    bytes: 210
+    verdict: correct 404 under /.well-known/; top-level paths (/openapi.json, /llms.txt) return a login shell
+  - host: https://www.forsta.com
+    path: /.well-known/forsta-negative-control-7f3ab91c.json
+    status: 404
+    bytes: 436456
+    verdict: genuine WordPress 404
+hosts:
+  - host: https://www.forsta.com
+    documents:
+      - {path: /.well-known/security.txt, status: 404}
+      - {path: /.well-known/openid-configuration, status: 404}
+      - {path: /.well-known/oauth-authorization-server, status: 404}
+      - {path: /.well-known/oauth-protected-resource, status: 404}
+      - {path: /.well-known/api-catalog, status: 404}
+      - {path: /.well-known/ai-plugin.json, status: 404}
+      - {path: /.well-known/agent-card.json, status: 404}
+      - {path: /.well-known/agent.json, status: 404}
+      - {path: /.well-known/aauth-resource.json, status: 404}
+      - {path: /.well-known/apis.json, status: 404}
+      - {path: /apis.json, status: 404}
+      - {path: /apis.yml, status: 404}
+  - host: https://forsta.com
+    documents:
+      - {path: /.well-known/security.txt, status: 404}
+      - {path: /.well-known/openid-configuration, status: 404}
+      - {path: /.well-known/oauth-authorization-server, status: 404}
+      - {path: /.well-known/oauth-protected-resource, status: 404}
+      - {path: /.well-known/api-catalog, status: 404}
+      - {path: /.well-known/ai-plugin.json, status: 404}
+      - {path: /.well-known/agent-card.json, status: 404}
+      - {path: /.well-known/agent.json, status: 404}
+      - {path: /.well-known/aauth-resource.json, status: 404}
+      - {path: /.well-known/apis.json, status: 404}
+      - {path: /apis.json, status: 404}
+      - {path: /apis.yml, status: 404}
+  - host: https://docs.developer.focusvision.com
+    note: catch-all SPA — every path below returned the same 2,198-byte HTML shell, including the negative control
+    documents:
+      - {path: /.well-known/security.txt, status: 200, body: html-shell, counted: false}
+      - {path: /.well-known/openid-configuration, status: 200, body: html-shell, counted: false}
+      - {path: /.well-known/oauth-authorization-server, status: 200, body: html-shell, counted: false}
+      - {path: /.well-known/oauth-protected-resource, status: 200, body: html-shell, counted: false}
+      - {path: /.well-known/api-catalog, status: 200, body: html-shell, counted: false}
+      - {path: /.well-known/ai-plugin.json, status: 200, body: html-shell, counted: false}
+      - {path: /.well-known/agent-card.json, status: 200, body: html-shell, counted: false}
+      - {path: /.well-known/agent.json, status: 200, body: html-shell, counted: false}
+      - {path: /.well-known/aauth-resource.json, status: 200, body: html-shell, counted: false}
+      - {path: /.well-known/apis.json, status: 200, body: html-shell, counted: false}
+      - {path: /apis.json, status: 200, body: html-shell, counted: false}
+      - {path: /apis.yml, status: 200, body: html-shell, counted: false}
+  - host: https://selfserve.decipherinc.com
+    note: Decipher instance host named as the default OpenAPI servers[] variable
+    documents:
+      - {path: /.well-known/security.txt, status: 404}
+      - {path: /.well-known/openid-configuration, status: 404}
+      - {path: /.well-known/oauth-authorization-server, status: 404}
+      - {path: /.well-known/oauth-protected-resource, status: 404}
+      - {path: /.well-known/api-catalog, status: 404}
+      - {path: /.well-known/ai-plugin.json, status: 404}
+      - {path: /.well-known/agent-card.json, status: 404}
+      - {path: /.well-known/agent.json, status: 404}
+      - {path: /.well-known/aauth-resource.json, status: 404}
+      - {path: /.well-known/apis.json, status: 404}
+      - {path: /apis.json, status: 200, body: login-shell, counted: false}
+      - {path: /apis.yml, status: 200, body: login-shell, counted: false}
+  - host: https://us-west-2-eks.aws.focusvision.com
+    note: production servers[] host of the Sample Marketplace Partner Setup API
+    documents:
+      - {path: /.well-known/security.txt, status: 404}
+      - {path: /.well-known/openid-configuration, status: 404}
+      - {path: /.well-known/oauth-authorization-server, status: 404}
+      - {path: /.well-known/oauth-protected-resource, status: 404}
+      - {path: /.well-known/api-catalog, status: 404}
+      - {path: /.well-known/ai-plugin.json, status: 404}
+      - {path: /.well-known/agent-card.json, status: 404}
+      - {path: /.well-known/agent.json, status: 404}
+      - {path: /.well-known/aauth-resource.json, status: 404}
+      - {path: /.well-known/apis.json, status: 404}
+      - {path: /apis.json, status: 404}
+      - {path: /apis.yml, status: 404}
+  - host: https://focusvision.com
+    note: catch-all — every path returned the 493,005-byte marketing homepage, including the negative control
+    documents:
+      - {path: /.well-known/security.txt, status: 200, body: html-homepage, counted: false}
+      - {path: /.well-known/openid-configuration, status: 200, body: html-homepage, counted: false}
+      - {path: /.well-known/oauth-authorization-server, status: 200, body: html-homepage, counted: false}
+      - {path: /.well-known/oauth-protected-resource, status: 200, body: html-homepage, counted: false}
+      - {path: /.well-known/api-catalog, status: 200, body: html-homepage, counted: false}
+      - {path: /.well-known/ai-plugin.json, status: 200, body: html-homepage, counted: false}
+      - {path: /.well-known/agent-card.json, status: 200, body: html-homepage, counted: false}
+      - {path: /.well-known/agent.json, status: 200, body: html-homepage, counted: false}
+      - {path: /.well-known/aauth-resource.json, status: 200, body: html-homepage, counted: false}
+      - {path: /.well-known/apis.json, status: 200, body: html-homepage, counted: false}
+      - {path: /apis.json, status: 200, body: html-homepage, counted: false}
+      - {path: /apis.yml, status: 200, body: html-homepage, counted: false}

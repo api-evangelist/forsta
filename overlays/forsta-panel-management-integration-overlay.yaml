@@ -1,0 +1,25 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for Forsta Integration API (Panel Management)
+  version: 1.0.0
+extends: openapi/forsta-panel-management-integration-openapi.yml
+x-generated: '2026-09-10'
+x-method: generated
+x-source: derived from openapi/forsta-panel-management-integration-openapi.yml (harvested verbatim from
+  https://docs.developer.focusvision.com/docs/panelmanagement/integration/api)
+actions:
+- target: $.info
+  update:
+    x-apievangelist-provider: forsta
+    x-apievangelist-api-key: panel-management-integration
+    x-apievangelist-harvested-from: https://docs.developer.focusvision.com/docs/panelmanagement/integration/api
+    x-apievangelist-operation-count: 53
+    x-apievangelist-conventions: conventions/forsta-conventions.yml
+    x-apievangelist-errors: errors/forsta-problem-types.yml
+    x-apievangelist-authentication: authentication/forsta-authentication.yml
+    x-apievangelist-lifecycle: lifecycle/forsta-lifecycle.yml
+    x-apievangelist-rate-limits: rate-limits/forsta-rate-limits.yml
+    x-apievangelist-idempotency-coverage: none
+- target: $.info
+  update:
+    x-apievangelist-note: The published document declares no info.contact, info.license or info.termsOfService.

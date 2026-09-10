@@ -1,0 +1,76 @@
+generated: '2026-09-10'
+method: derived
+source: openapi/forsta-decipher-rest-api-openapi.yml, openapi/forsta-panel-management-community-openapi.yml,
+  openapi/forsta-panel-management-integration-openapi.yml, openapi/forsta-panel-management-vendor-callback-openapi.yml,
+  openapi/forsta-panel-management-webhooks-openapi.yml, openapi/forsta-sample-marketplace-partner-contract-openapi.yml,
+  openapi/forsta-sample-marketplace-partner-setup-openapi.yml
+summary:
+  types:
+  - apiKey
+  - http
+  - oauth2
+  api_key_in:
+  - header
+  - query
+  oauth2_flows:
+  - clientCredentials
+schemes:
+- name: APIKey
+  type: apiKey
+  in: header
+  parameter: x-apikey
+  description: |-
+    In order to access the api, you'll need to generate an API key. Refer to the
+    instructions [here](/docs/decipher/api#section/API-Keys) to generate and
+    configure an API key with the appropriate permission sets. You can generate
+    as many keys as required.
+
+    Configure each request to include your API key in the request header. For example:
+
+    ```
+    x-apikey: dp48ss3mgsaucyjtybxw728h7s4cgnwzhejtszdwhf4xpe8yh
+  sources:
+  - openapi/forsta-decipher-rest-api-openapi.yml
+- name: ApiKey
+  type: apiKey
+  in: query
+  parameter: seskey
+  sources:
+  - openapi/forsta-panel-management-community-openapi.yml
+- name: BearerAuth
+  type: http
+  scheme: bearer
+  sources:
+  - openapi/forsta-panel-management-integration-openapi.yml
+  - openapi/forsta-panel-management-vendor-callback-openapi.yml
+- name: ApiKey
+  type: apiKey
+  in: query
+  parameter: sesKey
+  sources:
+  - openapi/forsta-panel-management-integration-openapi.yml
+- name: signedPayloadAuth
+  type: apiKey
+  in: header
+  parameter: X-KP-Webhook-Signature
+  description: |-
+    Security scheme for signed payloads.
+    Include a signature of the payload in the "X-KP-Webhook-Signature" header.
+  sources:
+  - openapi/forsta-panel-management-webhooks-openapi.yml
+- name: OAuth2
+  type: oauth2
+  flows:
+  - flow: clientCredentials
+    tokenUrl: /oauth2/token/
+    scopes: 0
+  description: See https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html
+  sources:
+  - openapi/forsta-sample-marketplace-partner-contract-openapi.yml
+  - openapi/forsta-sample-marketplace-partner-setup-openapi.yml
+- name: BasicAuth
+  type: http
+  scheme: basic
+  sources:
+  - openapi/forsta-sample-marketplace-partner-contract-openapi.yml
+  - openapi/forsta-sample-marketplace-partner-setup-openapi.yml

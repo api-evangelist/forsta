@@ -1,0 +1,72 @@
+generated: '2026-09-10'
+method: searched
+source: >-
+  registry.npmjs.org, pypi.org/pypi/decipher/json, repo1.maven.org maven-metadata,
+  github.com/ForstaGlobal, and the Decipher REST API description at
+  https://docs.developer.focusvision.com/docs/decipher/api
+note: >-
+  First-party libraries are published under two legacy brand identities that both belong to Forsta:
+  the Python client is published by Decipher (author email beacon-api@decipherinc.com, homepage
+  https://www.forsta.com/platform/survey-design/) and the mobile SDK under com.confirmit /
+  @forstaglobal (Confirmit, the Forsta predecessor whose npm publisher account is `confirmitapps`).
+  Both are named as the official client from Forsta's own documentation.
+packages:
+  - language: python
+    registry: pypi
+    name: decipher
+    url: https://pypi.org/project/decipher/
+    install: pip install decipher
+    official: true
+    version: 29.2.1
+    published: '2026-01-22'
+    note: >-
+      Official Python client for the Decipher (Forsta Surveys) REST API; named as the supported
+      language binding in the OpenAPI info.description. Ships the `beacon` CLI (see cli/).
+  - language: kotlin
+    registry: maven
+    name: "com.confirmit.mobilesdk:mobilesdk"
+    url: https://repo1.maven.org/maven2/com/confirmit/mobilesdk/mobilesdk/
+    install: "implementation 'com.confirmit.mobilesdk:mobilesdk:4.0.2'"
+    official: true
+    version: 4.0.2
+    published: '2026-06-03'
+    note: Android build of the Forsta Digital Feedback Mobile SDK.
+  - language: javascript
+    registry: npm
+    name: "@forstaglobal/react-native-mobilesdk"
+    url: https://www.npmjs.com/package/@forstaglobal/react-native-mobilesdk
+    install: npm install @forstaglobal/react-native-mobilesdk
+    official: true
+    version: 4.0.2
+    published: '2026-06-03'
+    note: React Native binding for the Forsta Digital Feedback Mobile SDK.
+  - language: swift
+    registry: swift-package-manager
+    name: ConfirmitMobileSDK
+    url: https://github.com/ForstaGlobal/DigitalFeedbackMobileSDK
+    install: '.package(url: "https://github.com/ForstaGlobal/DigitalFeedbackMobileSDK.git", .upToNextMajor(from: "4.0.2"))'
+    official: true
+    version: 4.0.2
+    published: '2026-06-03'
+    note: >-
+      iOS build, distributed as a Swift package straight from the GitHub repository — there is no
+      package-registry metadata endpoint for SPM, so the version is read from the tag the README pins.
+registries_checked:
+  - registry: npm
+    result: one first-party package
+  - registry: pypi
+    result: >-
+      one first-party package (`decipher`); the unrelated `forsta` package on PyPI belongs to
+      forsta18.com and is NOT Forsta
+  - registry: maven
+    result: "com.confirmit.mobilesdk:mobilesdk"
+  - registry: rubygems
+    result: none - the `fv` and `forsta` gems are unrelated third parties
+  - registry: nuget
+    result: none
+  - registry: crates.io
+    result: none
+  - registry: packagist
+    result: none
+  - registry: pkg.go.dev
+    result: none

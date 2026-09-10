@@ -2,25 +2,21 @@
   "repo": "forsta",
   "feeds": [
     {
+      "source": "https://www.forsta.com/resources/blog/",
+      "feed_url": "https://www.forsta.com/resources/blog/blog/feed/",
+      "title": "",
+      "saved": 0,
+      "method": "discovered"
+    },
+    {
       "source": "https://www.forsta.com/feed/",
       "feed_url": "https://www.forsta.com/feed/",
       "title": "",
       "saved": 0,
-      "method": "feed",
-      "nature": "vendor-blog",
-      "nature_basis": "path_blog"
-    },
-    {
-      "source": "https://www.forsta.com/resources/blog/",
-      "feed_url": "https://www.forsta.com/feed/",
-      "title": "",
-      "saved": 0,
-      "method": "discovered",
-      "nature": "vendor-blog",
-      "nature_basis": "path_blog"
+      "method": "feed"
     }
   ],
-  "fetched": "2026-08-30T22:33:40Z",
+  "fetched": "2026-09-06T19:17:18Z",
   "post_count": 42,
   "feed_nature": "vendor-blog",
   "feed_nature_basis": "path_blog",

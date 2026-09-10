@@ -1,0 +1,49 @@
+generated: '2026-09-10'
+method: searched
+source: https://docs.developer.focusvision.com/static/media/pm-webhooks.yaml
+spec_type: OpenAPI-webhooks
+asyncapi: null
+asyncapi_note: >-
+  Forsta publishes NO AsyncAPI document. The event surface is documented as an OpenAPI 3.1.0
+  "Data sent by webhooks" contract that models each webhook delivery as an inbound POST to the
+  subscriber's own server (servers[] is the literal string "CLIENT SERVER URL"). Captured here as
+  a webhook catalog rather than converted, since converting would author a spec the provider
+  does not publish.
+contract: openapi/forsta-panel-management-webhooks-openapi.yml
+product: Forsta Panel Management
+transport: HTTPS POST to a subscriber-supplied URL
+subscription: >-
+  Webhooks are created inside the Panel Management product; payload signing is opted into at
+  creation time, which generates an ECDSA key pair and shows the public key once.
+signing:
+  algorithm: ECDSA over SHA-256 of the raw JSON request body
+  header: X-KP-Webhook-Signature
+  key_delivery: >-
+    The verifying public key is generated and displayed during webhook creation and must be saved
+    by the subscriber; the provider publishes a PHP verification example in the spec description.
+  optional: true
+events:
+  - name: webhookPanelistEvents
+    path: /webhookPanelistEvents
+    tag: Panelists
+    summary: Payload format for events about panelists.
+  - name: webhookSurveyActivityEvents
+    path: /webhookSurveyActivityEvents
+    tag: Survey Activity
+    summary: Payload format for events about survey activities.
+  - name: webhookSurveyInvitationEvents
+    path: /webhookSurveyInvitationEvents
+    tag: Survey Invitation
+    summary: Payload format for events about survey invitations.
+event_count: 3
+vendor_callbacks:
+  contract: openapi/forsta-panel-management-vendor-callback-openapi.yml
+  note: >-
+    A second published contract, "Data sent by webhooks" for the Augeo rewards vendor, defines four
+    endpoints a vendor must implement to receive panelist authentication, user lookup, points
+    redemption and refund callbacks. JWT bearer auth.
+  events:
+    - vendorCallbackAugeoAuthentication
+    - vendorCallbackAugeoUser
+    - vendorCallbackAugeoRedeem
+    - vendorCallbackAugeoRefund

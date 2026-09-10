@@ -1,0 +1,49 @@
+generated: '2026-09-10'
+method: searched
+source: >-
+  openapi/forsta-decipher-rest-api-openapi.yml,
+  openapi/forsta-sample-marketplace-partner-setup-openapi.yml, and
+  https://docs.developer.focusvision.com/docs/decipher/api
+summary: >-
+  Forsta publishes no developer sandbox in the Stripe sense - there is no test-mode key prefix, no
+  hosted sandbox tenant a developer can self-provision, and no published fixture or magic-value
+  set. What exists is per-survey test tooling inside a real instance, plus a named staging
+  environment on the Sample Marketplace partner contract. Nothing below is invented; where a value
+  would normally be published, the honest finding is that it is not.
+test_live_separation:
+  key_prefix: none
+  detail: >-
+    A Decipher API key is a single 64-character credential with no mode marker. Isolation is done
+    by restricting a key (permitted calls, permitted methods, forced parameter values, IP network,
+    expiry) or by creating a dedicated API user account with access to a subset of projects -
+    not by a test/live switch.
+survey_test_mode:
+  - operationId: getSurveyTestToken
+    path: /surveys/{survey}/test/token
+    description: Returns a survey test URL token so a survey can be exercised before it is launched.
+  - operationId: createSurveySst
+    path: /surveys/{survey}/sst
+    description: Runs simulated data (the "Simulated Data" tag) against a survey.
+  - operationId: createSurveyEvaluate
+    path: /surveys/{survey}/evaluate
+    description: >-
+      Evaluates against a survey; the spec documents a test mode in which the data is not saved but
+      the calculations still run.
+  - operationId: getSurveyStateLiveWarnings
+    path: /surveys/{survey}/state/live/warnings
+    description: Pre-launch warnings - the dry-run rehearsal for createSurveyStateLive.
+staging_environments:
+  - api: Sample Marketplace Partner Setup API
+    url: https://eks.us-west-2.fvdev.net/smp-partner-service
+    label: Staging Environment
+    note: Declared as a named server in the published spec, alongside the production server.
+  - api: Panel Management Integration / Community APIs
+    url: https://staging.panel.dev.focusvision.com/
+    label: default value of the {server} path variable in the published spec
+    note: >-
+      This is the spec's default server VARIABLE value, not an open sandbox - callers substitute
+      their own instance domain. Recorded because a reader of the raw spec will otherwise take it
+      for a callable base URL.
+magic_test_values: none published
+test_clock: none
+fixtures: none

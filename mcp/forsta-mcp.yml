@@ -1,0 +1,69 @@
+generated: '2026-09-10'
+method: derived
+status: candidate
+source: openapi/forsta-decipher-rest-api-openapi.yml, openapi/forsta-panel-management-integration-openapi.yml
+search_result: >-
+  No Forsta MCP server exists. Searched the npm registry (no @forsta*/mcp or forsta-mcp package),
+  the developer documentation SPA at docs.developer.focusvision.com (its full page manifest lists
+  eight OpenAPI pages and nothing agent-facing), the ForstaGlobal GitHub organization (14 repos,
+  none MCP), and probed mcp.forsta.com/mcp, forsta.com/mcp and api.forsta.com/mcp with a
+  tools/list JSON-RPC POST - DNS failure, 404, DNS failure respectively.
+deployment:
+  mode: none
+  endpoint: null
+  install: null
+  package: null
+  auth: unknown
+  verified: derived
+server:
+  name: forsta
+  transport: null
+  url: null
+tools:
+  - name: list_surveys
+    description: List the surveys visible to the caller for a company.
+    source_operation: openapi/forsta-decipher-rest-api-openapi.yml#getRHCompanySurveys
+  - name: get_survey_datamap
+    description: Retrieve the datamap describing a survey's variables and question structure.
+    source_operation: openapi/forsta-decipher-rest-api-openapi.yml#getSurveyDatamap
+  - name: download_survey_data
+    description: Download collected response data for a survey.
+    source_operation: openapi/forsta-decipher-rest-api-openapi.yml#getSurveyData
+  - name: get_survey_completion_summary
+    description: List completions for a survey.
+    source_operation: openapi/forsta-decipher-rest-api-openapi.yml#getSurveySummaryCompletions
+  - name: launch_survey
+    description: Take a survey live.
+    source_operation: openapi/forsta-decipher-rest-api-openapi.yml#createSurveyStateLive
+  - name: close_survey
+    description: Close a live survey.
+    source_operation: openapi/forsta-decipher-rest-api-openapi.yml#createSurveyStateClose
+  - name: get_launch_warnings
+    description: Read the pre-launch warnings for a survey before taking it live.
+    source_operation: openapi/forsta-decipher-rest-api-openapi.yml#getSurveyStateLiveWarnings
+  - name: create_survey
+    description: Create a new survey inside a company.
+    source_operation: openapi/forsta-decipher-rest-api-openapi.yml#createRHCompanySurvey
+  - name: execute_crosstabs
+    description: Execute a crosstab report against a survey's data.
+    source_operation: openapi/forsta-decipher-rest-api-openapi.yml#createSurveyCrosstabsExecute
+  - name: get_survey_quota
+    description: Read the quota configuration for a survey.
+    source_operation: openapi/forsta-decipher-rest-api-openapi.yml#getSurveyQuota
+  - name: read_datafeed
+    description: Pull new rows from a data feed and acknowledge them.
+    source_operation: openapi/forsta-decipher-rest-api-openapi.yml#getDatafeed
+  - name: send_campaign
+    description: Create an email campaign send for a survey.
+    source_operation: openapi/forsta-decipher-rest-api-openapi.yml#createSurveyCampaignSend
+  - name: get_task_status
+    description: Poll an async task started with forceTask and retrieve its result.
+    source_operation: openapi/forsta-decipher-rest-api-openapi.yml#getStatus
+  - name: list_panelists
+    description: List panelists in a panel.
+    source_operation: openapi/forsta-panel-management-integration-openapi.yml#panelistGetPanelistById
+note: >-
+  These are CANDIDATE tools derived from operations verified to exist in the harvested specs. No
+  MCP endpoint URL is asserted, because none exists to assert. The full REST surface is 345
+  operations across eight specs; the fourteen above are the marquee flows a research-automation
+  agent would need first.

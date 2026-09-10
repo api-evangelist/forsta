@@ -1,72 +1,258 @@
 aid: forsta
 name: Forsta
-description: >-
-  Forsta is a market research and customer insights platform that helps
-  businesses gather, analyze, and act on feedback from their customers and
-  employees.
+description: 'Forsta is the customer experience and market research technology company formed from the
+  2021 merger of Confirmit, FocusVision and Dapresy, and acquired by Press Ganey in 2022 to trade as PG
+  Forsta. Its HX Platform spans survey data collection (Decipher / Forsta Surveys), panel and sample management,
+  qualitative research, text and social analytics, and dashboard visualization for customer, employee
+  and brand experience programs. Forsta publishes eight OpenAPI documents covering 345 operations at docs.developer.focusvision.com:
+  the Decipher REST API for survey automation and data extraction, the Panel Management Integration, Community,
+  webhook and vendor-callback contracts, and the Sample Marketplace partner contract that sample providers
+  must implement to be listed.'
 type: Index
 deliveryModel:
-  model: unknown
+  model: saas
   open_source: false
-  commercial: false
-  callable_host: false
-  label: Delivery model not determined — needs a product licence on record
-  confidence: low
+  commercial: true
+  callable_host: true
+  label: Commercial SaaS, per-tenant callable host
+  confidence: medium
   source:
-  - none
-  generated: '2026-08-28'
+  - openapi
+  - plans
+  generated: '2026-09-10'
   method: derived
+  note: Every published contract is callable over HTTPS, but the Decipher and Panel Management specs template
+    the host as a {server} variable the customer substitutes with their own instance domain - there is
+    no single shared public API host.
 accessModel:
-  pricing: freemium
-  onboarding: unknown
+  pricing: enterprise
+  onboarding: sales-assisted
   trial: false
   try_now: false
   public: false
-  label: Freemium
-  confidence: medium
+  label: Enterprise, contact sales
+  confidence: high
   source:
   - plans
-  generated: '2026-07-22'
-  method: derived
+  generated: '2026-09-10'
+  method: searched
+  note: Corrected 2026-09-10. The previous value (freemium) was derived from a 2026-05-04 bulk-sweep plans
+    scaffold that invented a Free tier. Forsta publishes no pricing page - /pricing, /plans and /get-started
+    all 404 and the site's own llms.txt names no pricing page; the only commercial entry point is a 'Speak
+    with an expert' form. See plans/forsta-plans-pricing.yml.
 image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/forsta.png
 access: 3rd-Party
 created: '2025-02-12'
-modified: '2026-04-28'
-position: Consuming
+modified: '2026-09-10'
+position: Producing
 tags:
-  - Customer Insights
-  - Feedback
-  - Market Research
-url: >-
-  https://raw.githubusercontent.com/api-evangelist/forsta/refs/heads/main/apis.yml
+- Customer Insights
+- Feedback
+- Market Research
+- Surveys
+- Customer Experience
+- Employee Experience
+- Panel Management
+- Data Collection
+- Analytics
+- Voice of the Customer
+url: https://raw.githubusercontent.com/api-evangelist/forsta/refs/heads/main/apis.yml
 specificationVersion: '0.23'
 apis:
-  - aid: forsta:forsta
-    name: Forsta
-    tags:
-      - Customer Insights
-      - Feedback
-      - Market Research
-    humanURL: https://docs.developer.focusvision.com/
-    properties:
-      - url: https://docs.developer.focusvision.com/
-        type: Documentation
-    description: >-
-      Explore the APIs for our products, be creative, and invent your own ways
-      of interacting with your data.
-common:
-  - type: DomainSecurity
-    url: security/forsta-domain-security.yml
-  - type: GitHubOrganization
-    url: https://github.com/Forsta
-  - type: LinkedIn
-    url: https://www.linkedin.com/company/forstainfo
-  - type: Website
-    url: https://www.forsta.com/
+- aid: forsta:forsta
+  name: Forsta Decipher REST API
+  description: 'The Decipher REST API (Forsta Surveys) automates a private or shared Decipher instance:
+    create and launch surveys, read datamaps, extract and edit response data, run crosstabs and dashboards,
+    manage campaigns, panels, translations, quotas, archives, users and API keys. 226 operations over
+    174 resource paths, authenticated with an x-apikey header.'
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/forsta.png
+  humanURL: https://docs.developer.focusvision.com/docs/decipher/api
+  baseURL: https://{server}/api/v1
+  tags:
+  - Surveys
+  - Market Research
+  - Data Collection
+  - Customer Insights
+  - Feedback
+  - Analytics
+  properties:
   - type: Documentation
-    url: https://docs.developer.focusvision.com/
-  - url: https://www.forsta.com/resources/blog/
-    type: Blog
+    url: https://docs.developer.focusvision.com/docs/decipher/api
+  - type: APIReference
+    url: https://docs.developer.focusvision.com/docs/decipher/api
+  - type: OpenAPI
+    url: openapi/forsta-decipher-rest-api-openapi.yml
+  - type: Overlay
+    url: overlays/forsta-decipher-rest-api-overlay.yaml
+  - type: Authentication
+    url: authentication/forsta-authentication.yml
+  - type: Conventions
+    url: conventions/forsta-conventions.yml
+  - type: ErrorCatalog
+    url: errors/forsta-problem-types.yml
+  - type: DataModel
+    url: data-model/forsta-data-model.yml
+  - type: RateLimits
+    url: rate-limits/forsta-rate-limits.yml
+  - type: Sandbox
+    url: sandbox/forsta-sandbox.yml
+  - type: CLI
+    url: cli/forsta-cli.yml
+  - type: AgentSkill
+    url: skills/_index.yml
+  - type: MCPServer
+    url: mcp/forsta-mcp.yml
+- aid: forsta:panel-management
+  name: Forsta Panel Management APIs
+  description: 'Panel Management exposes four published contracts: an Integration API (53 operations)
+    for sessions, panelists, notes, projects and delivery statistics; a Community API (45 operations);
+    a webhook payload contract for panelist, survey-activity and survey-invitation events signed with
+    ECDSA in an X-KP-Webhook-Signature header; and a vendor-callback contract an incentives partner implements
+    for authentication, user lookup, points redemption and refunds.'
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/forsta.png
+  humanURL: https://docs.developer.focusvision.com/docs/panelmanagement/integration/api
+  baseURL: https://{server}
+  tags:
+  - Panel Management
+  - Surveys
+  - Market Research
+  - Webhooks
+  - Data Collection
+  properties:
+  - type: Documentation
+    url: https://docs.developer.focusvision.com/docs/panelmanagement/integration/api
+  - type: APIReference
+    url: https://docs.developer.focusvision.com/docs/panelmanagement/integration/api
+  - type: OpenAPI
+    url: openapi/forsta-panel-management-integration-openapi.yml
+  - type: OpenAPI
+    url: openapi/forsta-panel-management-community-openapi.yml
+  - type: OpenAPI
+    url: openapi/forsta-panel-management-webhooks-openapi.yml
+  - type: OpenAPI
+    url: openapi/forsta-panel-management-vendor-callback-openapi.yml
+  - type: Overlay
+    url: overlays/forsta-panel-management-integration-overlay.yaml
+  - type: Overlay
+    url: overlays/forsta-panel-management-community-overlay.yaml
+  - type: Overlay
+    url: overlays/forsta-panel-management-webhooks-overlay.yaml
+  - type: Overlay
+    url: overlays/forsta-panel-management-vendor-callback-overlay.yaml
+  - type: Webhooks
+    url: asyncapi/forsta-panel-management-webhooks.yml
+- aid: forsta:sample-marketplace
+  name: Forsta Sample Marketplace Partner APIs
+  description: The contract a sample provider must implement to be listed in the Forsta Sample Marketplace
+    - estimates, projects and samples over OAuth 2.0 client credentials or HTTP Basic - together with
+    the Partner Setup API Forsta itself hosts for managing vendor configuration, and a published qualification
+    list enumerating the qualifications available per locale.
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/forsta.png
+  humanURL: https://docs.developer.focusvision.com/docs/smp/contract
+  baseURL: https://us-west-2-eks.aws.focusvision.com/smp-partner-service
+  tags:
+  - Market Research
+  - Panel Management
+  - Sample
+  - Surveys
+  - Marketplace
+  properties:
+  - type: Documentation
+    url: https://docs.developer.focusvision.com/docs/smp/contract
+  - type: APIReference
+    url: https://docs.developer.focusvision.com/docs/smp/contract
+  - type: OpenAPI
+    url: openapi/forsta-sample-marketplace-partner-contract-openapi.yml
+  - type: OpenAPI
+    url: openapi/forsta-sample-marketplace-partner-setup-openapi.yml
+  - type: OpenAPI
+    url: openapi/forsta-sample-marketplace-qualification-list-openapi.yml
+  - type: Overlay
+    url: overlays/forsta-sample-marketplace-partner-contract-overlay.yaml
+  - type: Overlay
+    url: overlays/forsta-sample-marketplace-partner-setup-overlay.yaml
+  - type: Overlay
+    url: overlays/forsta-sample-marketplace-qualification-list-overlay.yaml
+  - type: OAuthScopes
+    url: scopes/forsta-scopes.yml
+common:
+- type: Website
+  url: https://www.forsta.com/
+- type: DeveloperPortal
+  url: https://docs.developer.focusvision.com/
+- type: Documentation
+  url: https://docs.developer.focusvision.com/
+- type: APIReference
+  url: https://docs.developer.focusvision.com/docs/decipher/api
+- type: Support
+  url: https://help.forsta.com/
+- type: Blog
+  url: https://www.forsta.com/resources/blog/
+- type: GitHubOrganization
+  url: https://github.com/ForstaGlobal
+- type: LinkedIn
+  url: https://www.linkedin.com/company/forstainfo
+- type: Login
+  url: https://www.forsta.com/login/
+- type: TermsOfService
+  url: https://legal.forsta.com/legal/tos/
+- type: PrivacyPolicy
+  url: https://legal.forsta.com/legal/privacy-notice/
+- type: Compliance
+  url: https://www.forsta.com/legal-privacy/pg-forsta-technical-and-organizational-measures/
+- type: StatusPage
+  url: https://status.hxplatform.com/
+- type: Deprecation
+  url: lifecycle/forsta-lifecycle.yml
+- type: Lifecycle
+  url: lifecycle/forsta-lifecycle.yml
+- type: ChangeLog
+  url: changelog/forsta-changelog.yml
+- type: Authentication
+  url: authentication/forsta-authentication.yml
+- type: OAuthScopes
+  url: scopes/forsta-scopes.yml
+- type: Conventions
+  url: conventions/forsta-conventions.yml
+- type: ErrorCatalog
+  url: errors/forsta-problem-types.yml
+- type: DataModel
+  url: data-model/forsta-data-model.yml
+- type: Conformance
+  url: conformance/forsta-conformance.yml
+- type: Packages
+  url: packages/forsta-packages.yml
+- type: SDKs
+  url: packages/forsta-packages.yml
+- type: CLI
+  url: cli/forsta-cli.yml
+- type: Sandbox
+  url: sandbox/forsta-sandbox.yml
+- type: Webhooks
+  url: asyncapi/forsta-panel-management-webhooks.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: MCPServer
+  url: mcp/forsta-mcp.yml
+- type: AgenticAccess
+  url: agentic-access/forsta-agentic-access.yml
+- type: LLMsTxt
+  url: llms/forsta-llms.txt
+- type: RateLimits
+  url: rate-limits/forsta-rate-limits.yml
+- type: Plans
+  url: plans/forsta-plans-pricing.yml
+- type: DomainSecurity
+  url: security/forsta-domain-security.yml
+- type: VulnerabilityDisclosure
+  url: security/forsta-vulnerability-disclosure.yml
+- type: Security
+  url: https://www.pressganey.com/responsible-disclosure-policy/
 maintainers:
-  - FN: Kin Lane
-    email: kin@apievangelist.com
+- FN: Kin Lane
+  email: kin@apievangelist.com
+x-enrichment:
+  date: '2026-09-10'
+  status: enriched
+  artifacts_added: 47
+  pass: local-v3

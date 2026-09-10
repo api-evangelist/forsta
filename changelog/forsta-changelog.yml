@@ -1,0 +1,89 @@
+generated: '2026-09-10'
+method: searched
+source: >-
+  https://forstasurveys.zendesk.com/api/v2/help_center/en-us/articles.json - the anonymous Zendesk
+  Help Center API for the Forsta Surveys (Decipher) help center, 936 articles, sorted by
+  created_at descending
+docs: https://forstasurveys.zendesk.com/hc/en-us
+access_note: >-
+  The HTML help center is behind a Cloudflare bot challenge and returns HTTP 403 to any
+  non-browser client, including the specific release-note article URLs. The Zendesk Help Center
+  REST API on the same host answers anonymously with HTTP 200 and full article bodies, which is
+  where every entry below was read. A human in a browser reaches the same content; only automated
+  clients are turned away, so this is a crawler obstacle and not an absence.
+scheme: dual-track
+scheme_detail: >-
+  Two interleaved series. A numbered platform train - 153.x, then 154.x, now 155.x - carries the
+  versioned product releases, and a separate date-titled series ("August 11, 2026 Release Notes")
+  covers everything shipped between two continuous-delivery dates. Both are published on the same
+  fortnightly cadence.
+current_version: '155.5'
+current_release_date: '2026-09-08'
+cadence: fortnightly
+scope_note: >-
+  These are PLATFORM release notes, not an API changelog. There is no dedicated changelog for the
+  REST contract, and docs.developer.focusvision.com publishes no versioned diff - the specs are
+  served unversioned (info.version is '1.0' on Decipher and an empty string on both Panel
+  Management APIs). API-affecting items appear inside the platform notes, mixed with survey-taker
+  and authoring changes; the entries below flag which is which.
+entries:
+  - version: '155.5'
+    date: '2026-09-08'
+    breaking: false
+    api_affecting: false
+    highlights:
+      - New versions of the Rating Scale (v7), Rank Sort (v10) and Card Sort (v11) dynamic questions.
+      - Page Timer countdown fix in the participant view.
+    url: https://forstasurveys.zendesk.com/hc/en-us/articles/55560483387035-155-5-Release-Notes
+  - version: '155.4'
+    date: '2026-08-25'
+    breaking: false
+    api_affecting: false
+    highlights:
+      - Portal fix for image filepaths in duplicated surveys and updates to live surveys.
+    url: https://forstasurveys.zendesk.com/hc/en-us/articles/54912667670299-155-4-Release-Notes
+  - version: 'August 11, 2026'
+    date: '2026-08-11'
+    breaking: false
+    api_affecting: true
+    highlights:
+      - >-
+        Added OpenID Connect sign-in support for Decipher's Kinesis Panel integration - the change
+        behind the oidcName parameter visible on the Panel Management Integration contract.
+      - Data edits from View/Edit Responses are faster on large surveys.
+      - AI Compute translation batches no longer misalign on hundreds of very short inputs.
+    url: https://forstasurveys.zendesk.com/hc/en-us/articles/54275233016091-August-11-2026-Release-Notes
+  - version: 'July 28, 2026'
+    date: '2026-07-28'
+    breaking: false
+    api_affecting: false
+    highlights:
+      - Crosstabs question table editor now validates net values and stops coercing floats to integers.
+      - Whitelabelled emails from the fieldreport logic node no longer raise DMARC errors.
+    url: https://forstasurveys.zendesk.com/hc/en-us/articles/53659238370331-July-28-2026-Release-Notes
+  - version: '155.3'
+    date: '2026-07-14'
+    breaking: false
+    api_affecting: false
+    highlights:
+      - Cint Secure Sample participants with an invalid status now report status to Cint correctly.
+    url: https://forstasurveys.zendesk.com/hc/en-us/articles/53460989665307-155-3-Release-Notes
+  - version: 'June 30, 2026'
+    date: '2026-06-30'
+    breaking: true
+    api_affecting: true
+    highlights:
+      - >-
+        Behaviour change - delphi surveys with child surveys can no longer be archived directly.
+        Children must be archived first. This changes the outcome of createSurveyArchive for that
+        survey shape.
+      - AI Compute logic nodes now drain their queue after a survey closes.
+    url: https://forstasurveys.zendesk.com/hc/en-us/articles/52377960215195-June-30-2026-Release-Notes
+  - version: '155.2'
+    date: '2026-06-16'
+    breaking: false
+    api_affecting: false
+    highlights:
+      - Autosum question postText display fix in the participant view.
+    url: https://forstasurveys.zendesk.com/hc/en-us/articles/53659244805019-155-2-Release-Notes
+window: 2026-06-16 to 2026-09-08 (the seven most recent releases of 936 published articles)

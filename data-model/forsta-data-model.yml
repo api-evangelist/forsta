@@ -1,0 +1,162 @@
+generated: '2026-09-10'
+method: derived
+source: >-
+  Path hierarchy and path-parameter names of openapi/forsta-decipher-rest-api-openapi.yml (174
+  paths) and openapi/forsta-panel-management-integration-openapi.yml (51 paths)
+derivation_note: >-
+  Derived from the URL hierarchy and path-parameter names, NOT from $ref graph. These contracts
+  reuse almost no named schemas - 112 components.schemas exist across the eight documents but 89
+  of the references point at one shared `error` schema and the Sample Marketplace qualification
+  enums account for most of the rest; request and response bodies are overwhelmingly inline. The
+  containment relationships below are therefore read off the resource paths, which the Decipher
+  documentation states explicitly is the contract: "accessing the collection URL gives you a list
+  of resources, and appending the resource's ID lets you read or write that particular resource".
+entities:
+  - name: company
+    path: /rh/companies/{company}
+    id: company slug or numeric id
+    description: The tenant. Owns surveys, users, panels, preferences, retention settings and archives.
+  - name: user
+    path: /rh/users/{user}
+    id: email address OR numeric user id (both accepted on the same route)
+    description: A Research Hub user. Belongs to a company; can be impersonated by a staff key.
+  - name: apikey
+    path: /rh/apikeys/{apikey}
+    id: the first 32 characters of the 64-character key
+    description: >-
+      An API credential belonging to a user, optionally restricted by call, method, forced
+      parameter, IP network and expiry.
+  - name: survey
+    path: /surveys/{survey}
+    id: path-shaped survey identifier, e.g. `demo/bapi20` or `your/survey`
+    description: >-
+      The central aggregate. Carries data, datamap, datasources, campaigns, tasks, files, sections,
+      dashboards, crosstabs, quotas, videos, languages, parameters, subscribers and users.
+  - name: panel
+    path: /panels/{panel_id}
+    id: numeric panel id
+    description: A respondent panel. Referenced from both the Decipher API and Panel Management.
+  - name: panelist
+    path: /panels/{panelId}/panelists/{panelistHash}
+    id: panelist hash
+    description: An individual panel member in Panel Management, with notes and survey activity.
+  - name: campaign
+    path: /surveys/{survey}/campaigns/{campaign}
+    id: campaign id
+    description: An email invitation campaign attached to a survey, with lists, sends and suppressions.
+  - name: datasource
+    path: /surveys/{survey}/datasources/{datasource}
+    id: datasource name
+    description: External data attached to a survey, itself holding rows under /data.
+  - name: task
+    path: /surveys/{survey}/tasks/{task_id}
+    id: task id
+    description: A work item on a survey, with comments. Distinct from the async job at /status.
+  - name: archive
+    path: /archives/{company}
+    id: company
+    description: >-
+      Archived survey storage and its deletion / retention reporting. deleteArchive purges
+      collected data irreversibly.
+relationships:
+  - from: company
+    to: survey
+    kind: has_many
+    via: "/rh/companies/{company}/surveys"
+  - from: company
+    to: user
+    kind: has_many
+    via: "/rh/users (scoped by company)"
+  - from: company
+    to: panel
+    kind: has_many
+    via: "/rh/companies/{company}/panels"
+  - from: company
+    to: archive
+    kind: has_one
+    via: "/archives/{company}"
+  - from: user
+    to: apikey
+    kind: has_many
+    via: "/rh/apikeys"
+  - from: survey
+    to: campaign
+    kind: has_many
+    via: "/surveys/{survey}/campaigns"
+  - from: campaign
+    to: send
+    kind: has_many
+    via: "/surveys/{survey}/campaigns/{campaign}/sends"
+  - from: campaign
+    to: list
+    kind: has_one
+    via: "/surveys/{survey}/campaigns/{campaign}/list"
+  - from: survey
+    to: datasource
+    kind: has_many
+    via: "/surveys/{survey}/datasources"
+  - from: datasource
+    to: datasource_row
+    kind: has_many
+    via: "/surveys/{survey}/datasources/{datasource}/data"
+  - from: survey
+    to: task
+    kind: has_many
+    via: "/surveys/{survey}/tasks"
+  - from: survey
+    to: section
+    kind: has_many
+    via: "/surveys/{survey}/sections"
+  - from: survey
+    to: dashboard
+    kind: has_many
+    via: "/surveys/{survey}/dashboards"
+  - from: survey
+    to: file
+    kind: has_many
+    via: "/surveys/{survey}/files"
+  - from: survey
+    to: video
+    kind: has_many
+    via: "/surveys/{survey}/videos"
+  - from: survey
+    to: language
+    kind: has_many
+    via: "/surveys/{survey}/mls/languages"
+  - from: survey
+    to: quota
+    kind: has_one
+    via: "/surveys/{survey}/quota"
+  - from: survey
+    to: datamap
+    kind: has_one
+    via: "/surveys/{survey}/datamap"
+  - from: survey
+    to: panel
+    kind: has_many
+    via: "/surveys/{survey}/panels"
+  - from: survey
+    to: user
+    kind: has_many
+    via: "/surveys/{survey}/users"
+  - from: survey
+    to: subscriber
+    kind: has_many
+    via: "/surveys/{survey}/subscribers"
+  - from: panel
+    to: panelist
+    kind: has_many
+    via: "/panels/{panelId}/panelists"
+  - from: panel
+    to: datapoint
+    kind: has_many
+    via: "/panels/{panel_id}/datapoints"
+  - from: panelist
+    to: note
+    kind: has_many
+    via: "/panels/{panelId}/panelists/{panelistHash}/notes"
+shared_error_schema:
+  name: error
+  file: openapi/forsta-decipher-rest-api-openapi.yml
+  referenced_by: 89 responses
+  see: errors/forsta-problem-types.yml

@@ -1,0 +1,179 @@
+openapi: 3.0.0
+info:
+  version: 1.0-beta
+  title: Qualification List
+  description: |
+    # Summary
+
+    This Page lists each of the locales and qualifications specific to it.
+
+
+    # Disclaimer
+
+    Subject to the execution of a Non-Disclosure Agreement with FocusVision Worldwide, Inc (“Forsta”), Forsta hereby grants you a limited, revocable, non-exclusive, non-transferable,
+    non-sublicensable license during the term of the Agreement to:
+    (a) use the API solely for your internal business purposes in developing Your Applications that will communicate and interoperate with the Forsta Offering; and
+    (b) display certain Forsta Marks in compliance with usage guidelines that we may specify from time to time solely in connection with the use of the API and the Applications
+    and not in connection with the advertising, promotion, distribution, or sale of any other products or services. You acknowledge that there are no implied licenses granted under this Agreement.
+    We reserve all rights that are not expressly granted. You may not use the API or any Forsta Mark for any other purpose without our prior written consent.
+    You must obtain an API Key through the registration process available to use and access the API. You may not share your API Key with any third party, must keep your API Key and all log-in information secure,
+    and must use the API Key as your sole means of accessing the API. Your API Key may be revoked at any time by us.
+
+    # Qualifications
+
+    Qualifications are used to constrict sample to participants that have specific qualities or traits. Each qualification is introduced in a particular version of the API.
+
+    Qualifications need to match the locale that the sample is intended for. As an example, if a sample is created for en_CA, the qualifications must be from the en_CA qualification list.
+
+    As new qualifications are added to the Forsta Sample Marketplace, the API contract version will have a minor version upgrade. If there are breaking changes such as renaming of a specific qualification or the options of a qualification, a larger change is required and the major version of the API contract will change.
+
+
+    # en_US
+
+    Qualification | API version added
+    --------------|------------------
+    [Age and Gender of Child](/static/media/questions/en_US/child_ages.yml) | [1.0-beta](#) |  [Translation]()
+    [Age](/static/media/questions/en_US/age.yml) | [1.0-beta](#) |  [Translation]()
+    [Auto Purchase Type](/static/media/questions/en_US/auto_purchase_type.yml) | [1.0-beta](#) |  [Translation]()
+    [Business Decision Maker](/static/media/questions/en_US/department_decision_maker.yml) | [1.0-beta](#) |  [Translation]()
+    [Cell Carrier US](/static/media/questions/en_US/cell_carrier_us.yml) | [1.0-beta](#) |  [Translation]()
+    [Cell Carrier](/static/media/questions/en_US/cell_carrier.yml) | [1.0-beta](#) |  [Translation]()
+    [Department](/static/media/questions/en_US/employee_dept.yml) | [1.0-beta](#) |  [Translation]()
+    [Division](/static/media/questions/en_US/division.yml) | [1.0-beta](#) |  [Translation]()
+    [DMA](/static/media/questions/en_US/dma.yml) | [1.0-beta](#) |  [Translation]()
+    [Education](/static/media/questions/en_US/education.yml) | [1.0-beta](#) |  [Translation]()
+    [Education 2](/static/media/questions/en_US/education_v2.yml) | [1.0-beta](#) |  [Translation]()
+    [Employment](/static/media/questions/en_US/employment.yml) | [1.0-beta](#) |  [Translation]()
+    [Ethnicity](/static/media/questions/en_US/ethnicity.yml) | [1.0-beta](#) |  [Translation]()
+    [Gender](/static/media/questions/en_US/gender.yml) | [1.0-beta](#) |  [Translation]()
+    [Grocery Shopper](/static/media/questions/en_US/grocery_shopper.yml) | [1.0-beta](#) |  [Translation]()
+    [Hispanic](/static/media/questions/en_US/hispanic.yml) | [1.0-beta](#) |  [Translation]()
+    [Home Owner](/static/media/questions/en_US/home_owner.yml) | [1.0-beta](#) |  [Translation]()
+    [Household Responsibility](/static/media/questions/en_US/hh_responsibility.yml) | [1.0-beta](#) |  [Translation]()
+    [Income](/static/media/questions/en_US/income.yml) | [1.0-beta](#) |  [Translation]()
+    [Industry within Household](/static/media/questions/en_US/household_industry.yml) | [1.0-beta](#) |  [Translation]()
+    [Job Title](/static/media/questions/en_US/job_title.yml) | [1.0-beta](#) |  [Translation]()
+    [Mobile](/static/media/questions/en_US/mobile.yml) | [1.0-beta](#) |  [Translation]()
+    [Organization Income](/static/media/questions/en_US/org_income.yml) | [1.0-beta](#) |  [Translation]()
+    [Organization Size](/static/media/questions/en_US/org_census.yml) | [1.0-beta](#) |  [Translation]()
+    [Parent](/static/media/questions/en_US/has_children.yml) | [1.0-beta](#) |  [Translation]()
+    [Pets](/static/media/questions/en_US/pets.yml) | [1.0-beta](#) |  [Translation]()
+    [Primary Decision Maker](/static/media/questions/en_US/primary_decision_maker.yml) | [1.0-beta](#) |  [Translation]()
+    [Profession](/static/media/questions/en_US/personal_industry.yml) | [1.0-beta](#) |  [Translation]()
+    [Region](/static/media/questions/en_US/region.yml) | [1.0-beta](#) |  [Translation]()
+    [Spanish Speaking](/static/media/questions/en_US/spanish_speaking.yml) | [1.0-beta](#) |  [Translation]()
+    [State](/static/media/questions/en_US/state.yml) | [1.0-beta](#) |  [Translation]()
+    [Tablet](/static/media/questions/en_US/tablet.yml) | [1.0-beta](#) |  [Translation]()
+    [Urban Rural](/static/media/questions/en_US/urban_rural.yml) | [1.0-beta](#) |  [Translation]()
+    [Webcam](/static/media/questions/en_US/webcam.yml) | [1.0-beta](#) |  [Translation]()
+    [Zip Code](/static/media/questions/en_US/zip.yml) | [1.0-beta](#) |  [Translation]()
+
+
+    # de_DE
+
+    Qualification | API version added | Translation
+    --------------|------------------|------------
+    [Age](/static/media/questions/de_DE/age.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/de_DE/translations/en_US/age.yaml)
+    [Education](/static/media/questions/de_DE/education.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/de_DE/translations/en_US/education.yaml)
+    [Employment](/static/media/questions/de_DE/employment.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/de_DE/translations/en_US/employment.yaml)
+    [Gender](/static/media/questions/de_DE/gender.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/de_DE/translations/en_US/gender.yaml)
+    [Household Income Combined](/static/media/questions/de_DE/hhi_combined.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/de_DE/translations/en_US/hhi_combined.yaml)
+    [Income](/static/media/questions/de_DE/hhi.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/de_DE/translations/en_US/hhi.yaml)
+    [Mobile](/static/media/questions/de_DE/mobile.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/de_DE/translations/en_US/mobile.yaml)
+    [Region](/static/media/questions/de_DE/region.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/de_DE/translations/en_US/region.yaml)
+    [Tablet](/static/media/questions/de_DE/tablet.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/de_DE/translations/en_US/tablet.yaml)
+
+    # en_CA
+
+    Qualification | API version added
+    --------------|------------------
+    [Age](/static/media/questions/en_CA/age.yaml) | [1.0-beta](#)
+    [Business Decision Maker](/static/media/questions/en_CA/b2b_decision_maker.yaml) | [1.0-beta](#)
+    [Education](/static/media/questions/en_CA/education.yaml) | [1.0-beta](#)
+    [Employment](/static/media/questions/en_CA/employment.yaml) | [1.0-beta](#)
+    [Gender](/static/media/questions/en_CA/gender.yaml) | [1.0-beta](#)
+    [Household Income Combined](/static/media/questions/en_CA/hhi_combined.yaml) | [1.0-beta](#)
+    [Income](/static/media/questions/en_CA/hhi.yaml) | [1.0-beta](#)
+    [Mobile](/static/media/questions/en_CA/mobile.yaml) | [1.0-beta](#)
+    [Province](/static/media/questions/en_CA/province.yaml) | [1.0-beta](#)
+    [Tablet](/static/media/questions/en_CA/tablet.yaml) | [1.0-beta](#)
+
+    # en_GB
+
+    Qualification | API version added
+    --------------|------------------
+    [Age and Gender of Child](/static/media/questions/en_GB/age_and_gender_of_child.yaml) | [1.0-beta](#)
+    [Age](/static/media/questions/en_GB/age.yaml) | [1.0-beta](#)
+    [Business Decision Maker](/static/media/questions/en_GB/b2b_decision_maker.yaml) | [1.0-beta](#)
+    [Company Department](/static/media/questions/en_GB/company_department.yaml) | [1.0-beta](#)
+    [Company Revenue](/static/media/questions/en_GB/company_revenue.yaml) | [1.0-beta](#)
+    [County](/static/media/questions/en_GB/county.yaml) | [1.0-beta](#)
+    [Education](/static/media/questions/en_GB/education.yaml) | [1.0-beta](#)
+    [Employment](/static/media/questions/en_GB/employment.yaml) | [1.0-beta](#)
+    [Gender](/static/media/questions/en_GB/gender.yaml) | [1.0-beta](#)
+    [Household Income Combined](/static/media/questions/en_GB/hhi_combined.yaml) | [1.0-beta](#)
+    [Income](/static/media/questions/en_GB/hhi.yaml) | [1.0-beta](#)
+    [Industry Personal](/static/media/questions/en_GB/industry_personal.yaml) | [1.0-beta](#)
+    [Industry](/static/media/questions/en_GB/industry.yaml) | [1.0-beta](#)
+    [Job Title](/static/media/questions/en_GB/job_title.yaml) | [1.0-beta](#)
+    [Mobile](/static/media/questions/en_GB/mobile.yaml) | [1.0-beta](#)
+    [Number of Employees](/static/media/questions/en_GB/no_of_employees.yaml) | [1.0-beta](#)
+    [Parental Status](/static/media/questions/en_GB/parental_status_standard.yaml) | [1.0-beta](#)
+    [Region](/static/media/questions/en_GB/region.yaml) | [1.0-beta](#)
+    [Tablet](/static/media/questions/en_GB/tablet.yaml) | [1.0-beta](#)
+
+    # es_ES
+
+    Qualification | API version added | Translation
+    --------------|------------------|------------
+    [Age](/static/media/questions/es_ES/age.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/es_ES/translations/en_US/age.yaml)
+    [Education](/static/media/questions/es_ES/education.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/es_ES/translations/en_US/education.yaml)
+    [Employment](/static/media/questions/es_ES/employment.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/es_ES/translations/en_US/employment.yaml)
+    [Gender](/static/media/questions/es_ES/gender.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/es_ES/translations/en_US/gender.yaml)
+    [Household Income Combined](/static/media/questions/es_ES/hhi_combined.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/es_ES/translations/en_US/hhi_combined.yaml)
+    [Income](/static/media/questions/es_ES/hhi.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/es_ES/translations/en_US/hhi.yaml)
+    [Mobile](/static/media/questions/es_ES/mobile.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/es_ES/translations/en_US/mobile.yaml)
+    [Tablet](/static/media/questions/es_ES/tablet.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/es_ES/translations/en_US/tablet.yaml)
+
+    # fr_FR
+
+    Qualification | API version added | Translation
+    --------------|------------------|------------
+    [Age](/static/media/questions/fr_FR/age.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/fr_FR/translations/en_US/age.yaml)
+    [Education](/static/media/questions/fr_FR/education.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/fr_FR/translations/en_US/education.yaml)
+    [Employment](/static/media/questions/fr_FR/employment.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/fr_FR/translations/en_US/employment.yaml)
+    [Gender](/static/media/questions/fr_FR/gender.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/fr_FR/translations/en_US/gender.yaml)
+    [Household Income Combined](/static/media/questions/fr_FR/hhi_combined.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/fr_FR/translations/en_US/hhi_combined.yaml)
+    [Income](/static/media/questions/fr_FR/hhi.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/fr_FR/translations/en_US/hhi.yaml)
+    [Mobile](/static/media/questions/fr_FR/mobile.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/fr_FR/translations/en_US/mobile.yaml)
+    [Region](/static/media/questions/fr_FR/region.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/fr_FR/translations/en_US/region.yaml)
+    [Tablet](/static/media/questions/fr_FR/tablet.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/fr_FR/translations/en_US/tablet.yaml)
+
+    # it_IT
+
+    Qualification | API version added | Translation
+    --------------|------------------|------------
+    [Age](/static/media/questions/it_IT/age.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/it_IT/translations/en_US/age.yaml)
+    [Education](/static/media/questions/it_IT/education.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/it_IT/translations/en_US/education.yaml)
+    [Employment](/static/media/questions/it_IT/employment.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/it_IT/translations/en_US/employment.yaml)
+    [Gender](/static/media/questions/it_IT/gender.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/it_IT/translations/en_US/gender.yaml)
+    [Household Income Combined](/static/media/questions/it_IT/hhi_combined.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/it_IT/translations/en_US/hhi_combined.yaml)
+    [Income](/static/media/questions/it_IT/hhi.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/it_IT/translations/en_US/hhi.yaml)
+    [Mobile](/static/media/questions/it_IT/mobile.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/it_IT/translations/en_US/mobile.yaml)
+    [Region](/static/media/questions/it_IT/region.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/it_IT/translations/en_US/region.yaml)
+    [Tablet](/static/media/questions/it_IT/tablet.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/it_IT/translations/en_US/tablet.yaml)
+
+    # pt_BR
+    Qualification | API version added | Translation
+    --------------|------------------|------------
+    [Age](/static/media/questions/pt_BR/age.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/pt_BR/translations/en_US/age.yaml)
+    [Education](/static/media/questions/pt_BR/education.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/pt_BR/translations/en_US/education.yaml)
+    [Employment](/static/media/questions/pt_BR/employment.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/pt_BR/translations/en_US/employment.yaml)
+    [Gender](/static/media/questions/pt_BR/gender.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/pt_BR/translations/en_US/gender.yaml)
+    [Household Income Combined](/static/media/questions/pt_BR/hhi_combined.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/pt_BR/translations/en_US/hhi_combined.yaml)
+    [Income](/static/media/questions/pt_BR/hhi.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/pt_BR/translations/en_US/hhi.yaml)
+    [Mobile](/static/media/questions/pt_BR/mobile.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/pt_BR/translations/en_US/mobile.yaml)
+    [Region](/static/media/questions/pt_BR/region.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/pt_BR/translations/en_US/region.yaml)
+    [Tablet](/static/media/questions/pt_BR/tablet.yaml) | [1.0-beta](#) |  [Translation](/static/media/questions/pt_BR/translations/en_US/tablet.yaml)
+paths: {}
+components: {}
