@@ -1640,49 +1640,6 @@ apis:
     url: https://docs.developer.focusvision.com/docs/smp/contract
   - type: OAuthScopes
     url: scopes/forsta-scopes.yml
-- aid: forsta:forsta-datasources-api
-  name: Forsta Datasources API
-  description: >-
-    Create new questions in a survey (reporting or survey time).
-
-    This corresponds to [Import Data Element](https://decipher.zendesk.com/hc/en-us/articles/360010271373).
-  humanURL: https://docs.developer.focusvision.com/docs/decipher/api
-  baseURL: https://{server}/api/v1
-  tags:
-  - Datasources
-  properties:
-  - type: OpenAPI
-    url: openapi/forsta-datasources-api-openapi.yml
-  - type: Documentation
-    url: https://docs.developer.focusvision.com/docs/decipher/api
-  - type: APIReference
-    url: https://docs.developer.focusvision.com/docs/decipher/api
-  - type: Authentication
-    url: authentication/forsta-authentication.yml
-  - type: Conventions
-    url: conventions/forsta-conventions.yml
-  - type: ErrorCatalog
-    url: errors/forsta-problem-types.yml
-  - type: DataModel
-    url: data-model/forsta-data-model.yml
-  - type: RateLimits
-    url: rate-limits/forsta-rate-limits.yml
-  - type: Sandbox
-    url: sandbox/forsta-sandbox.yml
-  - type: CLI
-    url: cli/forsta-cli.yml
-  - type: Documentation
-    url: https://docs.developer.focusvision.com/docs/panelmanagement/integration/api
-  - type: APIReference
-    url: https://docs.developer.focusvision.com/docs/panelmanagement/integration/api
-  - type: Webhooks
-    url: asyncapi/forsta-panel-management-webhooks.yml
-  - type: Documentation
-    url: https://docs.developer.focusvision.com/docs/smp/contract
-  - type: APIReference
-    url: https://docs.developer.focusvision.com/docs/smp/contract
-  - type: OAuthScopes
-    url: scopes/forsta-scopes.yml
 - aid: forsta:forsta-datasources-data-api
   name: Forsta Datasources Data API
   description: >-
@@ -2423,48 +2380,6 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/forsta-notes-api-openapi.yml
-  - type: Documentation
-    url: https://docs.developer.focusvision.com/docs/decipher/api
-  - type: APIReference
-    url: https://docs.developer.focusvision.com/docs/decipher/api
-  - type: Authentication
-    url: authentication/forsta-authentication.yml
-  - type: Conventions
-    url: conventions/forsta-conventions.yml
-  - type: ErrorCatalog
-    url: errors/forsta-problem-types.yml
-  - type: DataModel
-    url: data-model/forsta-data-model.yml
-  - type: RateLimits
-    url: rate-limits/forsta-rate-limits.yml
-  - type: Sandbox
-    url: sandbox/forsta-sandbox.yml
-  - type: CLI
-    url: cli/forsta-cli.yml
-  - type: Documentation
-    url: https://docs.developer.focusvision.com/docs/panelmanagement/integration/api
-  - type: APIReference
-    url: https://docs.developer.focusvision.com/docs/panelmanagement/integration/api
-  - type: Webhooks
-    url: asyncapi/forsta-panel-management-webhooks.yml
-  - type: Documentation
-    url: https://docs.developer.focusvision.com/docs/smp/contract
-  - type: APIReference
-    url: https://docs.developer.focusvision.com/docs/smp/contract
-  - type: OAuthScopes
-    url: scopes/forsta-scopes.yml
-- aid: forsta:forsta-oauth2-api
-  name: Forsta O Auth2 API
-  description: >-
-    The OAuth2 resources are used to validate authentication tokens to allow communication between the
-    applications.
-  humanURL: https://docs.developer.focusvision.com/docs/decipher/api
-  baseURL: https://{server}/api/v1
-  tags:
-  - OAuth2
-  properties:
-  - type: OpenAPI
-    url: openapi/forsta-oauth2-api-openapi.yml
   - type: Documentation
     url: https://docs.developer.focusvision.com/docs/decipher/api
   - type: APIReference
@@ -4999,6 +4914,91 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/forsta-watermarked-videos-api-openapi.yml
+  - type: Documentation
+    url: https://docs.developer.focusvision.com/docs/decipher/api
+  - type: APIReference
+    url: https://docs.developer.focusvision.com/docs/decipher/api
+  - type: Authentication
+    url: authentication/forsta-authentication.yml
+  - type: Conventions
+    url: conventions/forsta-conventions.yml
+  - type: ErrorCatalog
+    url: errors/forsta-problem-types.yml
+  - type: DataModel
+    url: data-model/forsta-data-model.yml
+  - type: RateLimits
+    url: rate-limits/forsta-rate-limits.yml
+  - type: Sandbox
+    url: sandbox/forsta-sandbox.yml
+  - type: CLI
+    url: cli/forsta-cli.yml
+  - type: Documentation
+    url: https://docs.developer.focusvision.com/docs/panelmanagement/integration/api
+  - type: APIReference
+    url: https://docs.developer.focusvision.com/docs/panelmanagement/integration/api
+  - type: Webhooks
+    url: asyncapi/forsta-panel-management-webhooks.yml
+  - type: Documentation
+    url: https://docs.developer.focusvision.com/docs/smp/contract
+  - type: APIReference
+    url: https://docs.developer.focusvision.com/docs/smp/contract
+  - type: OAuthScopes
+    url: scopes/forsta-scopes.yml
+- aid: forsta:forsta-oauth2-api
+  name: Forsta O Auth2 API
+  description: >-
+    The OAuth2 resources are used to validate authentication tokens to allow communication between the
+    applications.
+  humanURL: https://docs.developer.focusvision.com/docs/decipher/api
+  baseURL: https://{server}/api/v1
+  tags:
+  - OAuth2
+  properties:
+  - type: OpenAPI
+    url: openapi/forsta-oauth2-api-openapi.yml
+  - type: Documentation
+    url: https://docs.developer.focusvision.com/docs/decipher/api
+  - type: APIReference
+    url: https://docs.developer.focusvision.com/docs/decipher/api
+  - type: Authentication
+    url: authentication/forsta-authentication.yml
+  - type: Conventions
+    url: conventions/forsta-conventions.yml
+  - type: ErrorCatalog
+    url: errors/forsta-problem-types.yml
+  - type: DataModel
+    url: data-model/forsta-data-model.yml
+  - type: RateLimits
+    url: rate-limits/forsta-rate-limits.yml
+  - type: Sandbox
+    url: sandbox/forsta-sandbox.yml
+  - type: CLI
+    url: cli/forsta-cli.yml
+  - type: Documentation
+    url: https://docs.developer.focusvision.com/docs/panelmanagement/integration/api
+  - type: APIReference
+    url: https://docs.developer.focusvision.com/docs/panelmanagement/integration/api
+  - type: Webhooks
+    url: asyncapi/forsta-panel-management-webhooks.yml
+  - type: Documentation
+    url: https://docs.developer.focusvision.com/docs/smp/contract
+  - type: APIReference
+    url: https://docs.developer.focusvision.com/docs/smp/contract
+  - type: OAuthScopes
+    url: scopes/forsta-scopes.yml
+- aid: forsta:forsta-data-sources-api
+  name: Forsta Data Sources API
+  description: >-
+    Create new questions in a survey (reporting or survey time).
+
+    This corresponds to Import Data Element.
+  humanURL: https://docs.developer.focusvision.com/docs/decipher/api
+  baseURL: https://{server}/api/v1
+  tags:
+  - Data Sources
+  properties:
+  - type: OpenAPI
+    url: openapi/forsta-data-sources-api-openapi.yml
   - type: Documentation
     url: https://docs.developer.focusvision.com/docs/decipher/api
   - type: APIReference
