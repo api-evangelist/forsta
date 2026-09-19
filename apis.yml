@@ -105,6 +105,8 @@ apis:
   humanURL: https://docs.developer.focusvision.com/docs/decipher/api
   baseURL: https://{server}/api/v1
   tags:
+  - APIKeys
+  tags_raw:
   - API Keys
   properties:
   - type: OpenAPI
@@ -345,6 +347,8 @@ apis:
   humanURL: https://docs.developer.focusvision.com/docs/decipher/api
   baseURL: https://{server}/api/v1
   tags:
+  - Authentication
+  tags_raw:
   - Auth
   properties:
   - type: OpenAPI
@@ -2179,7 +2183,8 @@ apis:
   description: The Miscellaneous API from Forsta — 7 operation(s) for miscellaneous.
   humanURL: https://docs.developer.focusvision.com/docs/decipher/api
   baseURL: https://{server}/api/v1
-  tags:
+  tags: []
+  tags_raw:
   - Miscellaneous
   properties:
   - type: OpenAPI
@@ -2940,6 +2945,8 @@ apis:
   humanURL: https://docs.developer.focusvision.com/docs/decipher/api
   baseURL: https://{server}/api/v1
   tags:
+  - Project
+  tags_raw:
   - Projects
   properties:
   - type: OpenAPI
@@ -3020,6 +3027,8 @@ apis:
   humanURL: https://docs.developer.focusvision.com/docs/decipher/api
   baseURL: https://{server}/api/v1
   tags:
+  - Redemptions
+  tags_raw:
   - Redemption
   properties:
   - type: OpenAPI
@@ -3383,6 +3392,8 @@ apis:
   humanURL: https://docs.developer.focusvision.com/docs/decipher/api
   baseURL: https://{server}/api/v1
   tags:
+  - Sessions
+  tags_raw:
   - Session
   properties:
   - type: OpenAPI
@@ -3703,6 +3714,8 @@ apis:
   humanURL: https://docs.developer.focusvision.com/docs/decipher/api
   baseURL: https://{server}/api/v1
   tags:
+  - Surveys
+  tags_raw:
   - Survey
   properties:
   - type: OpenAPI
@@ -4424,6 +4437,8 @@ apis:
   humanURL: https://docs.developer.focusvision.com/docs/decipher/api
   baseURL: https://{server}/api/v1
   tags:
+  - Tokens
+  tags_raw:
   - Token
   properties:
   - type: OpenAPI
@@ -4589,6 +4604,8 @@ apis:
   humanURL: https://docs.developer.focusvision.com/docs/decipher/api
   baseURL: https://{server}/api/v1
   tags:
+  - Translation
+  tags_raw:
   - Translations
   properties:
   - type: OpenAPI
@@ -4750,6 +4767,8 @@ apis:
   humanURL: https://docs.developer.focusvision.com/docs/decipher/api
   baseURL: https://{server}/api/v1
   tags:
+  - User
+  tags_raw:
   - Users
   properties:
   - type: OpenAPI
@@ -4830,6 +4849,8 @@ apis:
   humanURL: https://docs.developer.focusvision.com/docs/decipher/api
   baseURL: https://{server}/api/v1
   tags:
+  - Video
+  tags_raw:
   - Videos
   properties:
   - type: OpenAPI
@@ -4952,6 +4973,8 @@ apis:
   humanURL: https://docs.developer.focusvision.com/docs/decipher/api
   baseURL: https://{server}/api/v1
   tags:
+  - Authentication
+  tags_raw:
   - OAuth2
   properties:
   - type: OpenAPI
