@@ -9,6 +9,13 @@
       "method": "discovered"
     },
     {
+      "source": "https://help.forsta.com/blog/feed/",
+      "feed_url": "https://help.forsta.com/blog/feed/",
+      "title": "",
+      "saved": 0,
+      "method": "feed"
+    },
+    {
       "source": "https://www.forsta.com/resources/blog/blog/feed/",
       "feed_url": "https://www.forsta.com/resources/blog/blog/feed/",
       "title": "",
@@ -23,7 +30,7 @@
       "method": "feed"
     }
   ],
-  "fetched": "2026-09-13T13:00:00Z",
+  "fetched": "2026-09-19T20:17:39Z",
   "post_count": 44,
   "feed_nature": "vendor-blog",
   "feed_nature_basis": "path_blog",
