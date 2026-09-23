@@ -1,0 +1,593 @@
+openapi: 3.2.0
+info:
+  title: Decipher Rest Users API
+  version: '1.0'
+  description: The Decipher REST API allows comprehensive automation of your private or shared Decipher instance.
+servers:
+- url: https://{server}/api/v1
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: selfserve.decipherinc.com
+      description: Server domain
+security:
+- APIKey: []
+tags:
+- name: Users
+paths:
+  /rh/users:
+    get:
+      operationId: getRHUsers
+      summary: List users
+      description: What users exist on the system? Returns an array of user objects.
+      tags:
+      - Users
+      parameters:
+      - name: company
+        description: 'show users only from this particular company ID. A staff user will
+
+          by default see all users in all companies but can choose to see only
+
+          a specific one. A regional supervisor user will see only users in
+
+          their own company but can select one of the companies they
+
+          supervises.
+
+          '
+        in: query
+        required: false
+        schema:
+          type: string
+        example: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/userData'
+  /rh/users/{user}:
+    get:
+      operationId: getRHUser
+      summary: Get user
+      description: Fetches information about a single user.
+      tags:
+      - Users
+      parameters:
+      - name: user
+        description: Either the ID or email address of the requested user.
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userData'
+    put:
+      operationId: updateRHUser
+      summary: Update user active status or company
+      description: Update the active status or company of a given user. Change should include an explanation via the `why` parameter which is added to the audit log with the changer and the change. You must be able to edit the user, i.e. you are supervisor for the company or staff user. If changing the company, you must be able to manage the user's company and the company being moved to.
+      tags:
+      - Users
+      parameters:
+      - name: user
+        description: either the ID or email address of the user to affect
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                why:
+                  description: 'Explanation for the status change. This is added to the user''s
+
+                    audit log.
+
+                    '
+                  type: string
+                active:
+                  description: 'Set this to `false` to disable a user or `true` to re-enable.
+
+                    '
+                  type: boolean
+                company_id:
+                  description: 'Set this to the ID of the company to move the user to.
+
+                    '
+                  type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+  /rh/users/{user}/send-password-reset:
+    post:
+      operationId: createRHUserSendPasswordReset
+      summary: Create password reset
+      description: Sends a password reset email to the user specified. You must be able to edit the user, i.e. you are supervisor for the company or staff user.
+      tags:
+      - Users
+      parameters:
+      - name: user
+        description: either the ID or email address of the user to email
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+  /rh/users/{user}/reset-2fa:
+    post:
+      operationId: createRHUserReset2FA
+      summary: Reset 2FA Device
+      description: Reset a user's two-factor authentication device. This disassociates the user's account with any configured two-factor device, allowing the user to be able to configure a new two-factor device. Requires you to either be the same user, or have supervisor permissions for the user's company.
+      tags:
+      - Users
+      parameters:
+      - name: user
+        description: either the ID or email address of the user
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: \"success\" if successful
+                  detail:
+                    type: integer
+                    description: human friendly explanation
+              example:
+                status: success
+                detail: 2FA device reset for researcher@example.com. They will be prompted to configure a new one when they next log in.
+      x-codeSamples:
+      - lang: beacon
+        source: 'beacon post rh/users/researcher@example.com/reset-2fa
+
+          '
+  /rh/users/{user}/status:
+    get:
+      operationId: getRHUserStatus
+      summary: Retrieve a user's status
+      description: Retrieve a user's status.
+      tags:
+      - Users
+      parameters:
+      - name: user
+        description: Either the ID or email address whose status you would like to view.
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  active:
+                    description: User active status.
+                    type: boolean
+                    example: false
+                  deactivation_date:
+                    description: Date when the user was deactivated. Only returned when "active" is False.
+                    type: string
+                    example: '2024-05-07T21:05:31Z'
+                  why:
+                    description: Deactivation reason. Only returned when "active" is False.
+                    type: string
+                    example: Disabled due to inactivity
+  /rh/users/{user}/whiteboard:
+    get:
+      operationId: getRHUserWhiteboard
+      summary: Get whiteboard
+      description: Get a user's "whiteboard", containing preferences for e.g. Builder and Portal.
+      tags:
+      - Users
+      parameters:
+      - name: user
+        description: either the ID or email address of the user to affect
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  builder:
+                    type: object
+                    description: Preferences for Builder
+                  portal:
+                    type: object
+                    description: Preferences for Portal
+  /rh/users/{user}/whiteboard/{fragment}:
+    delete:
+      operationId: deleteRHUserWhiteboardFragement
+      summary: Clear whiteboard
+      description: 'Clear part of a user''s whiteboard. The fragment should be either e.g. `portal` or `builder` to clear all settings related to portal and builder, or e.g.`builder/lumos.style.theme` to clear one specific setting (here, the default theme name).
+
+        Returns the data in the entry that was cleared. For list of possible whiteboard items, issue the GET call.'
+      tags:
+      - Users
+      parameters:
+      - name: user
+        description: either the ID or email address of the user to affect
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: fragment
+        description: e.g. `portal` or `portal/companySelection`
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+  /rh/users/{user}/audit-log:
+    get:
+      operationId: getRHUserAuditLog
+      summary: Retrieve a user's audit log
+      description: Retrieve a user's audit log in batches of 1000 entries per page. You can access your own log or the logs of users that you have permissions to view.
+      tags:
+      - Users
+      parameters:
+      - name: user
+        description: Either the ID or email address whose log you would like to view.
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        user_id:
+                          description: ID of the user that triggered the event
+                          type: integer
+                          example: 1
+                        ip:
+                          description: IP that triggered the event.
+                          type: string
+                          example: 172.0.0.0
+                        event:
+                          description: 'Name of the event.
+
+                            '
+                          type: string
+                          example: 'Crosstabs: viewed ''Total Qualified'' report'
+                        created_on:
+                          description: When the event was triggered.
+                          type: string
+                          format: ISO 8601 timestamp with timezone
+                          example: '2022-12-15T19:53:47Z'
+                        type:
+                          description: Event type.
+                          type: string
+                          example: audit.entry
+                        id:
+                          description: ID of the event.
+                          type: integer
+                          example: 9999
+                        user_email:
+                          description: Who triggered the event.
+                          type: string
+                          example: usermail@forsta.com
+                        survey_path:
+                          description: Survey related to the event.
+                          type: string
+                          example: selfserve/53a/220000
+                  links:
+                    type: object
+                    description: 'Link to next batch of entries (page).
+
+                      '
+                    properties:
+                      next:
+                        description: An object with information about how to get the next page of results.
+                        type: object
+                        properties:
+                          href:
+                            description: Request this URL to get the next page of results
+                            type: string
+                            example: '{server}/api/v1/rh/users/{id}/audit-log?page[size]=2&page[after]=9999'
+                          meta:
+                            description: Details about the next link
+                            type: object
+                            properties:
+                              page[size]:
+                                description: 'If manually constructing the URL for the next page,
+
+                                  this is the parameter that would need to be changed to the
+
+                                  number of entries per page.
+
+                                  '
+                                type: string
+                                example: '9999'
+                              page[after]:
+                                description: 'If manually constructing the URL for the next page,
+
+                                  this is the parameter that would need to the ID after
+
+                                  which you want to start.
+
+                                  '
+                                type: string
+                                example: '9999'
+components:
+  schemas:
+    userData:
+      type: object
+      properties:
+        last_login_where:
+          type: string
+          format: ip address
+          description: The IP address of the last login.
+          example: 127.0.0.0
+        supervisor:
+          type: boolean
+          description: Whether the user is a supervisor.
+          example: false
+        subdirectory:
+          type: string
+          description: The user's subdirectory, or null.
+          example: null
+        type:
+          type: string
+          description: The user type.
+          example: f
+        company:
+          type: integer
+          description: The company ID.
+          example: 1
+        id:
+          type: integer
+          description: The user ID.
+          example: 1
+        last_password_change:
+          type: string
+          format: ISO-8601 timestamp with timezone
+          description: Date and time the password was last changed.
+          example: '2025-03-07T23:45:45Z'
+        last_login:
+          type: string
+          format: ISO-8601 timestamp with timezone
+          description: Date and time the user last logged in.
+          example: '2025-03-07T23:45:45Z'
+        active:
+          type: boolean
+          description: Whether the user is active.
+          example: true
+        fullname:
+          type: string
+          description: The full name of the user.
+          example: ''
+        lockedout_until:
+          type: string
+          format: ISO-8601 timestamp with timezone
+          description: User lockout expiration date and time, or null.
+          example: null
+        login:
+          type: string
+          format: email
+          description: The user's email address.
+          example: developer@decipherinc.com
+        expires_on:
+          type: string
+          format: ISO-8601 timestamp with timezone
+          description: Date and time the user will be deactivated, or null.
+          example: null
+        staff:
+          type: boolean
+          description: Whether the user is a staff user.
+          example: true
+        created_on:
+          type: string
+          format: ISO-8601 timestamp with timezone
+          description: Date and time the user was created.
+          example: '2025-03-07T23:45:45Z'
+        created_by:
+          type: string
+          description: Email or name of the user that created this user.
+          example: admin@example.com
+        2fa_device_linked:
+          type: boolean
+          description: Whether the user has a 2FA device linked.
+          example: false
+  securitySchemes:
+    APIKey:
+      type: apiKey
+      in: header
+      name: x-apikey
+      description: 'In order to access the api, you''ll need to generate an API key. Refer to the
+
+        instructions [here](/docs/decipher/api#section/API-Keys) to generate and
+
+        configure an API key with the appropriate permission sets. You can generate
+
+        as many keys as required.
+
+
+        Configure each request to include your API key in the request header. For example:
+
+
+        ```
+
+        x-apikey: dp48ss3mgsaucyjtybxw728h7s4cgnwzhejtszdwhf4xpe8yhmtdwpk2ntdhtwbs
+
+        ```
+
+        '
+x-tagGroups:
+- name: Autoclose
+  tags:
+  - Autoclose
+- name: Data Input and Output
+  tags:
+  - Data
+  - Data Feed
+  - Response Summary
+  - Modifying Data
+  - Datasources
+  - Datasources Data
+  - Umerge
+- name: Survey Metadata
+  tags:
+  - Simulated Data
+  - Survey State
+  - Survey Evaluate
+  - Survey Quotas
+  - Survey Files
+  - Survey Warnings
+  - Survey Terms
+  - Survey Subscribers
+  - Survey Users
+  - Survey Tasks
+- name: Panels
+  tags:
+  - Panel Data
+  - Panel Datapoints
+  - Survey Panels
+- name: Research Hub
+  tags:
+  - Users
+  - Companies
+  - Categories
+  - Surveys
+  - Panels
+  - Crosstabs
+  - Archives
+  - Archival Reports
+  - API Keys
+  - Usage
+  - Warnings Summary
+- name: Crosstabs
+  tags:
+  - Crosstabs Configuration
+  - Crosstabs Execution
+  - Crosstabs Nets
+  - Saved Crosstabs
+  - Crosstabs Table Settings
+  - Crosstabs Validation
+  - Crosstabs Rim Weighting
+- name: Dashboards
+  tags:
+  - Dashboards
+- name: DQ APIs
+  tags:
+  - DQ-Specific API Calls
+  - MaxDiff API Calls
+  - Discrete Choice Model API Calls
+  - Media Testimonial API Calls
+- name: Response Summary
+  tags:
+  - Share Link
+- name: Sample Management
+  tags:
+  - Bounced Emails
+  - Participant Sources
+- name: Distribution
+  tags:
+  - Email Distribution
+  - SFTP Distribution
+  - Slack Distribution
+- name: Campaign Manager
+  tags:
+  - Campaigns
+  - Campaign Email Invites
+  - Campaign Exports
+  - Campaign Lists
+  - Shared Campaign Lists
+  - Campaign Sends
+  - Campaign Status Lists
+  - Supression Lists
+- name: Question Library
+  tags:
+  - Company Element
+  - Company Elements
+  - Survey Elements
+  - Survey Element Report Settings
+- name: Language Manager
+  tags:
+  - LM Application Data
+  - LM Application Translations
+  - Translation Resources
+  - Translations
+  - Translation Deltas
+  - Translation Reservations
+  - Primary Survey Language
+  - Other Survey Languages
+  - Unused Survey Languages
+- name: Project Parameters
+  tags:
+  - Available Project Parameters
+  - Saved Project Parameters
+  - Project Parameters Configuration
+- name: Multi-User Editing
+  tags:
+  - Available Sections
+  - Check Out Section
+  - Check In Section
+  - Sync Section
+  - Section Editor
+  - Abandon Section
+  - Validate Section
+- name: Video Management
+  tags:
+  - Videos
+  - Watermarked Videos
+- name: Miscellaneous
+  tags:
+  - System Information
+  - Logic Nodes
+  - Logic Events
+  - CATI
+  - Global Search
+  - Miscellaneous

@@ -1,0 +1,495 @@
+openapi: 3.2.0
+info:
+  title: Decipher Rest Survey Quotas API
+  version: '1.0'
+  description: The Decipher REST API allows comprehensive automation of your private or shared Decipher instance.
+servers:
+- url: https://{server}/api/v1
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: selfserve.decipherinc.com
+      description: Server domain
+security:
+- APIKey: []
+tags:
+- name: Survey Quotas
+paths:
+  /surveys/{survey}/quota:
+    get:
+      operationId: getSurveyQuota
+      summary: Get quota
+      description: 'Retrieves quota cell definition and current state.
+
+
+        For full KB documentation, see Quotas Guide: Limit and Monitor Project
+
+        Sample.
+
+        Concepts:
+
+
+        * A quota file (quota.xls) contains multiple `sheets`.
+
+        * The survey quota element executes all `tables` from one sheet.
+
+        * `Tables` reference `markers`. A `marker` has either a condition (E.g.
+
+        set if Male - q1.r1)) or is a `plus marker`.
+
+        * A quota `cell` defines number of participants you want that have 1 or
+
+        more markers set.
+
+        * If a participant is eligible for multiple cells, the cell with highest
+
+        `priority` is chosen, otherwise the cell with the least filled
+
+        percentage.
+
+        * If properly eligible, the participant receives one `quota marker` per
+
+        `table` identifying the exact `cell`, which is a combination of the
+
+        sheet and markers involved. For example, `/Sheet1/Male/18-25` (note that
+
+        quotas created with the survey editor will have auto-assigned IDs for
+
+        markers e.g. `/New Quota/AoAos/bo8Oi`).
+
+        * Every `plus marker` the participant is assigned is also set in
+
+        addition to the quota cell marker, e.g. `concept1` and
+
+        `/Concepts/concept1`.'
+      tags:
+      - Survey Quotas
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  markers:
+                    type: object
+                    description: 'Maps each quota cell marker name (e.g. `/Sheet1/Male/18-25`) to
+
+                      an object describing its current state.
+
+                      '
+                    additionalProperties:
+                      type: object
+                      properties:
+                        complete:
+                          type: integer
+                          description: 'The number of *completed* and qualified participants
+
+                            with that marker.
+
+                            '
+                        pending:
+                          type: integer
+                          description: 'The number of participants who have been set the marker
+
+                            and have been active within the last 15 minutes, but have
+
+                            not yet completed.
+
+                            '
+                        limit:
+                          type: integer
+                          description: 'The current effective cell limit (when using soft quotas
+
+                            this may be different from the hard limit).
+
+                            '
+                        oq:
+                          type: integer
+                          description: 'The number of participants who qualified for the cell but
+
+                            were terminated because the cell had already reached the
+
+                            limit.
+
+                            '
+                  sheets:
+                    type: object
+                    description: 'Maps sheet names to sheet definitions. Each sheet definition is
+
+                      an array of tables.
+
+                      '
+                    additionalProperties:
+                      type: array
+                      description: array of table properties
+                      items:
+                        type: object
+                        properties:
+                          description:
+                            type: string
+                            description: 'The table name, an optional description entered.
+
+                              '
+                          cellCount:
+                            type: integer
+                            description: 'The maximum number of quota cells selected when hitting
+
+                              this table (normally just 1)
+
+                              '
+                          sheetCond:
+                            type: string
+                            description: "Value of the `cond` attribute on the quota element for the \n\"sheet\" that contains this table. \nIf no `cond` attribute is present, then `null`\n"
+                          tableTotal:
+                            type: integer
+                            description: 'The table total. This is used solely for soft quotas and
+
+                              percentage-based selection.
+
+                              '
+                          tableIndex:
+                            type: integer
+                            description: The table index in relation to the sheet.
+                          cells:
+                            type: array
+                            description: An array of the quota cells.
+                            items:
+                              type: object
+                              properties:
+                                marker:
+                                  type: string
+                                  description: Name of the quota cell marker set by this `cell`. Index into `markers` above to find the counts.
+                                components:
+                                  type: array
+                                  description: 'The markers (see `defines` and `plus`) that make
+
+                                    up this quota marker.
+
+                                    '
+                                  items:
+                                    type: string
+                  defines:
+                    type: object
+                    description: Maps a marker name to an object
+                    additionalProperties:
+                      type: object
+                      properties:
+                        cond:
+                          type: string
+                          description: 'The logic condition required to qualify for this marker.
+
+                            If `null`, this is a plus marker.
+
+                            '
+                        description:
+                          type: string
+                          description: 'The alternative text for a marker shown in the Response
+
+                            Summary.
+
+                            '
+                  plus:
+                    type: array
+                    description: An array of plus markers defined in this quota
+                    items:
+                      type: string
+                  priority:
+                    type: object
+                    description: 'Maps quota cell markers (e.g. `/Sheet1/Male/18-25`) to priority
+
+                      levels. Those not mentioned have priority 0.
+
+                      '
+                    additionalProperties:
+                      type: integer
+                  stopped:
+                    type: object
+                    description: 'Maps quota cell markers of cells that were stopped to a string
+
+                      of data indicating the user that stopped the cell and the
+
+                      timestamp of when the cell was stopped. Those have a temporary
+
+                      hard limit of 0 until resumed.
+
+                      '
+                    additionalProperties:
+                      type: string
+                example:
+                  markers:
+                    /New Quota (1)/two:
+                      limit: 50
+                      pending: 0
+                      oq: 0
+                      complete: 0
+                    /New Quota/AoAos/bo8Oi:
+                      limit: 20
+                      pending: 0
+                      oq: 0
+                      complete: 0
+                    /New Quota (1)/one:
+                      limit: 50
+                      pending: 0
+                      oq: 0
+                      complete: 0
+                  priority:
+                    /New Quota (1)/one: 2
+                  plus:
+                  - four
+                  - five
+                  - three
+                  - two
+                  - one
+                  sheets:
+                    New Quota (1):
+                    - cellCount: 1
+                      sheetCond: null
+                      tableTotal: 250
+                      tableIndex: 0
+                      cells:
+                      - marker: /New Quota (1)/one
+                        components:
+                        - one
+                      - marker: /New Quota (1)/two
+                        components:
+                        - two
+                  stopped:
+                    /New Quota/AoAos/s9oVa: erwin@decipherinc.com on 02/24/2015 12:48
+                  defines:
+                    XiiZn:
+                      cond: (q1.r6)
+                      description: 55-65
+                    LvmQy:
+                      cond: (q1.r2)
+                      description: 18-24
+  /surveys/{survey}/quota/edit:
+    put:
+      operationId: updateSurveyQuotaEdit
+      summary: Update quotas
+      description: 'Updates quota limits. Requires Response Summary: edit permission for the
+
+        project. Use Quota API to access quota definitions.'
+      tags:
+      - Survey Quotas
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                limits:
+                  type: object
+                  description: 'Contains the keys and new limits. The key for cell is the full marker
+
+                    name and table is the sheet/tableindex. Use the Quota API to retrieve
+
+                    the quota table sheet and index.
+
+                    '
+              required:
+              - limits
+            examples:
+              Set cell limits:
+                value:
+                  limits:
+                    /Gender/TDW7j: '125'
+                    /Gender/gp00q: '75'
+              Set table limits:
+                value:
+                  limits:
+                    Gender/1: '500'
+              Remove table limits:
+                value:
+                  limits:
+                    Gender/1: inf
+              Set limit to range:
+                value:
+                  limits:
+                    Gender/1: '500'
+                    Gender/TDW7j: 200-500
+                    Gender/gp00q: 0-300
+              Set limit to percentages:
+                value:
+                  limits:
+                    Gender/1: '500'
+                    Gender/TDW7j: 70%
+                    Gender/gp00q: 30%
+              Set priorities:
+                value:
+                  limits:
+                    Gender/TDW7j: '125:3'
+                    Gender/gp00q: '75'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+components:
+  parameters:
+    survey:
+      name: survey
+      in: path
+      required: true
+      description: The survey path.
+      example: selfserve/1a/123456
+      schema:
+        type: string
+        format: uri
+  securitySchemes:
+    APIKey:
+      type: apiKey
+      in: header
+      name: x-apikey
+      description: 'In order to access the api, you''ll need to generate an API key. Refer to the
+
+        instructions [here](/docs/decipher/api#section/API-Keys) to generate and
+
+        configure an API key with the appropriate permission sets. You can generate
+
+        as many keys as required.
+
+
+        Configure each request to include your API key in the request header. For example:
+
+
+        ```
+
+        x-apikey: dp48ss3mgsaucyjtybxw728h7s4cgnwzhejtszdwhf4xpe8yhmtdwpk2ntdhtwbs
+
+        ```
+
+        '
+x-tagGroups:
+- name: Autoclose
+  tags:
+  - Autoclose
+- name: Data Input and Output
+  tags:
+  - Data
+  - Data Feed
+  - Response Summary
+  - Modifying Data
+  - Datasources
+  - Datasources Data
+  - Umerge
+- name: Survey Metadata
+  tags:
+  - Simulated Data
+  - Survey State
+  - Survey Evaluate
+  - Survey Quotas
+  - Survey Files
+  - Survey Warnings
+  - Survey Terms
+  - Survey Subscribers
+  - Survey Users
+  - Survey Tasks
+- name: Panels
+  tags:
+  - Panel Data
+  - Panel Datapoints
+  - Survey Panels
+- name: Research Hub
+  tags:
+  - Users
+  - Companies
+  - Categories
+  - Surveys
+  - Panels
+  - Crosstabs
+  - Archives
+  - Archival Reports
+  - API Keys
+  - Usage
+  - Warnings Summary
+- name: Crosstabs
+  tags:
+  - Crosstabs Configuration
+  - Crosstabs Execution
+  - Crosstabs Nets
+  - Saved Crosstabs
+  - Crosstabs Table Settings
+  - Crosstabs Validation
+  - Crosstabs Rim Weighting
+- name: Dashboards
+  tags:
+  - Dashboards
+- name: DQ APIs
+  tags:
+  - DQ-Specific API Calls
+  - MaxDiff API Calls
+  - Discrete Choice Model API Calls
+  - Media Testimonial API Calls
+- name: Response Summary
+  tags:
+  - Share Link
+- name: Sample Management
+  tags:
+  - Bounced Emails
+  - Participant Sources
+- name: Distribution
+  tags:
+  - Email Distribution
+  - SFTP Distribution
+  - Slack Distribution
+- name: Campaign Manager
+  tags:
+  - Campaigns
+  - Campaign Email Invites
+  - Campaign Exports
+  - Campaign Lists
+  - Shared Campaign Lists
+  - Campaign Sends
+  - Campaign Status Lists
+  - Supression Lists
+- name: Question Library
+  tags:
+  - Company Element
+  - Company Elements
+  - Survey Elements
+  - Survey Element Report Settings
+- name: Language Manager
+  tags:
+  - LM Application Data
+  - LM Application Translations
+  - Translation Resources
+  - Translations
+  - Translation Deltas
+  - Translation Reservations
+  - Primary Survey Language
+  - Other Survey Languages
+  - Unused Survey Languages
+- name: Project Parameters
+  tags:
+  - Available Project Parameters
+  - Saved Project Parameters
+  - Project Parameters Configuration
+- name: Multi-User Editing
+  tags:
+  - Available Sections
+  - Check Out Section
+  - Check In Section
+  - Sync Section
+  - Section Editor
+  - Abandon Section
+  - Validate Section
+- name: Video Management
+  tags:
+  - Videos
+  - Watermarked Videos
+- name: Miscellaneous
+  tags:
+  - System Information
+  - Logic Nodes
+  - Logic Events
+  - CATI
+  - Global Search
+  - Miscellaneous

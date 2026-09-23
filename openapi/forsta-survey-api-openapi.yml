@@ -1,0 +1,1570 @@
+openapi: 3.2.0
+info:
+  title: Forsta Survey API
+  version: ''
+  description: 'Operations tagged Survey across 2 of this provider''s published API definitions: forsta-panel-management-community-openapi.yml, forsta-panel-management-integration-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://{server}
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: staging.panel.dev.focusvision.com/
+      description: Server domain
+tags:
+- name: Survey
+paths:
+  /api.pro#method=portal.survey.completed:
+    post:
+      operationId: portal.survey.completed
+      summary: This method returns a list of completed surveys
+      tags:
+      - Survey
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.survey.completed
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                limit:
+                  type:
+                  - integer
+                  - 'null'
+                  description: Max number of surveys to return.
+                  default: null
+                offset:
+                  type:
+                  - integer
+                  - 'null'
+                  description: Offset the output for pagination.
+                  default: null
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+            example:
+              seskey: ce512c91
+              limit: 10
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: The list of completed surveys was successful.
+                    limit:
+                      type:
+                      - integer
+                      - 'null'
+                      description: The limit supplied in the call
+                    offset:
+                      type:
+                      - integer
+                      - 'null'
+                      description: The offset supplied in the call
+                    count:
+                      type: integer
+                      description: The total count of items available (regardless of limit and offset)
+                    surveys:
+                      type: array
+                      description: Array of surveys the panelist has completed or been terminated from.
+                      items:
+                        properties:
+                          subject:
+                            type: string
+                            description: Multilingual survey name from the campaign
+                          body:
+                            type: string
+                            description: Multilingual survey description from the campaign
+                          status:
+                            type: string
+                            enum:
+                            - completed
+                            - profile
+                            - quota
+                            description: Survey status, 'completed', 'profile' or 'quota'.
+                          time:
+                            type: string
+                            description: The ISO 8601 time the survey was finished.
+                          points:
+                            type: integer
+                            description: The number of points awarded for a completed survey/
+                          projectid:
+                            type: integer
+                            description: The project ID.
+                          categoryids:
+                            type: array
+                            description: Array of category IDs
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    limit: null
+                    offset: null
+                    count: 2
+                    surveys:
+                    - subject: Vacation survey
+                      body: Take this survey to win a new iPad
+                      status: completed
+                      time: 2013-06-14 11:32
+                      points: 200
+                      projectid: 45
+                    - subject: Foo bar survey
+                      body: Take this survey to earn 200 reward points
+                      status: quota
+                      time: 2013-06-13 09:32
+                      points: 200
+                      projectid: 34
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+      security:
+      - ApiKey: []
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api.pro#method=portal.survey.completedByCategory:
+    post:
+      operationId: portal.survey.completedByCategory
+      summary: Returns a list of completed surveys - filtered by category id
+      tags:
+      - Survey
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.survey.completedByCategory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                limit:
+                  type:
+                  - integer
+                  - 'null'
+                  description: Max number of surveys to return.
+                  default: null
+                offset:
+                  type:
+                  - integer
+                  - 'null'
+                  description: Offset the output for pagination.
+                  default: null
+                categoryid:
+                  type: integer
+                  description: Category ID
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+              - categoryid
+            example:
+              seskey: ce512c91
+              limit: 10
+              offset: 20
+              categoryid: 42
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: The list of completed surveys was successful.
+                    limit:
+                      type:
+                      - integer
+                      - 'null'
+                      description: The limit supplied in the call
+                    offset:
+                      type:
+                      - integer
+                      - 'null'
+                      description: The offset supplied in the call
+                    count:
+                      type: string
+                      description: The total count of items available (regardless of limit and offset)
+                    surveys:
+                      type: array
+                      description: Array of surveys the panelist has completed or been terminated from.
+                      items:
+                        properties:
+                          subject:
+                            type: string
+                            description: Multilingual survey name from the campaign
+                          body:
+                            type: string
+                            description: Multilingual survey description from the campaign
+                          status:
+                            type: string
+                            enum:
+                            - completed
+                            - profile
+                            - quota
+                            description: Survey status, 'completed', 'profile' or 'quota'.
+                          time:
+                            type: string
+                            description: The ISO 8601 time the survey was finished.
+                          points:
+                            type: integer
+                            description: The number of points awarded for a completed survey/
+                          projectid:
+                            type: integer
+                            description: The project ID.
+                          categoryids:
+                            type: array
+                            description: Array of category IDs
+                            items:
+                              type: integer
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    limit: null
+                    offset: null
+                    count: '2'
+                    surveys:
+                    - subject: Vacation survey
+                      body: Take this survey to win a new iPad
+                      status: completed
+                      time: 2013-06-14 11:32
+                      points: 200
+                      projectid: 45
+                      categoryids: []
+                    - subject: Foo bar survey
+                      body: Take this survey to earn 200 reward points
+                      status: quota
+                      time: 2013-06-13 09:32
+                      points: 200
+                      projectid: 34
+                      categoryids:
+                      - 1
+                      - 2
+                error-0:
+                  description: Category ID is required and must be numeric.
+                  summary: Category ID invalid
+                  value:
+                    success: false
+                    error: Category ID missing or invalid
+                    errno: '0'
+                error-1:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-2:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-3:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+      security:
+      - ApiKey: []
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api.pro#method=portal.survey.completedCount:
+    post:
+      operationId: portal.survey.completedCount
+      summary: Retrieves the number of surveys completed by the panelist
+      tags:
+      - Survey
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.survey.completedCount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+            example:
+              seskey: ce512c91
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: The call status.
+                    count:
+                      type: integer
+                      description: The number of items available
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    count: 42
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+      security:
+      - ApiKey: []
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api.pro#method=portal.survey.completedCountByCategoryID:
+    post:
+      operationId: portal.survey.completedCountByCategory
+      summary: Retrieves the number of surveys completed by the panelist - filtered by…
+      tags:
+      - Survey
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.survey.completedCountByCategory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                categoryid:
+                  type: integer
+                  description: A valid category id
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+              - categoryid
+            example:
+              seskey: ce512c91
+              categoryid: 42
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: The call status.
+                    count:
+                      type: integer
+                      description: The number of items available
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    count: 42
+                error-0:
+                  description: Category ID is required and must be numeric.
+                  summary: Category ID invalid
+                  value:
+                    success: false
+                    error: Category ID missing or invalid
+                    errno: '0'
+                error-1:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-2:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-3:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+      security:
+      - ApiKey: []
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api.pro#method=portal.survey.available:
+    post:
+      operationId: portal.survey.available
+      summary: Returns all available surveys for the panelist
+      tags:
+      - Survey
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.survey.available
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                limit:
+                  type:
+                  - integer
+                  - 'null'
+                  description: Max number of surveys to return.
+                  default: null
+                offset:
+                  type:
+                  - integer
+                  - 'null'
+                  description: Offset the output for pagination.
+                  default: null
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+            example:
+              seskey: ce512c91
+              limit: 10
+              offset: 20
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: The call status.
+                    limit:
+                      type:
+                      - integer
+                      - 'null'
+                      description: The limit supplied in the call
+                    offset:
+                      type:
+                      - integer
+                      - 'null'
+                      description: The offset supplied in the call
+                    count:
+                      type: integer
+                      description: The total count of items available (regardless of limit and offset)
+                    surveys:
+                      type: array
+                      description: An array of surveys to which the panelist has been invited, but has not yet taken. It will not include surveys from closed projects, or from invitations that have expired.
+                      items:
+                        properties:
+                          subject:
+                            type: string
+                            description: Multilingual survey name from the campaign
+                          body:
+                            type: string
+                            description: Multilingual survey description from the campaign
+                          status:
+                            type:
+                            - string
+                            - 'null'
+                            description: '''started'' if the panelist has started, but not completed the survey, otherwise NULL.'
+                          time:
+                            type: string
+                            description: The time this invitation was sent.
+                          points:
+                            type: integer
+                            description: The number of points awarded for a completed survey.
+                          url:
+                            type: string
+                            format: url
+                            description: URL to take the panelist to the survey, as defined in the project.
+                          previewurl:
+                            type:
+                            - string
+                            - 'null'
+                            format: url
+                            description: URL to take the panelist to the original invitation. If the campaign did not have an invitation (community launch only) this field will be NULL.
+                          type:
+                            type:
+                            - string
+                            - 'null'
+                            enum:
+                            - emailhtml
+                            - SMS
+                            description: The type of invitation that was used. If the type is not available (community launch only), this field will be NULL.
+                          endtime:
+                            type: string
+                            description: The time when the campaign expires and the survey links will stop working.
+                          invited:
+                            type: string
+                            description: The time when the panelist was invited.
+                          purpose:
+                            type: string
+                            enum:
+                            - invitation
+                            - automated
+                            - diary
+                            - profiler
+                            - portal
+                            description: The campaign purpose.
+                          projectid:
+                            type: integer
+                            description: The project ID
+                          categoryids:
+                            type: array
+                            description: Array of category IDs
+                            items:
+                              type: integer
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    limit: null
+                    offset: null
+                    count: 1
+                    surveys:
+                    - subject: Today's 5 minute Survey
+                      body: This survey is about your favorite type of car.
+                      status: null
+                      time: '2011-10-15 12:18:19'
+                      points: 200
+                      url: http://www.example.com/receiver.pro?seskey=ce512c91
+                      previewurl: http://www.example.com/portalinvite.pro?seskey=ce512c91
+                      type: emailhtml
+                      endtime: '2012-01-15 20:00:00'
+                      invited: '2011-10-15 12:18:19'
+                      purpose: invitation
+                      projectid: 10
+                      categoryids:
+                      - 1
+                      - 2
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+      security:
+      - ApiKey: []
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api.pro#method=portal.survey.availableByCategory:
+    post:
+      operationId: portal.survey.availableByCategory
+      summary: Returns all available surveys for the panelist - filtered by category id
+      tags:
+      - Survey
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.survey.availableByCategory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                limit:
+                  type:
+                  - integer
+                  - 'null'
+                  description: Max number of surveys to return.
+                  default: null
+                offset:
+                  type:
+                  - integer
+                  - 'null'
+                  description: Offset the output for pagination.
+                  default: null
+                categoryid:
+                  type: integer
+                  description: A valid category id
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+              - categoryid
+            example:
+              seskey: ce512c91
+              limit: 10
+              offset: 20
+              categoryid: 42
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: The call status.
+                    limit:
+                      type:
+                      - integer
+                      - 'null'
+                      description: The limit supplied in the call
+                    offset:
+                      type:
+                      - integer
+                      - 'null'
+                      description: The offset supplied in the call
+                    count:
+                      type: integer
+                      description: The total count of items available (regardless of limit and offset)
+                    surveys:
+                      type: array
+                      description: An array of surveys to which the panelist has been invited, but has not yet taken. It will not include surveys from closed projects, or from invitations that have expired.
+                      items:
+                        properties:
+                          subject:
+                            type: string
+                            description: Multilingual survey name from the campaign
+                          body:
+                            type: string
+                            description: Multilingual survey description from the campaign
+                          status:
+                            type:
+                            - string
+                            - 'null'
+                            description: '''started'' if the panelist has started, but not completed the survey, otherwise NULL.'
+                          time:
+                            type: string
+                            description: The time this invitation was sent.
+                          points:
+                            type: integer
+                            description: The number of points awarded for a completed survey.
+                          url:
+                            type: string
+                            format: url
+                            description: URL to take the panelist to the survey, as defined in the project.
+                          previewurl:
+                            type:
+                            - string
+                            - 'null'
+                            format: url
+                            description: URL to take the panelist to the original invitation. If the campaign did not have an invitation (community launch only) this field will be NULL.
+                          type:
+                            type:
+                            - string
+                            - 'null'
+                            enum:
+                            - emailhtml
+                            - SMS
+                            description: The type of invitation that was used. If the type is not available (community launch only), this field will be NULL.
+                          endtime:
+                            type: string
+                            description: The time when the campaign expires and the survey links will stop working.
+                          invited:
+                            type: string
+                            description: The time when the panelist was invited.
+                          purpose:
+                            type: string
+                            enum:
+                            - invitation
+                            - automated
+                            - diary
+                            - profiler
+                            - portal
+                            description: The campaign purpose.
+                          projectid:
+                            type: integer
+                            description: The project ID
+                          categoryids:
+                            type: array
+                            description: Array of category IDs
+                            items:
+                              type: integer
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    limit: null
+                    offset: null
+                    count: 1
+                    surveys:
+                    - subject: Today's 5 minute Survey
+                      body: This survey is about your favorite type of car.
+                      status: null
+                      time: '2011-10-15 12:18:19'
+                      points: 200
+                      url: http://www.example.com/receiver.pro?seskey=ce512c91
+                      previewurl: http://www.example.com/portalinvite.pro?seskey=ce512c91
+                      type: emailhtml
+                      endtime: '2012-01-15 20:00:00'
+                      invited: '2011-10-15 12:18:19'
+                      purpose: invitation
+                      projectid: 10
+                      categoryids:
+                      - 1
+                      - 2
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+      security:
+      - ApiKey: []
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api.pro#method=portal.survey.availableCount:
+    post:
+      operationId: portal.survey.availableCount
+      summary: Retrieves the number of surveys available to the panelist
+      tags:
+      - Survey
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.survey.availableCount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+            example:
+              seskey: ce512c91
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: The call status.
+                    count:
+                      type: integer
+                      description: The number of items available
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    count: 42
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+      security:
+      - ApiKey: []
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api.pro#method=portal.survey.availableCountByCategoryID:
+    post:
+      operationId: portal.survey.availableCountByCategory
+      summary: Retrieves the number of surveys available to the panelist - filtered by…
+      tags:
+      - Survey
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.survey.availableCountByCategory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                categoryid:
+                  type: integer
+                  description: A valid category id
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+              - categoryid
+            example:
+              seskey: ce512c91
+              categoryid: 42
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: The call status.
+                    count:
+                      type: integer
+                      description: The number of items available
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    count: 42
+                error-0:
+                  description: Category ID is required and must be numeric.
+                  summary: Category ID invalid
+                  value:
+                    success: false
+                    error: Category ID missing or invalid
+                    errno: '0'
+                error-1:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-2:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-3:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+      security:
+      - ApiKey: []
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api.pro#method=portal.survey.registerUrl:
+    post:
+      operationId: portal.survey.registerUrl
+      summary: Returns URL for the primary registration survey URL
+      description: Returns URL for the primary registration survey URL. This registration URL is only available if Decipher or Kinesis Survey is used for the initial registration survey.
+      tags:
+      - Survey
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.survey.registerUrl
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                panelid:
+                  type: integer
+                  description: The Panel ID.
+                portalid:
+                  type: integer
+                  description: The Community Portal ID.
+                mobile:
+                  type: boolean
+                  description: Should a mobile link be returned or not.
+                  default: false
+              required:
+              - panelid
+              - portalid
+            example:
+              panelid: 77
+              portalid: 21
+              mobile: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: Retrieving the registration url was successful.
+                    url:
+                      type: string
+                      description: The Survey Link.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    url: http://www.example.com/surveyinstall/html.pro?ID=469&amp;ks_cid=22
+                error-0:
+                  description: The feature setting internal services must be enabled.
+                  summary: Internal services disabled
+                  value:
+                    success: false
+                    error: Internal services must not be disabled!
+                    errno: '10000'
+                error-1:
+                  description: Panel with supplied panel ID is not found.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: Panel ID does not exist, or is currently inaccessible.
+                    errno: '10000'
+                error-2:
+                  description: The supplied panel ID is not numeric.
+                  summary: Panel ID invalid
+                  value:
+                    success: false
+                    error: Panel ID is invalid
+                    errno: '20101'
+                error-3:
+                  description: The supplied portal ID is not numeric.
+                  summary: Portal invalid
+                  value:
+                    success: false
+                    error: The supplied community portal ID invalid
+                    errno: '20102'
+                error-4:
+                  description: Community with supplied portal ID is not found.
+                  summary: Portal ID not found
+                  value:
+                    success: false
+                    error: The supplied community portal ID could not be found
+                    errno: '20102'
+                error-5:
+                  description: The supplied mobile is not a boolean value.
+                  summary: Mobile invalid
+                  value:
+                    success: false
+                    error: The mobile flag type is invalid
+                    errno: '20102'
+                error-6:
+                  description: Panel with supplied panel ID does not have a registration survey.
+                  summary: Registration survey not found
+                  value:
+                    success: false
+                    error: This panel is not connected to a registration survey! This can be done by creating a survey and linking it to your panel.
+                    errno: '40001'
+      security:
+      - ApiKey: []
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api.pro#method=portal.survey.registerUpdateUrl:
+    post:
+      operationId: portal.survey.registerUpdateUrl
+      summary: Returns URL for the profile update survey URL
+      description: Returns URL for the profile update survey URL. This registration URL is only available if Decipher or Kinesis Survey is used for the profile update survey.
+      tags:
+      - Survey
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.survey.registerUpdateUrl
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mobile:
+                  type: boolean
+                  description: Should a mobile link be returned or not.
+                  default: false
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+            example:
+              seskey: ce512c91
+              mobile: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: Retrieving the registration url was successful.
+                    url:
+                      type: string
+                      format: url
+                      description: The Survey Link.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    url: http://www.example.com/surveyinstall/?ID=512&amp;ks_identifier=F6EF7EWQ&amp;ks_hash=5aae5a28b5bcf4142f94e40b75f143c5
+                error-0:
+                  description: The feature setting internal services must be enabled.
+                  summary: Internal services disabled
+                  value:
+                    success: false
+                    error: Internal services must not be disabled!
+                    errno: '10000'
+                error-1:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-2:
+                  description: The supplied mobile is not a boolean value.
+                  summary: Mobile invalid
+                  value:
+                    success: false
+                    error: The mobile flag type is invalid
+                    errno: '20102'
+                error-3:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-4:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+                error-5:
+                  description: Panel with supplied panel ID does not have a registration update survey.
+                  summary: Registration update survey not found
+                  value:
+                    success: false
+                    error: This panel is not connected to a registration update survey! This can be done by creating a registration update survey and linking it to your panel.
+                    errno: '40001'
+      security:
+      - ApiKey: []
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api.pro#method=integration.surveys.available:
+    post:
+      operationId: getSurveyForPanelist
+      summary: List survey for panelist
+      description: Get a list of available surveys for a panelist.
+      tags:
+      - Survey
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.surveys.available
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - sesKey
+              - index
+              properties:
+                sesKey:
+                  description: A valid login hash.
+                  type: string
+                  example: 5a15852c564933807bbd36da58071063
+                index:
+                  description: Panelist ID or identifier to look up the panelist.
+                  type: string
+                  example: 34359
+                indexType:
+                  description: The type of index being used
+                  type: string
+                  enum:
+                  - identifier
+                  - pid
+                  example: identifier
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                    data:
+                      type: object
+                      properties:
+                        subject:
+                          type: string
+                          description: Email subject that was used in the invitation.
+                        body:
+                          type: string
+                          description: A more detailed survey description.
+                        status:
+                          type:
+                          - string
+                          - 'null'
+                          description: '''started'' if the panelist has started, but not completed the survey, otherwise NULL.'
+                        time:
+                          type: string
+                          description: The time this portal invitation was sent.
+                        points:
+                          type: integer
+                          description: The number of points awarded for a completed survey.
+                        url:
+                          type: string
+                          format: url
+                          description: URL to take the panelist to the survey, as defined in the project.
+                        type:
+                          type:
+                          - string
+                          - 'null'
+                          enum:
+                          - emailhtml
+                          - SMS
+                          description: The type of invitation that was used. If the type is not available (portal launch only), this field will be NULL.
+                        endtime:
+                          type: string
+                          description: The time when the campaign expires and the survey links will stop working.
+                        invited:
+                          type: string
+                          description: The time when the panelist was invited.
+                        purpose:
+                          type: string
+                          enum:
+                          - invitation
+                          - automated
+                          - diary
+                          - profiler
+                          - portal
+                          description: The campaign purpose.
+                        projectid:
+                          type: integer
+                          description: The project ID
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    data:
+                      subject: You have been invited to take part in a Sample Project.
+                      body: This survey is about your favorite type of car.
+                      status: null
+                      time: '2013-01-01 23:59:59'
+                      points: 200
+                      url: http://www.example.com/receiver.pro?seskey=e0197525e7129c5c
+                      type: emailhtml
+                      endtime: '2013-01-01 23:59:59'
+                      invited: '2013-01-01 23:59:59'
+                      purpose: invitation
+                      projectid: 10
+                error-0:
+                  description: The supplied index type is invalid. Index type can only be set to "pid" or "identifier".
+                  summary: Index type invalid
+                  value:
+                    success: false
+                    error: Invalid index type
+                    errno: '20100'
+                error-1:
+                  description: Panelist with supplied identifier or panelist ID is not found.
+                  summary: Panelist not found
+                  value:
+                    success: false
+                    error: Panelist not found
+                    errno: '20203'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session has expired. You must start a new session.
+                    errno: '30100'
+                error-3:
+                  description: Session is not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: sessionkey not found
+                    errno: '30200'
+                error-4:
+                  description: User ID not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: userid for sessionkey not found
+                    errno: '30200'
+                error-5:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: sessionkey is invalid
+                    errno: '30300'
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+components:
+  parameters:
+    method:
+      name: method
+      in: query
+      required: true
+      description: Method
+      schema:
+        type: string
+  schemas:
+    error:
+      type: object
+      properties:
+        success:
+          type: boolean
+        error:
+          description: The error message.
+          type: string
+        errno:
+          description: The error code.
+          type: string
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: query
+      name: seskey
+    BearerAuth:
+      type: http
+      scheme: bearer
+x-refined-from:
+- forsta-panel-management-community-openapi.yml
+- forsta-panel-management-integration-openapi.yml
+x-tagGroups:
+- name: Autoclose
+  tags:
+  - Autoclose
+- name: Data Input and Output
+  tags:
+  - Data
+  - Data Feed
+  - Response Summary
+  - Modifying Data
+  - Datasources
+  - Datasources Data
+  - Umerge
+- name: Survey Metadata
+  tags:
+  - Simulated Data
+  - Survey State
+  - Survey Evaluate
+  - Survey Quotas
+  - Survey Files
+  - Survey Warnings
+  - Survey Terms
+  - Survey Subscribers
+  - Survey Users
+  - Survey Tasks
+- name: Panels
+  tags:
+  - Panel Data
+  - Panel Datapoints
+  - Survey Panels
+- name: Research Hub
+  tags:
+  - Users
+  - Companies
+  - Categories
+  - Surveys
+  - Panels
+  - Crosstabs
+  - Archives
+  - Archival Reports
+  - API Keys
+  - Usage
+  - Warnings Summary
+- name: Crosstabs
+  tags:
+  - Crosstabs Configuration
+  - Crosstabs Execution
+  - Crosstabs Nets
+  - Saved Crosstabs
+  - Crosstabs Table Settings
+  - Crosstabs Validation
+  - Crosstabs Rim Weighting
+- name: Dashboards
+  tags:
+  - Dashboards
+- name: DQ APIs
+  tags:
+  - DQ-Specific API Calls
+  - MaxDiff API Calls
+  - Discrete Choice Model API Calls
+  - Media Testimonial API Calls
+- name: Response Summary
+  tags:
+  - Share Link
+- name: Sample Management
+  tags:
+  - Bounced Emails
+  - Participant Sources
+- name: Distribution
+  tags:
+  - Email Distribution
+  - SFTP Distribution
+  - Slack Distribution
+- name: Campaign Manager
+  tags:
+  - Campaigns
+  - Campaign Email Invites
+  - Campaign Exports
+  - Campaign Lists
+  - Shared Campaign Lists
+  - Campaign Sends
+  - Campaign Status Lists
+  - Supression Lists
+- name: Question Library
+  tags:
+  - Company Element
+  - Company Elements
+  - Survey Elements
+  - Survey Element Report Settings
+- name: Language Manager
+  tags:
+  - LM Application Data
+  - LM Application Translations
+  - Translation Resources
+  - Translations
+  - Translation Deltas
+  - Translation Reservations
+  - Primary Survey Language
+  - Other Survey Languages
+  - Unused Survey Languages
+- name: Project Parameters
+  tags:
+  - Available Project Parameters
+  - Saved Project Parameters
+  - Project Parameters Configuration
+- name: Multi-User Editing
+  tags:
+  - Available Sections
+  - Check Out Section
+  - Check In Section
+  - Sync Section
+  - Section Editor
+  - Abandon Section
+  - Validate Section
+- name: Video Management
+  tags:
+  - Videos
+  - Watermarked Videos
+- name: Miscellaneous
+  tags:
+  - System Information
+  - Logic Nodes
+  - Logic Events
+  - CATI
+  - Global Search
+  - Miscellaneous

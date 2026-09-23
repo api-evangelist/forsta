@@ -1,0 +1,3110 @@
+openapi: 3.2.0
+info:
+  version: 1.0-beta
+  title: Sample Marketplace Partner API Contract Estimates API
+  description: '# Summary
+
+
+    Sample providers that wish to be added to the Forsta Sample Marketplace must implement
+
+    an API following the specifications outlined in this document after obtaining an authentication key from Forsta.'
+tags:
+- name: Estimates
+  description: The Estimate resources are used to determine the pricing and feasibility of a potential sample bid. The Forsta Sample Marketplace expects responses to these calls within 10 seconds before terminating the request. If the sample's quota is unable to be fufilled, a null price in the result object should be returned.
+paths:
+  /estimates:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/EstimateBody'
+      tags:
+      - Estimates
+      summary: Sample Estimates
+      description: Endpoint that returns an estimated cost for a potential sample. If the sample's quota is unable to be fufilled, a null price in the result object should be returned.
+      security:
+      - OAuth2: []
+      operationId: demo.post_estimate
+      responses:
+        '200':
+          description: Estimate created
+          content:
+            application/json:
+              schema:
+                allOf:
+                - type: object
+                  properties:
+                    result:
+                      type: object
+                      properties:
+                        price:
+                          type: number
+                          description: The expected price per complete for each participant.
+                          example: 2.5
+                - $ref: '#/components/schemas/EstimateBody'
+        '401':
+          $ref: '#/components/responses/401'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+components:
+  schemas:
+    dma:
+      type: object
+      description: What is your DMA?
+      title: DMA
+      properties:
+        question_id:
+          type: string
+          enum:
+          - dma
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - New York
+            - Los Angeles
+            - Chicago
+            - Philadelphia
+            - Dallas-Fort Worth
+            - Washington, D.C. (Hagerstown)
+            - Houston
+            - San Francisco-Oakland-San Jose
+            - Boston (Manchester)
+            - Atlanta
+            - Tampa-St. Petersburg (Sarasota)
+            - Phoenix (Prescott)
+            - Seattle-Tacoma
+            - Detroit
+            - Minneapolis-St. Paul
+            - Miami-Fort Lauderdale
+            - Denver
+            - Orlando-Daytona Beach-Melbourne
+            - Cleveland-Akron (Canton)
+            - Sacramento-Stockton-Modesto
+            - St. Louis
+            - Portland, OR
+            - Charlotte
+            - Pittsburgh
+            - Raleigh-Durham (Fayetteville)
+            - Baltimore
+            - Nashville
+            - Indianapolis
+            - San Diego
+            - Salt Lake City
+            - San Antonio
+            - Kansas City
+            - Hartford & New Haven
+            - Columbus, OH
+            - Cincinnati
+            - Milwaukee
+            - West Palm Beach-Fort Pierce
+            - Greenville-Spartanburg-Asheville-Anderson
+            - Las Vegas
+            - Austin
+            - Harrisburg-Lancaster-Lebanon-York
+            - Jacksonville
+            - Birmingham (Anniston and Tuscaloosa)
+            - Norfolk-Portsmouth-Newport News
+            - Oklahoma City
+            - Greensboro-High Point-Winston-Salem
+            - Albuquerque-Santa Fe
+            - Louisville
+            - Grand Rapids-Kalamazoo-Battle Creek
+            - New Orleans
+            - Memphis
+            - Buffalo
+            - Providence-New Bedford
+            - Fresno-Visalia
+            - Fort Myers-Naples
+            - Richmond-Petersburg
+            - Little Rock-Pine Bluff
+            - Mobile-Pensacola (Navarre)
+            - Albany-Schenectady-Troy
+            - Knoxville
+            - Tulsa
+            - Wilkes Barre-Scranton-Hazleton
+            - Lexington
+            - Dayton
+            - Flint-Saginaw-Bay City
+            - Honolulu
+            - Green Bay-Appleton
+            - Roanoke-Lynchburg
+            - Omaha
+            - Charleston-Huntington
+            - Toledo
+            - Springfield, MO
+            - Tucson (Sierra Vista)
+            - Columbia, SC
+            - Des Moines-Ames
+            - Wichita-Hutchinson Plus
+            - Spokane
+            - Harlingen-Weslaco-Brownsville-McAllen
+            - Huntsville-Decatur (Florence)
+            - Rochester, NY
+            - Syracuse
+            - Champaign & Springfield-Decatur
+            - Chattanooga
+            - Portland-Auburn
+            - El Paso (Las Cruces)
+            - Madison
+            - Cedar Rapids-Waterloo-Iowa City & Dubuque
+            - Paducah-Cape Girardeau-Harrisburg
+            - Waco-Temple-Bryan
+            - Shreveport-Texarkana
+            - Colorado Springs-Pueblo
+            - Jackson, MS
+            - Savannah
+            - Charleston, SC
+            - Myrtle Beach-Florence
+            - Burlington-Plattsburgh
+            - Baton Rouge
+            - Davenport-Rock Island-Moline
+            - South Bend-Elkhart
+            - Boise
+            - Fort Smith-Fayetteville-Springdale-Rogers
+            - Tri-Cities, TN-VA
+            - Evansville
+            - Fort Wayne
+            - Augusta-Aiken
+            - Johnstown-Altoona-State College
+            - Greenville-New Bern-Washington
+            - Springfield-Holyoke
+            - Reno
+            - Lansing
+            - Lincoln & Hastings-Kearney
+            - Tallahassee-Thomasville
+            - Peoria-Bloomington
+            - Tyler-Longview (Lufkin & Nacogdoches)
+            - Sioux Falls (Mitchell)
+            - Montgomery-Selma
+            - Fargo
+            - Macon
+            - Yakima-Pasco-Richland-Kennewick
+            - Traverse City-Cadillac
+            - Lafayette, LA
+            - Bakersfield
+            - Eugene
+            - Santa Barbara-Santa Maria-San Luis Obispo
+            - Youngstown
+            - Monterey-Salinas
+            - Columbus, GA
+            - Corpus Christi
+            - Wilmington
+            - La Crosse-Eau Claire
+            - Amarillo
+            - Chico-Redding
+            - Columbus-Tupelo-West Point-Houston
+            - Wausau-Rhinelander
+            - Medford-Klamath Falls
+            - Columbia-Jefferson City
+            - Monroe-El Dorado
+            - Salisbury
+            - Rockford
+            - Beaumont-Port Arthur
+            - Topeka
+            - Odessa-Midland
+            - Lubbock
+            - Duluth-Superior
+            - Palm Springs
+            - Minot-Bismarck-Dickinson (Williston)
+            - Anchorage
+            - Wichita Falls & Lawton
+            - Sioux City
+            - Panama City
+            - Erie
+            - Albany, GA
+            - Joplin-Pittsburg
+            - Rochester-Mason City-Austin
+            - Bangor
+            - Biloxi-Gulfport
+            - Gainesville
+            - Terre Haute
+            - Sherman-Ada
+            - Binghamton
+            - Idaho Falls-Pocatello (Jackson)
+            - Wheeling-Steubenville
+            - Bluefield-Beckley-Oak Hill
+            - Missoula
+            - Abilene-Sweetwater
+            - Yuma-El Centro
+            - Billings
+            - Hattiesburg-Laurel
+            - Utica
+            - Clarksburg-Weston
+            - Rapid City
+            - Lake Charles
+            - Dothan
+            - Quincy-Hannibal-Keokuk
+            - Harrisonburg
+            - Elmira (Corning)
+            - Jackson, TN
+            - Watertown
+            - Alexandria, LA
+            - Jonesboro
+            - Bowling Green
+            - Marquette
+            - Charlottesville
+            - Laredo
+            - Butte-Bozeman
+            - Bend, OR
+            - Grand Junction-Montrose
+            - Lafayette, IN
+            - Twin Falls
+            - Lima
+            - Meridian
+            - Great Falls
+            - Greenwood-Greenville
+            - Parkersburg
+            - Eureka
+            - San Angelo
+            - Cheyenne-Scottsbluff
+            - Casper-Riverton
+            - Mankato
+            - Ottumwa-Kirksville
+            - St. Joseph
+            - Fairbanks
+            - Victoria
+            - Zanesville
+            - Helena
+            - Presque Isle
+            - Juneau
+            - Alpena
+            - North Platte
+            - Glendive
+    hhi-5:
+      type: object
+      description: Qual è l'attuale reddito annuale del suo nucleo familiare al netto delle tasse?
+      title: Income
+      properties:
+        question_id:
+          type: string
+          enum:
+          - hhi
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Meno di 5.000 €
+            - Da 5.000 € a 9.999 €
+            - Da 10.000 € a 14.999 €
+            - Da 15.000 € a 17.499 €
+            - Da 17.500 € a 19.999 €
+            - Da 20.000 € a 22.499 €
+            - Da 22.500 € a 24.999 €
+            - Da 25.000 € a 27.999 €
+            - Da 27.500 € a 29.999 €
+            - Da 30.000 € a 32.499 €
+            - Da 32.500 € a 34.999 €
+            - Da 35.000 € a 37.499 €
+            - Da 37.500 € a 39.999 €
+            - Da 40.000 € a 42.499 €
+            - Da 42.500 € a 44.999 €
+            - Da 45.000 € a 47.999 €
+            - Da 47.500 € a 49.999 €
+            - Da 50.000 € a 54.999 €
+            - Da 55.000 € a 59.999 €
+            - Da 60.000 € a 64.999 €
+            - Da 65.000 € a 69.999 €
+            - Da 70.000 € a 74.999 €
+            - Da 75.000 € a 99.999 €
+            - 100.000 € o più
+            - Preferisco non rispondere
+    employment-2:
+      type: object
+      description: ¿Cuál es su situación laboral actual?
+      title: Employment
+      properties:
+        question_id:
+          type: string
+          enum:
+          - employment
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Empleado/a a tiempo completo
+            - Empleado/a a tiempo parcial
+            - Trabajador/a por cuenta propia a tiempo completo
+            - Trabajador/a por cuenta propia a tiempo parcial
+            - Militar activo
+            - Militar inactivo/Veterano
+            - Temporalmente desempleado/a
+            - Amo/a de casa a tiempo completo
+            - Jubilado/a
+            - Estudiante
+            - Discapacitado
+            - Prefiero no contestar
+    pets:
+      type: object
+      description: Which of the following pets are present in your household?
+      title: Pets
+      properties:
+        question_id:
+          type: string
+          enum:
+          - pets
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Cat(s)
+            - Dog(s)
+            - Bird(s)
+            - Fish
+            - Amphibians (frogs, toads, etc.)
+            - Small animals or rodents (hamsters, mice, rabbits, ferrets, etc.)
+            - Reptiles (turtles, snakes, lizards, etc.)
+            - Horse(s)
+            - I do not have any pets
+            - Other
+    hhi_combined:
+      type: object
+      description: How much total combined annual income do all members of your household earn before taxes?
+      title: Household Income Combined
+      properties:
+        question_id:
+          type: string
+          enum:
+          - hhi_combined
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Less than C$15,000
+            - C$15,000 to C$19,999
+            - C$20,000 to C$24,999
+            - C$25,000 to C$29,999
+            - C$30,000 to C$34,999
+            - C$35,000 to C$39,999
+            - C$40,000 to C$44,999
+            - C$45,000 to C$49,999
+            - C$50,000 to C$59,999
+            - C$60,000 to C$74,999
+            - C$75,000 to C$84,999
+            - C$85,000 to C$99,999
+            - C$100,000 to C$124,999
+            - C$125,000 to C$149,999
+            - C$150,000 to C$174,999
+            - C$175,000 to C$199,999
+            - C$200,000 and above
+            - Prefer not to answer
+    region:
+      type: object
+      description: What is your region?
+      title: Region
+      properties:
+        question_id:
+          type: string
+          enum:
+          - region
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Midwest
+            - Northeast
+            - South
+            - West
+    hh_responsibility:
+      type: object
+      description: In your household, which of the following things are you responsible or partially responsible for making decisions about?
+      title: Household Responsibility
+      properties:
+        question_id:
+          type: string
+          enum:
+          - hh_responsibility
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Internet
+            - Television
+            - Banking
+            - Grocery Shopping
+            - Automobile
+            - Mortgage
+            - Finance
+            - Clothing
+            - None of the above
+    education-3:
+      type: object
+      description: What is the highest level of education you have completed?
+      title: Education
+      properties:
+        question_id:
+          type: string
+          enum:
+          - education
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Below O-level/GCSE
+            - O-levels/GCSEs
+            - O-levels/GCSEs equivalent
+            - A-levels
+            - A-levels equivalent
+            - Undergraduate degree (less than 2 years)
+            - Undergraduate degree (3 years)
+            - Undergraduate degree (4 or more years)
+            - 'Post graduate: other (not PhD or MA)'
+            - 'Post graduate: MA'
+            - 'Post graduate: PhD'
+            - None of the above/Prefer not to say
+    province:
+      type: object
+      description: In which province or territory of Canada do you live?
+      title: Province
+      properties:
+        question_id:
+          type: string
+          enum:
+          - province
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Alberta
+            - British Columbia
+            - Manitoba
+            - New Brunswick
+            - Newfoundland and Labrador
+            - Northwest Territories
+            - Nova Scotia
+            - Nunavut
+            - Ontario
+            - Prince Edward Island
+            - Quebec
+            - Saskatchewan
+            - Yukon
+    region-4:
+      type: object
+      description: In quale area geografica vivi?
+      title: Region
+      properties:
+        question_id:
+          type: string
+          enum:
+          - region
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Centro
+            - Isole
+            - Nord-Est
+            - Nord-Ovest
+            - Sud
+    en_GB_Qualifications:
+      type: array
+      description: Demographic criteria required for panelists.
+      items:
+        anyOf:
+        - $ref: '#/components/schemas/age_and_gender_of_child'
+        - $ref: '#/components/schemas/age-2'
+        - $ref: '#/components/schemas/b2b_decision_maker'
+        - $ref: '#/components/schemas/company_department'
+        - $ref: '#/components/schemas/company_revenue'
+        - $ref: '#/components/schemas/county'
+        - $ref: '#/components/schemas/education-3'
+        - $ref: '#/components/schemas/employment'
+        - $ref: '#/components/schemas/gender'
+        - $ref: '#/components/schemas/hhi_combined-2'
+        - $ref: '#/components/schemas/hhi-2'
+        - $ref: '#/components/schemas/industry_personal'
+        - $ref: '#/components/schemas/industry'
+        - $ref: '#/components/schemas/job_title'
+        - $ref: '#/components/schemas/mobile'
+        - $ref: '#/components/schemas/no_of_employees'
+        - $ref: '#/components/schemas/parental_status_standard'
+        - $ref: '#/components/schemas/region-2'
+        - $ref: '#/components/schemas/tablet'
+    hispanic:
+      type: object
+      description: Are you of Hispanic, Latino, or Spanish origin?
+      title: Hispanic
+      properties:
+        question_id:
+          type: string
+          enum:
+          - hispanic
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - No, not of Hispanic, Latino, or Spanish origin
+            - Yes, Mexican, Mexican American, Chicano
+            - Yes, Cuban
+            - Yes, Argentina
+            - Yes, Colombia
+            - Yes, Ecuador
+            - Yes, El Salvadore
+            - Yes, Guatemala
+            - Yes, Nicaragua
+            - Yes, Panama
+            - Yes, Peru
+            - Yes, Spain
+            - Yes, Venezuela
+            - Yes, another Hispanic, Latino, or Spanish Country
+            - Prefer not to answer
+            - Yes, Puerto Rican
+    region-3:
+      type: object
+      description: Dans quelle subdivision territoriale habitez-vous?
+      title: Region
+      properties:
+        question_id:
+          type: string
+          enum:
+          - region
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Bassin Parisien
+            - Centre-Est
+            - Est
+            - Extra-Regio
+            - Méditerranée
+            - Nord
+            - Ouest
+            - Région Parisienne
+            - Régions d'outre-Mer et départements d'outre-mer
+            - Sud-Ouest
+    primary_decision_maker:
+      type: object
+      description: In your household, are you the person who makes most of the daily purchasing decisions?
+      title: Primary Decision Maker
+      properties:
+        question_id:
+          type: string
+          enum:
+          - primary_decision_maker
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - 'Yes'
+            - 'No'
+            - Share decisions equally
+    education-4:
+      type: object
+      description: ¿Cuál es su nivel de educación?
+      title: Education
+      properties:
+        question_id:
+          type: string
+          enum:
+          - education
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Educación infantil
+            - Educacion primaria
+            - Educacion Secundaria Obligatoria
+            - Bachillerato
+            - Formación profesional
+            - Enseñanzas de régimen especial (Idiomas, artísticas y/o deportivas)
+            - Grado
+            - Diplomatura, magisterio, Arquitecto Técnico o Ingeniero Técnico
+            - Licenciatura, Arquitectura o Ingeniero superior
+            - Master
+            - Doctorado
+            - Ninguna de las anteriores
+    child_ages:
+      type: object
+      description: 'Please indicate the age and gender of your child or children:'
+      title: Age and Gender of Child
+      properties:
+        question_id:
+          type: string
+          enum:
+          - child_ages
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - None of the above
+            - Boy under age 1
+            - Girl under age 1
+            - Boy age 1
+            - Girl age 1
+            - Boy age 2
+            - Girl age 2
+            - Boy age 3
+            - Girl age 3
+            - Boy age 4
+            - Girl age 4
+            - Boy age 5
+            - Girl age 5
+            - Boy age 6
+            - Girl age 6
+            - Boy age 7
+            - Girl age 7
+            - Boy age 8
+            - Girl age 8
+            - Boy age 9
+            - Girl age 9
+            - Boy age 10
+            - Girl age 10
+            - Boy age 11
+            - Girl age 11
+            - Boy age 12
+            - Girl age 12
+            - Male teen age 13
+            - Female teen age 13
+            - Male teen age 14
+            - Female teen age 14
+            - Male teen age 15
+            - Female teen age 15
+            - Male teen age 16
+            - Female teen age 16
+            - Male teen age 17
+            - Female teen age 17
+    hhi-3:
+      type: object
+      description: Indique cuáles son los ingresos brutos anuales de su unidad familiar.
+      title: Income
+      properties:
+        question_id:
+          type: string
+          enum:
+          - hhi
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Menos de 5 000 €
+            - Entre 5 000 € y 9 999 €
+            - Entre 10 000 € y 14 999 €
+            - Entre 15 000 € y 17 499 €
+            - Entre 17 500 € y 19 999 €
+            - Entre 20 000 € y 22 499 €
+            - Entre 22 500 € y 24 999 €
+            - Entre 25 000 € y 27 999 €
+            - Entre 27 500 € y 29 999 €
+            - Entre 30 000 € y 32 499 €
+            - Entre 32 500 € y 34 999 €
+            - Entre 35 000 € y 37 499 €
+            - Entre 37 500 € y 39 999 €
+            - Entre 40 000 € y 42 499 €
+            - Entre 42 500 € y 44 999 €
+            - Entre 45 000 € y 47 999 €
+            - Entre 47 500 € y 49 999 €
+            - Entre 50 000 € y 54 999 €
+            - Entre 55 000 € y 59 999 €
+            - Entre 60 000 € y 64 999 €
+            - Entre 65 000 € y 69 999 €
+            - Entre 70 000 € y 74 999 €
+            - Entre 75 000 € y 99 999 €
+            - 100 000 € o más
+            - Prefiero no responder
+    region-2:
+      type: object
+      description: In which region do you live?
+      title: Region
+      properties:
+        question_id:
+          type: string
+          enum:
+          - region
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - East Midlands (England)
+            - East Of England
+            - London
+            - North East (England)
+            - North West (England)
+            - Northern Ireland
+            - Scotland
+            - South East (England)
+            - South West (England)
+            - Wales
+            - West Midlands (England)
+            - Yorkshire And The Humber
+    income:
+      type: object
+      description: What is your current annual household income before taxes?
+      title: Income
+      properties:
+        question_id:
+          type: string
+          enum:
+          - income
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Less than $14,999
+            - $15,000 to $19,999
+            - $20,000 to $24,999
+            - $25,000 to $29,999
+            - $30,000 to $34,999
+            - $35,000 to $39,999
+            - $40,000 to $44,999
+            - $45,000 to $49,999
+            - $50,000 to $54,999
+            - $55,000 to $59,999
+            - $60,000 to $64,999
+            - $65,000 to $69,999
+            - $70,000 to $74,999
+            - $75,000 to $79,999
+            - $80,000 to $84,999
+            - $85,000 to $89,999
+            - $90,000 to $94,999
+            - $95,000 to $99,999
+            - $100,000 to $124,999
+            - $125,000 to $149,999
+            - $150,000 to $174,999
+            - $175,000 to $199,999
+            - $200,000 to $249,999
+            - $250,000 and above
+            - Prefer not to answer
+    employment-3:
+      type: object
+      description: Quelle-est votre situation professionnelle actuelle?
+      title: Employment
+      properties:
+        question_id:
+          type: string
+          enum:
+          - employment
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Employé(e) à temps plein
+            - Employé(e) à temps partiel
+            - Travailleur(euse)  indépendant(e) à temps plein
+            - Travailleur(euse) indépendant(e) à temps partiel
+            - Militaire actif(ve)
+            - Militaire retraité(e)/Vétéran
+            - Temporairement sans emploi
+            - Personne au foyer à temps complet
+            - Retraité(e)
+            - Etudiant(e)
+            - Handicapé(e)
+            - Je ne souhaite pas répondre
+    age-2:
+      type: object
+      description: What is your age?
+      title: Age
+      properties:
+        question_id:
+          type: string
+          enum:
+          - age
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - 18
+            - 19
+            - 20
+            - 21
+            - 22
+            - 23
+            - 24
+            - 25
+            - 26
+            - 27
+            - 28
+            - 29
+            - 30
+            - 31
+            - 32
+            - 33
+            - 34
+            - 35
+            - 36
+            - 37
+            - 38
+            - 39
+            - 40
+            - 41
+            - 42
+            - 43
+            - 44
+            - 45
+            - 46
+            - 47
+            - 48
+            - 49
+            - 50
+            - 51
+            - 52
+            - 53
+            - 54
+            - 55
+            - 56
+            - 57
+            - 58
+            - 59
+            - 60
+            - 61
+            - 62
+            - 63
+            - 64
+            - 65
+            - 66
+            - 67
+            - 68
+            - 69
+            - 70
+            - 71
+            - 72
+            - 73
+            - 74
+            - 75
+            - 76
+            - 77
+            - 78
+            - 79
+            - 80
+            - 81
+            - 82
+            - 83
+            - 84
+            - 85
+            - 86
+            - 87
+            - 88
+            - 89
+            - 90
+            - 91
+            - 92
+            - 93
+            - 94
+            - 95
+            - 96
+            - 97
+            - 98
+            - 99
+    hhi:
+      type: object
+      description: What is your current annual household income after taxes?
+      title: Income
+      properties:
+        question_id:
+          type: string
+          enum:
+          - hhi
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Less than $14,999
+            - $15,000 to $19,999
+            - $20,000 to $22,499
+            - $22,500 to $24,999
+            - $25,000 to $27,499
+            - $27,500 to $29,999
+            - $30,000 to $32,499
+            - $32,500 to $34,999
+            - $35,000 to $37,499
+            - $37,500 to $39,999
+            - $40,000 to $42,499
+            - $42,500 to $44,999
+            - $45,000 to $47,499
+            - $47,500 to $49,999
+            - $50,000 to $52,499
+            - $52,500 to $54,999
+            - $55,000 to $59,999
+            - $60,000 to $69,999
+            - $70,000 to $79,999
+            - $80,000 to $89,999
+            - $90,000 to $99,999
+            - $100,000 to $124,999
+            - $125,000 to $149,999
+            - $150,000 and above
+            - Prefer not to answer
+    fr_FR_Qualifications:
+      type: array
+      description: Demographic criteria required for panelists.
+      items:
+        anyOf:
+        - $ref: '#/components/schemas/age-4'
+        - $ref: '#/components/schemas/education-5'
+        - $ref: '#/components/schemas/employment-3'
+        - $ref: '#/components/schemas/gender-3'
+        - $ref: '#/components/schemas/hhi_combined-4'
+        - $ref: '#/components/schemas/hhi-4'
+        - $ref: '#/components/schemas/mobile'
+        - $ref: '#/components/schemas/region-3'
+        - $ref: '#/components/schemas/tablet'
+    tablet:
+      type: object
+      description: Are you using a tablet?
+      title: Tablet
+      properties:
+        question_id:
+          type: string
+          enum:
+          - tablet
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - 'Yes'
+            - 'No'
+    age-3:
+      type: object
+      description: Por favor, indique su edad
+      title: Age
+      properties:
+        question_id:
+          type: string
+          enum:
+          - age
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - 18
+            - 19
+            - 20
+            - 21
+            - 22
+            - 23
+            - 24
+            - 25
+            - 26
+            - 27
+            - 28
+            - 29
+            - 30
+            - 31
+            - 32
+            - 33
+            - 34
+            - 35
+            - 36
+            - 37
+            - 38
+            - 39
+            - 40
+            - 41
+            - 42
+            - 43
+            - 44
+            - 45
+            - 46
+            - 47
+            - 48
+            - 49
+            - 50
+            - 51
+            - 52
+            - 53
+            - 54
+            - 55
+            - 56
+            - 57
+            - 58
+            - 59
+            - 60
+            - 61
+            - 62
+            - 63
+            - 64
+            - 65
+            - 66
+            - 67
+            - 68
+            - 69
+            - 70
+            - 71
+            - 72
+            - 73
+            - 74
+            - 75
+            - 76
+            - 77
+            - 78
+            - 79
+            - 80
+            - 81
+            - 82
+            - 83
+            - 84
+            - 85
+            - 86
+            - 87
+            - 88
+            - 89
+            - 90
+            - 91
+            - 92
+            - 93
+            - 94
+            - 95
+            - 96
+            - 97
+            - 98
+            - 99
+    urban_rural:
+      type: object
+      description: Which of the following best describes the area you live in?
+      title: Urban Rural
+      properties:
+        question_id:
+          type: string
+          enum:
+          - urban_rural
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Urban – Densely populated, city or large town
+            - Suburban – Mainly residential, bordering a city or large town
+            - Rural – Sparsely populated, small town or village
+    mobile:
+      type: object
+      description: Are you using a mobile device?
+      title: Mobile
+      properties:
+        question_id:
+          type: string
+          enum:
+          - mobile
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - 'Yes'
+            - 'No'
+    has_children:
+      type: object
+      description: 'Please choose the options that best describe your household:'
+      title: Parent
+      properties:
+        question_id:
+          type: string
+          enum:
+          - has_children
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - I am pregnant/expecting a child within the next 9 months
+            - I have one or more children under the age of 18 living in my household
+            - I have one or more children aged 18 or older living in my household
+            - I have no children living in my household and I am not pregnant/expecting a child within the next 9 months
+    age:
+      type: object
+      description: What is your age?
+      title: Age
+      properties:
+        question_id:
+          type: string
+          enum:
+          - age
+        answers:
+          type: array
+          items:
+            type: number
+            format: integer
+            example:
+            - 18
+            - 19
+            - 20
+            - 21
+            enum:
+            - 18
+            - 19
+            - 20
+            - 21
+            - 22
+            - 23
+            - 24
+            - 25
+            - 26
+            - 27
+            - 28
+            - 29
+            - 30
+            - 31
+            - 32
+            - 33
+            - 34
+            - 35
+            - 36
+            - 37
+            - 38
+            - 39
+            - 40
+            - 41
+            - 42
+            - 43
+            - 44
+            - 45
+            - 46
+            - 47
+            - 48
+            - 49
+            - 50
+            - 51
+            - 52
+            - 53
+            - 54
+            - 55
+            - 56
+            - 57
+            - 58
+            - 59
+            - 60
+            - 61
+            - 62
+            - 63
+            - 64
+            - 65
+            - 66
+            - 67
+            - 68
+            - 69
+            - 70
+            - 71
+            - 72
+            - 73
+            - 74
+            - 75
+            - 76
+            - 77
+            - 78
+            - 79
+            - 80
+            - 81
+            - 82
+            - 83
+            - 84
+            - 85
+            - 86
+            - 87
+            - 88
+            - 89
+            - 90
+            - 91
+            - 92
+            - 93
+            - 94
+            - 95
+            - 96
+            - 97
+            - 98
+            - 99
+    education-2:
+      type: object
+      description: What is the highest level of education you have completed?
+      title: Education
+      properties:
+        question_id:
+          type: string
+          enum:
+          - education
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - 3rd Grade or less
+            - Middle School - Grades 4 - 8
+            - Completed some high school
+            - High school graduate
+            - Other post high school vocational training
+            - Completed some college
+            - Associates Degree
+            - College degree
+            - Completed some postgraduate
+            - Masters degree
+            - Doctorate degree
+            - None of the above
+    cell_carrier_us:
+      type: object
+      description: Which of these is your carrier for your primary mobile/cell phone?
+      title: Cell Carrier US
+      properties:
+        question_id:
+          type: string
+          enum:
+          - cell_carrier_us
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - AT&T
+            - Boost Mobile
+            - C Spire
+            - Cellular One
+            - Cricket
+            - Go Phone
+            - Nextel
+            - Sprint
+            - T-Mobile
+            - US Cellular
+            - Verizon
+            - Virgin Mobile
+            - Alltel
+            - Cellcom
+            - Centennial Wireless
+            - Cincinnati Bell Wireless
+            - Consumer Cellular
+            - Credo Mobile
+            - FreedomPop
+            - Freewheel
+            - GIV Mobile
+            - Google
+            - Helio
+            - H2O Wireless
+            - i-wireless
+            - MetroPCS
+            - Net10
+            - nTelos
+            - Page Plus Cellular
+            - Republic Wireless
+            - Simple Mobile
+            - SouthernLINC
+            - Straight Talk Wireless
+            - Ting
+            - TracFone
+            - Ultra-Mobile
+            - UppWireless
+            - Zact Mobile
+            - I don't have a mobile phone
+            - Other
+            - None of the above
+    gender-2:
+      type: object
+      description: ¿Es usted…?
+      title: Gender
+      properties:
+        question_id:
+          type: string
+          enum:
+          - gender
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Hombre
+            - Mujer
+    spanish_speaking:
+      type: object
+      description: Would you say that in your household you speak...? / ¿Diría que en su hogar usted habla...?
+      title: Spanish Speaking
+      properties:
+        question_id:
+          type: string
+          enum:
+          - spanish_speaking
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Spanish all the time / Español todo el tiempo
+            - Spanish more than half of the time / Español más de la mitad del tiempo
+            - Spanish and English equally / Español e inglés por igual
+            - English more than half of the time / Inglés más de la mitad del tiempo
+            - English all the time / Inglés todo el tiempo
+    gender:
+      type: object
+      description: What is your gender?
+      title: Gender
+      properties:
+        question_id:
+          type: string
+          enum:
+          - gender
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Male
+            - Female
+    ethnicity:
+      type: object
+      description: What is your race?
+      title: Ethnicity
+      properties:
+        question_id:
+          type: string
+          enum:
+          - ethnicity
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - White
+            - Black, or African American
+            - American Indian or Alaska Native
+            - Asian Indian
+            - Chinese
+            - Filipino
+            - Japanese
+            - Korean
+            - Vietnamese
+            - Other Asian
+            - Native Hawaiian
+            - Guamanian
+            - Samoan
+            - Other Pacific Islander
+            - Some other race
+            - Prefer not to answer
+    grocery_shopper:
+      type: object
+      description: Are you the primary decision maker in your household for grocery purchases?
+      title: Grocery Shopper
+      properties:
+        question_id:
+          type: string
+          enum:
+          - grocery_shopper
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - 'Yes'
+            - 'No'
+            - Share decisions equally
+    education-6:
+      type: object
+      description: Livello di istruzione
+      title: Education
+      properties:
+        question_id:
+          type: string
+          enum:
+          - education
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Scuola primaria
+            - Scuola secondaria di I grado
+            - Scuola secondaria di I grado (non completata)
+            - Scuola secondaria superiore (non completata)
+            - Scuola secondaria superiore
+            - Altra formazione professionale superiore non universitaria
+            - Laurea
+            - Laurea specialistica
+            - Laurea (non completata)
+            - Master
+            - Dottorato
+            - Nulla di quanto sopra
+    gender-4:
+      type: object
+      description: Sesso
+      title: Gender
+      properties:
+        question_id:
+          type: string
+          enum:
+          - gender
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Uomo
+            - Donna
+    county:
+      type: object
+      description: In which county do you live?
+      title: County
+      properties:
+        question_id:
+          type: string
+          enum:
+          - county
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Bedfordshire and Hertfordshire
+            - Berkshire, Buckinghamshire and Oxfordshire
+            - Cornwall and Isles of Scilly
+            - Cumbria
+            - Cheshire
+            - Derbyshire and Nottinghamshire
+            - Devon
+            - Dorset and Somerset
+            - East Anglia
+            - East Wales
+            - East Yorkshire and Northern Lincolnshire
+            - Eastern Scotland
+            - Essex
+            - Gloucestershire, Wiltshire and Bristol/Bath area
+            - Greater Manchester
+            - Hampshire and Isle of Wight
+            - Herefordshire, Worcestershire and Warwickshire
+            - Highlands and Islands
+            - Inner London
+            - Kent
+            - Lancashire
+            - Leicestershire, Rutland and Northamptonshire
+            - Lincolnshire
+            - Merseyside
+            - North Eastern Scotland
+            - North Yorkshire
+            - Northern Ireland
+            - Northumberland and Tyne and Wear
+            - Outer London
+            - Shropshire and Staffordshire
+            - South Western Scotland
+            - South Yorkshire
+            - Surrey, East and West Sussex
+            - Tees Valley and Durham
+            - West Midlands
+            - West Wales and The Valleys
+            - West Yorkshire
+    home_owner:
+      type: object
+      description: Which of the following describes your current living situation?
+      title: Home Owner
+      properties:
+        question_id:
+          type: string
+          enum:
+          - home_owner
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Rent
+            - Own
+            - Other
+    age_and_gender_of_child:
+      type: object
+      description: Please indicate the age and gender of your child or children.
+      title: Age and Gender of Child
+      properties:
+        question_id:
+          type: string
+          enum:
+          - age_and_gender_of_child
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - None of the above
+            - Boy under age 1
+            - Girl under age 1
+            - Boy age 1
+            - Girl age 1
+            - Boy age 2
+            - Girl age 2
+            - Boy age 3
+            - Girl age 3
+            - Boy age 4
+            - Girl age 4
+            - Boy age 5
+            - Girl age 5
+            - Boy age 6
+            - Girl age 6
+            - Boy age 7
+            - Girl age 7
+            - Boy age 8
+            - Girl age 8
+            - Boy age 9
+            - Girl age 9
+            - Boy age 10
+            - Girl age 10
+            - Boy age 11
+            - Girl age 11
+            - Boy age 12
+            - Girl age 12
+            - Male teen age 13
+            - Female teen age 13
+            - Male teen age 14
+            - Female teen age 14
+            - Male teen age 15
+            - Female teen age 15
+            - Male teen age 16
+            - Female teen age 16
+            - Male teen age 17
+            - Female teen age 17
+    es_ES_Qualifications:
+      type: array
+      description: Demographic criteria required for panelists.
+      items:
+        anyOf:
+        - $ref: '#/components/schemas/age-3'
+        - $ref: '#/components/schemas/education-4'
+        - $ref: '#/components/schemas/employment-2'
+        - $ref: '#/components/schemas/gender-2'
+        - $ref: '#/components/schemas/hhi_combined-3'
+        - $ref: '#/components/schemas/hhi-3'
+        - $ref: '#/components/schemas/mobile'
+        - $ref: '#/components/schemas/tablet'
+    industry_personal:
+      type: object
+      description: Which of the following categories best describes your organization's primary industry?
+      title: Industry Personal
+      properties:
+        question_id:
+          type: string
+          enum:
+          - industry_personal
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Accounting
+            - Advertising
+            - Agriculture/Fishing
+            - Architecture
+            - Automotive
+            - Aviation
+            - Banking/Financial
+            - Bio-Tech
+            - Brokerage
+            - Carpentry/Electrical installations
+            - Chemicals/Plastics/Rubber
+            - Communications/Information
+            - Computer Hardware
+            - Computer Reseller (software/hardware)
+            - Computer Software
+            - Construction
+            - Consulting
+            - Consumer Electronics
+            - Consumer Packaged Goods
+            - Education
+            - Energy/Utilities/Oil and Gas
+            - Engineering
+            - Environmental Services
+            - Fashion/Apparel
+            - Food/Beverage
+            - Government/Public Sector
+            - Healthcare
+            - Hospitality/Tourism
+            - Human Resources
+            - Information Technology/IT
+            - Insurance
+            - Internet
+            - Legal/Law
+            - Manufacturing
+            - Marketing
+            - Market Research
+            - Media/Entertainment
+            - Military
+            - Non Profit/Social services
+            - Personal Services
+            - Pharmaceuticals
+            - Printing Publishing
+            - Public Relations
+            - Real Estate/Property
+            - Retail/Wholesale trade
+            - Sales
+            - Security
+            - Shipping/Distribution
+            - Telecommunications
+            - Transportation
+            - Other
+            - I don't work
+    hhi-4:
+      type: object
+      description: Quel est le revenu annuel actuel de votre foyer avant imposition ?
+      title: Income
+      properties:
+        question_id:
+          type: string
+          enum:
+          - hhi
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Moins de 15 000 €
+            - Entre 15 000 et 19 999 €
+            - Entre 20 000 et 24 999 €
+            - Entre 25 000 et 29 999 €
+            - Entre 30 000 et 34 999 €
+            - Entre 35 000 et 39 999 €
+            - Entre 40 000 et 44 999 €
+            - Entre 45 000 et 49 999 €
+            - Entre 50 000 et 54 999 €
+            - Entre 55 000 et 59 999 €
+            - Entre 60 000 et 64 999 €
+            - Entre 65 000 et 69 999 €
+            - Entre 70 000 et 74 999 €
+            - Entre 75 000 et 79 999 €
+            - Entre 80 000 et 84 999 €
+            - Entre 85 000 et 89 999 €
+            - Entre 90 000 et 94 999 €
+            - Entre 95 000 et 99 999 €
+            - Entre 100 000 et 124 999 €
+            - Entre 125 000 et 149 999 €
+            - Entre 150 000 et 174 999 €
+            - Entre 175 000 et 199 999 €
+            - Entre 200 000 et 249 999 €
+            - 250 000 € ou plus
+            - Je préfère ne pas répondre
+    gender-3:
+      type: object
+      description: Etes-vous...?
+      title: Gender
+      properties:
+        question_id:
+          type: string
+          enum:
+          - gender
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Un homme
+            - Une femme
+    zip:
+      type: object
+      description: What is your zip code?
+      title: Zip Code
+      properties:
+        question_id:
+          type: string
+          enum:
+          - zip
+        answers:
+          type: array
+          example:
+          - '93720'
+          - 06902
+          - '97204'
+          - '10004'
+          - '97294'
+          items:
+            type: string
+    hhi_combined-5:
+      type: object
+      description: Qual è il vostro reddito famigliare al lordo delle imposte?
+      title: Household Income Combined
+      properties:
+        question_id:
+          type: string
+          enum:
+          - hhi_combined
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Meno di €15,000
+            - Fra €15,000 e €19,999
+            - Fra €20,000 e €24,999
+            - Fra €25,000 e €29,999
+            - Fra €30,000 e €34,999
+            - Fra €35,000 e €39,999
+            - Fra €40,000 e €44,999
+            - Fra €45,000 e €49,999
+            - Fra €50,000 e €59,999
+            - Fra €60,000 e €74,999
+            - Fra €75,000 e €84,999
+            - Fra €85,000 e €99,999
+            - Fra €100,000 e €124,999
+            - Fra €125,000 e €149,999
+            - Fra €150,000 e €174,999
+            - Fra €175,000 e €199,999
+            - €200,000 e oltre
+            - Preferisco non rispondere
+    household_industry:
+      type: object
+      description: Do you, or does anyone in your household, work in any of the following industries?
+      title: Industry within Household
+      properties:
+        question_id:
+          type: string
+          enum:
+          - household_industry
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Accounting
+            - Advertising
+            - Agriculture/Fishing
+            - Architecture
+            - Automotive
+            - Aviation
+            - Banking/Financial
+            - Bio-Tech
+            - Brokerage
+            - Carpentering/Electrical installations/VVS
+            - Chemicals/Plastics/Rubber
+            - Communications/Information
+            - Computer Hardware
+            - Computer Reseller (software/hardware)
+            - Computer Software
+            - Construction
+            - Consulting
+            - Consumer Electronics
+            - Consumer Packaged Goods
+            - Education
+            - Energy/Utilities/Oil and Gas
+            - Engineering
+            - Environmental Services
+            - Fashion/Apparel
+            - Food/Beverage
+            - Government/Public Sector
+            - Healthcare
+            - Hospitality/Tourism
+            - Human Resources
+            - Information Technology
+            - Insurance
+            - Internet
+            - Legal/Law
+            - Manufacturing
+            - Market Research
+            - Marketing/Sales
+            - Media/Entertainment
+            - Military
+            - Non Profit/Social services
+            - Personal Services
+            - Pharmaceuticals
+            - Publishing
+            - Public Relations
+            - Real Estate/Property
+            - Retail/Wholesale trade
+            - Security
+            - Shipping/Distribution
+            - Telecommunications
+            - Transportation
+            - Other
+            - Unemployed
+    division:
+      type: object
+      description: What is your division?
+      title: Division
+      properties:
+        question_id:
+          type: string
+          enum:
+          - division
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - East North Central
+            - East South Central
+            - Middle Atlantic
+            - Mountain
+            - New England
+            - Pacific
+            - South Atlantic
+            - West North Central
+            - West South Central
+    employment:
+      type: object
+      description: What is your current employment status?
+      title: Employment
+      properties:
+        question_id:
+          type: string
+          enum:
+          - employment
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Employed full-time
+            - Employed part-time
+            - Self-employed full-time
+            - Self-employed part-time
+            - Active military
+            - Inactive military/Veteran
+            - Temporarily unemployed
+            - Full-time homemaker
+            - Retired
+            - Student
+            - Disabled
+            - Prefer not to answer
+    webcam:
+      type: object
+      description: Do you have a webcam and are you willing to use it for an online research opportunity?
+      title: Webcam
+      properties:
+        question_id:
+          type: string
+          enum:
+          - webcam
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - I have a webcam and I am willing to use it for an online research opportunity.
+            - I have a webcam but I am not willing to use it for an online research opportunity.
+            - I do not have a webcam.
+    hhi-2:
+      type: object
+      description: What is your current annual household income before taxes?
+      title: Income
+      properties:
+        question_id:
+          type: string
+          enum:
+          - hhi
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Less than £5,000
+            - £5,000 to £9,999
+            - £10,000 to £14,999
+            - £15,000 to £17,499
+            - £17,500 to £19,999
+            - £20,000 to £22,499
+            - £22,500 to £24,999
+            - £25,000 to £27,499
+            - £27,500 to £29,999
+            - £30,000 to £32,499
+            - £32,500 to £34,999
+            - £35,000 to £37,499
+            - £37,500 to £39,999
+            - £40,000 to £42,499
+            - £42,500 to £44,999
+            - £45,000 to £47,499
+            - £47,500 to £49,999
+            - £50,000 to £54,999
+            - £55,000 to £59,999
+            - £60,000 to £64,999
+            - £65,000 to £69,999
+            - £70,000 to £74,999
+            - £75,000 to £99,999
+            - £100,000 and above
+            - Prefer not to answer
+    age-5:
+      type: object
+      description: Età
+      title: Age
+      properties:
+        question_id:
+          type: string
+          enum:
+          - age
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - 18
+            - 19
+            - 20
+            - 21
+            - 22
+            - 23
+            - 24
+            - 25
+            - 26
+            - 27
+            - 28
+            - 29
+            - 30
+            - 31
+            - 32
+            - 33
+            - 34
+            - 35
+            - 36
+            - 37
+            - 38
+            - 39
+            - 40
+            - 41
+            - 42
+            - 43
+            - 44
+            - 45
+            - 46
+            - 47
+            - 48
+            - 49
+            - 50
+            - 51
+            - 52
+            - 53
+            - 54
+            - 55
+            - 56
+            - 57
+            - 58
+            - 59
+            - 60
+            - 61
+            - 62
+            - 63
+            - 64
+            - 65
+            - 66
+            - 67
+            - 68
+            - 69
+            - 70
+            - 71
+            - 72
+            - 73
+            - 74
+            - 75
+            - 76
+            - 77
+            - 78
+            - 79
+            - 80
+            - 81
+            - 82
+            - 83
+            - 84
+            - 85
+            - 86
+            - 87
+            - 88
+            - 89
+            - 90
+            - 91
+            - 92
+            - 93
+            - 94
+            - 95
+            - 96
+            - 97
+            - 98
+            - 99
+    hhi_combined-4:
+      type: object
+      description: Quels-sont les revenus de votre foyer, avant impôts?
+      title: Household Income Combined
+      properties:
+        question_id:
+          type: string
+          enum:
+          - hhi_combined
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Moins de €15 000
+            - €15 000 à €19 999
+            - €20 000 à €24 999
+            - €25 000 à €29 999
+            - €30 000 à €34 999
+            - €35 000 à €39 999
+            - €40 000 à €44 999
+            - €45 000 à €49 999
+            - €50 000 à €59 999
+            - €60 000 à €74 999
+            - €75 000 à €84 999
+            - €85 000 à €99 999
+            - €100 000 à €124 999
+            - €125 000 à €149 999
+            - €150 000 à €174 999
+            - €175 000 à €199 999
+            - €200 000 et plus
+            - Je ne souhaite pas répondre
+    employment-4:
+      type: object
+      description: Qual è la tua situazione di lavoro corrente?
+      title: Employment
+      properties:
+        question_id:
+          type: string
+          enum:
+          - employment
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Dipendente tempo pieno
+            - Dipendente tempo parziale
+            - Libero professionista tempo pieno
+            - Libero professionista tempo parziale
+            - Militare
+            - Ex-militare/Veterano
+            - Disoccupato temporaneo
+            - Assistente domestico a tempo pieno
+            - Pensionato
+            - Studente
+            - Disabile
+            - Preferisco non rispondere
+    b2b_decision_maker:
+      type: object
+      description: Please choose which departments/products you have influence or decision making authority over regarding spending/purchasing.
+      title: Business Decision Maker
+      properties:
+        question_id:
+          type: string
+          enum:
+          - b2b_decision_maker
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - IT Hardware
+            - IT Software
+            - Printers and copiers
+            - Financial Department
+            - Human Resources
+            - Office supplies
+            - Corporate travel
+            - Telecommunications
+            - Sales
+            - Shipping
+            - Operations
+            - Legal services
+            - Marketing/Advertising
+            - Security
+            - Food services
+            - Auto leasing/purchasing
+            - Other
+            - I don’t have influence or decision making authority
+    cell_carrier:
+      type: object
+      description: Which of these is your carrier for your primary mobile/cell phone?
+      title: Cell Carrier
+      properties:
+        question_id:
+          type: string
+          enum:
+          - cell_carrier
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Alltel
+            - AT&T
+            - Boost Mobile
+            - Cricket
+            - MetroPCS
+            - Nextel
+            - Sprint
+            - T-Mobile
+            - Tracfone
+            - US Cellular
+            - Verizon
+            - Virgin Mobile
+            - I don't have a mobile phone
+            - Other
+    education_v2:
+      type: object
+      description: What is the highest level of education you have completed?
+      title: Education 2
+      properties:
+        question_id:
+          type: string
+          enum:
+          - education_v2
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Some high school or less
+            - High school graduate
+            - Other post high school vocational training
+            - Completed some college, but no degree
+            - Associate's degree
+            - Bachelor's degree
+            - Master's or professional degree
+            - Doctorate degree
+            - None of the above
+    age-4:
+      type: object
+      description: Quel âge avez-vous?
+      title: Age
+      properties:
+        question_id:
+          type: string
+          enum:
+          - age
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - 18
+            - 19
+            - 20
+            - 21
+            - 22
+            - 23
+            - 24
+            - 25
+            - 26
+            - 27
+            - 28
+            - 29
+            - 30
+            - 31
+            - 32
+            - 33
+            - 34
+            - 35
+            - 36
+            - 37
+            - 38
+            - 39
+            - 40
+            - 41
+            - 42
+            - 43
+            - 44
+            - 45
+            - 46
+            - 47
+            - 48
+            - 49
+            - 50
+            - 51
+            - 52
+            - 53
+            - 54
+            - 55
+            - 56
+            - 57
+            - 58
+            - 59
+            - 60
+            - 61
+            - 62
+            - 63
+            - 64
+            - 65
+            - 66
+            - 67
+            - 68
+            - 69
+            - 70
+            - 71
+            - 72
+            - 73
+            - 74
+            - 75
+            - 76
+            - 77
+            - 78
+            - 79
+            - 80
+            - 81
+            - 82
+            - 83
+            - 84
+            - 85
+            - 86
+            - 87
+            - 88
+            - 89
+            - 90
+            - 91
+            - 92
+            - 93
+            - 94
+            - 95
+            - 96
+            - 97
+            - 98
+            - 99
+    en_CA_Qualifications:
+      type: array
+      description: Demographic criteria required for panelists.
+      items:
+        anyOf:
+        - $ref: '#/components/schemas/age-2'
+        - $ref: '#/components/schemas/b2b_decision_maker'
+        - $ref: '#/components/schemas/education-2'
+        - $ref: '#/components/schemas/employment'
+        - $ref: '#/components/schemas/gender'
+        - $ref: '#/components/schemas/hhi_combined'
+        - $ref: '#/components/schemas/hhi'
+        - $ref: '#/components/schemas/mobile'
+        - $ref: '#/components/schemas/province'
+        - $ref: '#/components/schemas/tablet'
+    parental_status_standard:
+      type: object
+      description: Please choose the options that best describe your household.
+      title: Parental Status
+      properties:
+        question_id:
+          type: string
+          enum:
+          - parental_status_standard
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - I am pregnant/expecting a child within the next 9 months
+            - I have one or more children under the age of 18 living in my household
+            - I have one or more children aged 18 or older living in my household
+            - I have no children living in my household and I am not pregnant/expecting a child within the next 9 months
+    company_revenue:
+      type: object
+      description: Approximately what is the annual revenue for your organization?
+      title: Company Revenue
+      properties:
+        question_id:
+          type: string
+          enum:
+          - company_revenue
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Under £100,000
+            - £100,000 - £249,999
+            - £250,000 - £499,999
+            - £500,000 - £999,999
+            - £1 Million - £4.99 Million
+            - £5 Million - £9.99 Million
+            - £10 Million - £24.99 Million
+            - £25 Million - £49.99  Million
+            - £50 Million - £99.99 Million
+            - £100 Million - £249.99 Million
+            - £250 Million - £499.99 Million
+            - £500 Million - £999.99 Million
+            - £1 Billion or more
+            - I don't work/I don't know
+    company_department:
+      type: object
+      description: Which department do you primarily work within at your organization?
+      title: Company Department
+      properties:
+        question_id:
+          type: string
+          enum:
+          - company_department
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Administration/General Staff
+            - Customer Service/Client Service
+            - Executive Leadership
+            - Finance/Accounting
+            - Human Resources
+            - Legal/Law
+            - Marketing
+            - Operations
+            - Procurement
+            - Sales/Business Development
+            - Technology Development Hardware (not only IT)
+            - Technology Development Software (not only IT)
+            - Technology Implementation
+            - Other
+            - I don't work
+    pt_BR_Qualifications:
+      type: array
+      description: Demographic criteria required for panelists.
+      items:
+        anyOf:
+        - $ref: '#/components/schemas/age-5'
+        - $ref: '#/components/schemas/education-6'
+        - $ref: '#/components/schemas/employment-4'
+        - $ref: '#/components/schemas/gender-4'
+        - $ref: '#/components/schemas/hhi_combined-5'
+        - $ref: '#/components/schemas/hhi-5'
+        - $ref: '#/components/schemas/mobile'
+        - $ref: '#/components/schemas/region-4'
+        - $ref: '#/components/schemas/tablet'
+    job_title:
+      type: object
+      description: What is your job title, level or responsibility?
+      title: Job Title
+      properties:
+        question_id:
+          type: string
+          enum:
+          - job_title
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - C-Level (e.g. CEO, CFO), Owner, Partner, President
+            - Vice President (EVP, SVP, AVP, VP)
+            - Director (Group Director, Sr. Director, Director)
+            - Manager (Group Manager, Sr. Manager, Manager, Program Manager)
+            - Analyst
+            - Assistant or Associate
+            - Administrative (Clerical or Support Staff)
+            - Consultant
+            - Intern
+            - Volunteer
+            - None of the above
+    employee_dept:
+      type: object
+      description: Which department do you primarily work within at your organization?
+      title: Department
+      properties:
+        question_id:
+          type: string
+          enum:
+          - employee_dept
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Administration/General Staff
+            - Customer Service/Client Service
+            - Executive Leadership
+            - Finance/Accounting
+            - Human Resources
+            - Legal/Law
+            - Marketing
+            - Operations
+            - Procurement
+            - Sales/Business Development
+            - Technology Development Hardware (not only IT)
+            - Technology Development Software (not only IT)
+            - Technology Implementation
+            - Other
+            - Unemployed
+    hhi_combined-2:
+      type: object
+      description: How much total combined annual income do all members of your household earn before taxes?
+      title: Household Income Combined
+      properties:
+        question_id:
+          type: string
+          enum:
+          - hhi_combined
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Less than £15,000
+            - £15,000 to £19,999
+            - £20,000 to £24,999
+            - £25,000 to £29,999
+            - £30,000 to £34,999
+            - £35,000 to £39,999
+            - £40,000 to £44,999
+            - £45,000 to £49,999
+            - £50,000 to £59,999
+            - £60,000 to £74,999
+            - £75,000 to £84,999
+            - £85,000 to £99,999
+            - £100,000 to £124,999
+            - £125,000 to £149,999
+            - £150,000 to £174,999
+            - £175,000 to £199,999
+            - £200,000 and above
+            - Prefer not to answer
+    education-5:
+      type: object
+      description: Quel-est votre niveau d'études?
+      title: Education
+      properties:
+        question_id:
+          type: string
+          enum:
+          - education
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Ecole primaire
+            - Collège - Lycée
+            - Fin du lycée, sans obtention du baccalauréat
+            - Baccalauréat
+            - Autre type d'éducation supérieure
+            - Bac +1
+            - Bac +2
+            - Licence (Bac +3)
+            - Master 1
+            - Master 2
+            - Doctorat
+            - Aucun de ces niveaux
+    Quotas:
+      description: A quota is defined by a set of qualifications and a complete count.
+      type: array
+      items:
+        type: object
+        properties:
+          quantity:
+            type: integer
+            description: The number of qualified participants to be accepted.
+            example: 100
+            minimum: 1
+          qualifications:
+            items:
+              anyOf:
+              - $ref: '#/components/schemas/en_US_Qualifications'
+              - $ref: '#/components/schemas/en_CA_Qualifications'
+              - $ref: '#/components/schemas/en_GB_Qualifications'
+              - $ref: '#/components/schemas/es_ES_Qualifications'
+              - $ref: '#/components/schemas/fr_FR_Qualifications'
+              - $ref: '#/components/schemas/it_IT_Qualifications'
+              - $ref: '#/components/schemas/pt_BR_Qualifications'
+            description: Demographic criteria required for panelists.
+    org_census:
+      type: object
+      description: Approximately how many employees work at your organization (all locations)?
+      title: Organization Size
+      properties:
+        question_id:
+          type: string
+          enum:
+          - org_census
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - '1'
+            - 2-10
+            - 11-50
+            - 51-100
+            - 101-500
+            - 501-1,000
+            - 1,001-5,000
+            - Greater than 5,000
+            - Unemployed / I don't know
+    org_income:
+      type: object
+      description: Approximately what is the annual revenue for your organization?
+      title: Organization Income
+      properties:
+        question_id:
+          type: string
+          enum:
+          - org_income
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Under $100,000
+            - $100,000 - $249,999
+            - $250,000 - $499,999
+            - $500,000 - $999,999
+            - $1 Million - $4.99 Million
+            - $5 Million - $9.99 Million
+            - $10 Million - $24.99 Million
+            - $25 Million - $49.99  Million
+            - $50 Million - $99.99 Million
+            - $100 Million - $249.99 Million
+            - $250 Million - $499.99 Million
+            - $500 Million - $999.99 Million
+            - $1 Billion or more
+            - Unemployed / I don't know
+    it_IT_Qualifications:
+      type: array
+      description: Demographic criteria required for panelists.
+      items:
+        anyOf:
+        - $ref: '#/components/schemas/age-5'
+        - $ref: '#/components/schemas/education-6'
+        - $ref: '#/components/schemas/employment-4'
+        - $ref: '#/components/schemas/gender-4'
+        - $ref: '#/components/schemas/hhi_combined-5'
+        - $ref: '#/components/schemas/hhi-5'
+        - $ref: '#/components/schemas/mobile'
+        - $ref: '#/components/schemas/region-4'
+        - $ref: '#/components/schemas/tablet'
+    education:
+      type: object
+      description: What is the highest level of education you have completed?
+      title: Education
+      properties:
+        question_id:
+          type: string
+          enum:
+          - education
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - 3rd Grade or less
+            - Middle School - Grades 4 - 8
+            - Completed some high school
+            - High school graduate
+            - Other post high school vocational training
+            - Completed some college, but no degree
+            - Associate Degree
+            - College Degree (such as B.A., B.S.)
+            - Completed some graduate, but no degree
+            - Masters degree
+            - Doctorate degree
+            - None of the above
+    auto_purchase_type:
+      type: object
+      description: Did you purchase/lease your primary vehicle new or used?
+      title: Auto Purchase Type
+      properties:
+        question_id:
+          type: string
+          enum:
+          - auto_purchase_type
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - New
+            - Used
+            - I don't own/lease a car
+    department_decision_maker:
+      type: object
+      description: Please choose which departments/products you have influence or decision making authority over regarding spending/purchasing.
+      title: Business Decision Maker
+      properties:
+        question_id:
+          type: string
+          enum:
+          - department_decision_maker
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - IT Hardware
+            - IT Software
+            - Printers and copiers
+            - Financial Department
+            - Human Resources
+            - Office supplies
+            - Corporate travel
+            - Telecommunications
+            - Sales
+            - Shipping
+            - Operations
+            - Legal services
+            - Marketing/Advertising
+            - Security
+            - Food services
+            - Auto leasing/purchasing
+            - Other
+            - I don't have influence or decision making authority
+    EstimateBody:
+      type: object
+      required:
+      - quantity
+      - days
+      - incidence
+      - pii
+      - locale
+      - length_of_interview
+      - currency
+      - category
+      properties:
+        incidence:
+          type: integer
+          example: 50
+          description: Incidence or Qualifying Rate is the expected percentage of persons eligible to participate in a survey within a given population.
+          minimum: 1
+          maximum: 100
+        pii:
+          type: boolean
+          example: true
+          description: Boolean used to determine if the survey intends to collect personally identifiable information.
+        days:
+          type: integer
+          example: 5
+          description: Number of days the survey will be fielded.
+          minimum: 1
+        length_of_interview:
+          type: integer
+          example: 20
+          description: Number in minutes the average respondent will take to finish the survey.
+          minimum: 1
+        category:
+          type: string
+          example: Business
+          description: The category in which best describes the topic of the survey.
+          enum:
+          - No Selection
+          - Automotive
+          - Beauty/Costmetics
+          - Beverages - Alcoholic
+          - Beverages - Non-alcoholic
+          - Business
+          - Children & Parenting
+          - Coalition/Loyalty Programs
+          - Credit Cards
+          - Destinations & Tourism
+          - Education
+          - Electronics/Computer/Software
+          - Entertainment & Leisure
+          - Explicit Content
+          - Fashion & Clothing - Department Store
+          - Fashion & Clothing - Other
+          - Finance, Banking Investing & Insurance
+          - Food/Snacks
+          - Gambling/Lottery
+          - Government & Politics
+          - Heathcare/Pharmaceuticals
+          - Home (Utilities, Appliances)
+          - Home Entertainment (DVD, VHS)
+          - Home Improvement/Real Estate/Construction
+          - IT (Servers, Databases, etc)
+          - Media & Publishing
+          - Personal Care/Toiletries
+          - Pets
+          - Restaurants
+          - Sensitive Content
+          - Smoking/Tobacco
+          - Social Research
+          - Sports, Recreation, Fitness
+          - Telecommunications (phone, cell phone, cable)
+          - Toys
+          - Transportation
+          - Travel - Airlines
+          - Travel - Hotels
+          - Travel Services/Agency/Booking
+          - Video Games
+          - Websites/Internet/E-Commerce
+        locale:
+          type: string
+          example: en_US
+          enum:
+          - de_DE
+          - en_CA
+          - en_GB
+          - en_US
+          - es_ES
+          - fr_FR
+          - it_IT
+          - pt_BR
+          description: The locale to describe the language and location of the survey.
+        quantity:
+          type: integer
+          example: 5000
+          description: The total number participants in the sample that are purchased.
+          minimum: 1
+        currency:
+          type: string
+          example: USD
+          description: The type of currency to use to pay for the Sample.
+          enum:
+          - USD
+        qualifications:
+          type: array
+          description: Demographic criteria required for panelists.
+          items:
+            anyOf:
+            - $ref: '#/components/schemas/en_US_Qualifications'
+            - $ref: '#/components/schemas/en_CA_Qualifications'
+            - $ref: '#/components/schemas/en_GB_Qualifications'
+            - $ref: '#/components/schemas/es_ES_Qualifications'
+            - $ref: '#/components/schemas/fr_FR_Qualifications'
+            - $ref: '#/components/schemas/it_IT_Qualifications'
+            - $ref: '#/components/schemas/pt_BR_Qualifications'
+          example:
+          - question_id: age
+            answers:
+            - 18
+            - 19
+            - 20
+            - 21
+            - 22
+            - 23
+            - 24
+          - question_id: income
+            answers:
+            - Less than $14,999
+            - $15,000 to $19,999
+            - $20,000 to $24,999
+            - $25,000 to $29,999
+            - $30,000 to $34,999
+            - $35,000 to $39,999
+            - $40,000 to $44,999
+            - $45,000 to $49,999
+        quotas:
+          allOf:
+          - $ref: '#/components/schemas/Quotas'
+          example:
+          - quantity: 3000
+            qualifications:
+              question_id: age
+              answers:
+              - 18
+              - 19
+              - 20
+          - quantity: 2000
+            qualifications:
+              question_id: age
+              answers:
+              - 21
+              - 22
+              - 23
+              - 24
+          - quantity: 500
+            qualifications:
+              question_id: income
+              answers:
+              - Less than $14,999
+    no_of_employees:
+      type: object
+      description: Approximately how many employees work at your organization (all locations)?
+      title: Number of Employees
+      properties:
+        question_id:
+          type: string
+          enum:
+          - no_of_employees
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - 1
+            - 2-10
+            - 11-50
+            - 51-100
+            - 101-500
+            - 501-1000
+            - 1001-5000
+            - Greater than 5000
+            - I don't work/I don't know
+    industry:
+      type: object
+      description: Do you, or does anyone in your household, work in any of the following industries?
+      title: Industry
+      properties:
+        question_id:
+          type: string
+          enum:
+          - industry
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Accounting
+            - Advertising
+            - Agriculture/Fishing
+            - Architecture
+            - Automotive
+            - Aviation
+            - Banking/Financial
+            - Bio-Tech
+            - Brokerage
+            - Carpenting/Electrical installations/VVS
+            - Chemicals/Plastics/Rubber
+            - Communications/Information
+            - Computer Hardware
+            - Computer Reseller (software/hardware)
+            - Computer Software
+            - Construction
+            - Consulting
+            - Consumer Electronics
+            - Consumer Packaged Goods
+            - Education
+            - Energy/Utilities/Oil and Gas
+            - Engineering
+            - Environmental Services
+            - Fashion/Apparel
+            - Food/Beverage
+            - Government/Public Sector
+            - Healthcare
+            - Hospitality/Tourism
+            - Human Resources
+            - Information Technology/IT
+            - Insurance
+            - Internet
+            - Legal/Law
+            - Manufacturing
+            - Market Research
+            - Marketing/Sales
+            - Media/Entertainment
+            - Military
+            - Non Profit/Social services
+            - Personal Services
+            - Pharmaceuticals
+            - Printing Publishing
+            - Public Relations
+            - Real Estate/Property
+            - Retail/Wholesale trade
+            - Security
+            - Shipping/Distribution
+            - Telecommunications
+            - Transportation
+            - Other
+            - I don't work
+    hhi_combined-3:
+      type: object
+      description: ¿Cuáles son los ingresos brutos anuales (antes de impuestos) de todos los miembros de su familia que viven con usted?
+      title: Household Income Combined
+      properties:
+        question_id:
+          type: string
+          enum:
+          - hhi_combined
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Menos de €15.000
+            - €15.000 a €19.999
+            - €20.000 a €24.999
+            - €25.000 a €29.999
+            - €30.000 a €34.999
+            - €35.000 a €39.999
+            - €40.000 a €44.999
+            - €45.000 a €49.999
+            - €50.000 a €59.999
+            - €60.000 a €74.999
+            - €75.000 a €84.999
+            - €85.000 a €99.999
+            - €100.000 a €124.999
+            - €125.000 a €149.999
+            - €150.000 a €174.999
+            - €175.000 a €199.999
+            - €200.000 o más
+            - Prefiero no contestar
+    personal_industry:
+      type: object
+      description: Which of the following best describes the industry that you, personally, work in?
+      title: Profession
+      properties:
+        question_id:
+          type: string
+          enum:
+          - personal_industry
+        answers:
+          type: array
+          items:
+            type: string
+            enum:
+            - Accounting
+            - Advertising
+            - Agriculture/Fishing
+            - Architecture
+            - Automotive
+            - Aviation
+            - Banking/Financial
+            - Bio-Tech
+            - Brokerage
+            - Carpentering/Electrical installations/VVS
+            - Chemicals/Plastics/Rubber
+            - Communications/Information
+            - Computer Hardware
+            - Computer Reseller (software/hardware)
+            - Computer Software
+            - Construction
+            - Consulting
+            - Consumer Electronics
+            - Consumer Packaged Goods
+            - Education
+            - Energy/Utilities/Oil and Gas
+            - Engineering
+            - Environmental Services
+            - Fashion/Apparel
+            - Food/Beverage
+            - Government/Public Sector
+            - Healthcare
+            - Hospitality/Tourism
+            - Human Resources
+            - Information Technology
+            - Insurance
+            - Internet
+            - Legal/Law
+            - Manufacturing
+            - Marketing
+            - Market Research
+            - Media/Entertainment
+            - Military
+            - Non Profit/Social services
+            - Personal Services
+            - Pharmaceuticals
+            - Publishing
+            - Public Relations
+            - Real Estate/Property
+            - Retail/Wholesale trade
+            - Sales
+            - Security
+            - Shipping/Distribution
+            - Telecommunications
+            - Transportation
+            - Other
+            - Unemployed
+    en_US_Qualifications:
+      type: array
+      description: Demographic criteria required for panelists.
+      items:
+        anyOf:
+        - $ref: '#/components/schemas/age'
+        - $ref: '#/components/schemas/auto_purchase_type'
+        - $ref: '#/components/schemas/cell_carrier_us'
+        - $ref: '#/components/schemas/cell_carrier'
+        - $ref: '#/components/schemas/department_decision_maker'
+        - $ref: '#/components/schemas/employee_dept'
+        - $ref: '#/components/schemas/division'
+        - $ref: '#/components/schemas/dma'
+        - $ref: '#/components/schemas/education_v2'
+        - $ref: '#/components/schemas/education'
+        - $ref: '#/components/schemas/employment'
+        - $ref: '#/components/schemas/ethnicity'
+        - $ref: '#/components/schemas/gender'
+        - $ref: '#/components/schemas/grocery_shopper'
+        - $ref: '#/components/schemas/hispanic'
+        - $ref: '#/components/schemas/home_owner'
+        - $ref: '#/components/schemas/hh_responsibility'
+        - $ref: '#/components/schemas/income'
+        - $ref: '#/components/schemas/household_industry'
+        - $ref: '#/components/schemas/job_title'
+        - $ref: '#/components/schemas/mobile'
+        - $ref: '#/components/schemas/child_ages'
+        - $ref: '#/components/schemas/org_income'
+        - $ref: '#/components/schemas/org_census'
+        - $ref: '#/components/schemas/has_children'
+        - $ref: '#/components/schemas/pets'
+        - $ref: '#/components/schemas/primary_decision_maker'
+        - $ref: '#/components/schemas/personal_industry'
+        - $ref: '#/components/schemas/region'
+        - $ref: '#/components/schemas/spanish_speaking'
+        - $ref: '#/components/schemas/tablet'
+        - $ref: '#/components/schemas/urban_rural'
+        - $ref: '#/components/schemas/webcam'
+        - $ref: '#/components/schemas/zip'
+  responses:
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                description: Error code and message
+                properties:
+                  status:
+                    type: string
+                    description: HTTP status Code
+                    enum:
+                    - 500
+                  message:
+                    type: string
+                    description: Status message
+                    enum:
+                    - Internal Server Error
+    '401':
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                description: Error code and message
+                properties:
+                  status:
+                    type: string
+                    description: HTTP status Code
+                    enum:
+                    - 401
+                  message:
+                    type: string
+                    example: Unauthorized
+                    description: Status message
+                    enum:
+                    - Unauthorized
+    '422':
+      description: Unprocessable entity
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                description: Error code and message
+                properties:
+                  status:
+                    type: string
+                    description: HTTP status Code
+                    example: 422
+                    enum:
+                    - 422
+                  message:
+                    type: string
+                    example: Unprocessable entity
+                    description: Status message
+                    enum:
+                    - Unprocessable entity
+                  errors:
+                    type: array
+                    example:
+                    - attribute: name
+                      message: Expected type "string", got "number"
+                    description: List of error objects with `attribute` and `message` keys.
+                    items:
+                      type: object
+                      properties:
+                        attribute:
+                          type: string
+                        message:
+                          type: string
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      description: See https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html
+      flows:
+        clientCredentials:
+          tokenUrl: /oauth2/token/
+          scopes: {}
+      x-tokenInfoFunc: demo.token_auth
+    BasicAuth:
+      type: http
+      scheme: basic
+      x-basicInfoFunc: demo.basic_auth

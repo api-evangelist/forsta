@@ -1,0 +1,397 @@
+openapi: 3.2.0
+info:
+  title: Panel Management Community Points API
+  version: ''
+servers:
+- url: https://{server}
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: staging.panel.dev.focusvision.com/
+      description: Server domain
+security:
+- ApiKey: []
+tags:
+- name: Points
+paths:
+  /api.pro#method=portal.points.total:
+    post:
+      operationId: portal.points.total
+      summary: Get the panelist's currently available reward points
+      description: Get the panelist's currently available reward points. This total excludes any reward points already used or any pending point redemption.
+      tags:
+      - Points
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.points.total
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+            example:
+              seskey: ce512c91
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: Retrieving the total points was successful.
+                    points:
+                      type: integer
+                      description: Retrieving the panelist's current total reward points.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    points: 1845
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.points.earned:
+    post:
+      operationId: portal.points.earned
+      summary: Get points of panelist
+      description: Get the amount of points the panelist has earned so far. This includes points from referrals, registration points and surveys.
+      tags:
+      - Points
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.points.earned
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+            example:
+              seskey: ce512c91
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: Retrieving the total points was successful.
+                    points:
+                      type: integer
+                      description: Retrieving the amount of points the panelist has earned so far.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    points: 1845
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.points.surveys:
+    post:
+      operationId: portal.points.surveys
+      summary: Get the amount of points the panelist has received for completing surveys
+      tags:
+      - Points
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.points.surveys
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+            example:
+              seskey: ce512c91
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: Retrieving the total points was successful.
+                    points:
+                      type: integer
+                      description: Retrieving the amount of points the panelist has received for completing surveys.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    points: 1845
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.points.referred:
+    post:
+      operationId: portal.points.referred
+      summary: Get the amount of points the panelist has received for referring other panelists
+      tags:
+      - Points
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.points.referred
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+            example:
+              seskey: ce512c91
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: Retrieving the total points was successful.
+                    points:
+                      type: integer
+                      description: Retrieving the amount of points the panelist has earned for referring other panelists.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    points: 1845
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.points.other:
+    post:
+      operationId: portal.points.other
+      summary: Get points that were given to the panelist by an administrator
+      tags:
+      - Points
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.points.other
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+            example:
+              seskey: ce512c91
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: Retrieving the total points was successful.
+                    points:
+                      type: integer
+                      description: Retrieving the amount of points that were given to the panelist by an administrator.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    points: 1845
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+components:
+  parameters:
+    method:
+      name: method
+      in: query
+      required: true
+      description: Method
+      schema:
+        type: string
+  schemas:
+    error:
+      type: object
+      properties:
+        success:
+          type: boolean
+        error:
+          description: The error message.
+          type: string
+        errno:
+          description: The error code.
+          type: string
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: query
+      name: seskey
+x-tagGroups:
+- name: Data Input and Output
+  tags:
+  - Auth
+  - Email
+  - Panel
+  - Panelist
+  - Points
+  - Quickpoll
+  - Redemption
+  - Reward
+  - Survey
+  - System

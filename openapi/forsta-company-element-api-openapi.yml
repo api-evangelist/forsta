@@ -1,0 +1,508 @@
+openapi: 3.2.0
+info:
+  title: Decipher Rest Company Element API
+  version: '1.0'
+  description: The Decipher REST API allows comprehensive automation of your private or shared Decipher instance.
+servers:
+- url: https://{server}/api/v1
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: selfserve.decipherinc.com
+      description: Server domain
+security:
+- APIKey: []
+tags:
+- name: Company Element
+paths:
+  /libraries/{company}/elements/{eid}:
+    post:
+      operationId: createLibrariesCompanyElement
+      summary: Add element
+      description: Add a new element to the library.
+      tags:
+      - Company Element
+      parameters:
+      - name: company
+        description: company ID or name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: eid
+        description: 'the unique element ID of the element to upload (use `_` to generate one
+
+          randomly)
+
+          '
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  description: the name/description of the element
+                  type: string
+                xml:
+                  description: the survey XML representation of the element
+                  type: string
+                xml_from_label:
+                  description: 'the label of the question in the survey to use as the xml
+
+                    instead of specifying `xml`
+
+                    '
+                  type: string
+                tags:
+                  description: 'a list of phrases to improve search/organization of the element
+
+                    '
+                  type: string
+                private:
+                  description: 'use true to indicate the element should be private and visible
+
+                    to the original author only
+
+                    '
+                  type: boolean
+                locked:
+                  description: use true to indicate this is a permanent element
+                  type: boolean
+                shared:
+                  description: 'use true to indicate this element should be available to all
+
+                    authors on a server (staff)
+
+                    '
+                  type: boolean
+              required:
+              - name
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  added:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        description: a description of the element
+                      eid:
+                        type: string
+                        description: the element's id (unique per server)
+                      xml:
+                        type: string
+                        description: the element's survey XML representation
+                      type:
+                        type: string
+                        description: 'the type or class of element (e.g. radio, html, set,
+
+                          subset (for answers))
+
+                          '
+                      tags:
+                        type: array
+                        description: 'the element''s tags (e.g. short phrases to improve search)
+
+                          '
+                        items:
+                          type: string
+                      private:
+                        type: boolean
+                        description: 'true when the element is only accessible to the original
+
+                          author
+
+                          '
+                      locked:
+                        type: boolean
+                        description: 'true when an element has reach a final state in development
+
+                          and should no longer change
+
+                          '
+                      shared:
+                        type: boolean
+                        description: 'true when an element is global and available to all authors
+
+                          on the server
+
+                          '
+                      user_id:
+                        type: integer
+                        description: the original author's user ID
+                      user_ids:
+                        type: array
+                        description: the list of user IDs the element is shared with
+                        items:
+                          type: integer
+                      group_ids:
+                        type: array
+                        description: the list of group IDs the element is shared with
+                        items:
+                          type: integer
+                      id:
+                        type: integer
+                        description: the system ID of the element
+                      uuid:
+                        type: integer
+                        description: the database record ID of the element
+                      element_uuids:
+                        type: array
+                        description: a list of database record IDs of child elements
+                        items:
+                          type: integer
+                      survey_attrs:
+                        type: object
+                        description: survey attributes
+                      report:
+                        type: string
+                        format: json
+                        description: reports json
+    get:
+      operationId: getLibrariesCompanyElement
+      summary: Get element
+      description: Retrieves a list containing a single library element.
+      tags:
+      - Company Element
+      parameters:
+      - description: company ID or name
+        in: path
+        name: company
+        required: true
+        schema:
+          type: string
+      - description: the unique element ID of the element to download
+        in: path
+        name: eid
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: a description of the element
+                    eid:
+                      type: string
+                      description: the element's id (unique per server)
+                    xml:
+                      type: string
+                      description: the element's survey XML representation
+                    type:
+                      type: string
+                      description: 'the type or class of element (e.g. radio, html, set,
+
+                        subset (for answers))
+
+                        '
+                    tags:
+                      type: array
+                      description: 'the element''s tags (e.g. short phrases to improve search)
+
+                        '
+                      items:
+                        type: string
+                    private:
+                      type: boolean
+                      description: 'true when the element is only accessible to the original
+
+                        author
+
+                        '
+                    locked:
+                      type: boolean
+                      description: 'true when an element has reach a final state in development
+
+                        and should no longer change
+
+                        '
+                    shared:
+                      type: boolean
+                      description: 'true when an element is global and available to all authors
+
+                        on the server
+
+                        '
+                    user_id:
+                      type: integer
+                      description: the original author's user ID
+                    user_ids:
+                      type: array
+                      description: the list of user IDs the element is shared with
+                      items:
+                        type: integer
+                    group_ids:
+                      type: array
+                      description: the list of group IDs the element is shared with
+                      items:
+                        type: integer
+                    id:
+                      type: integer
+                      description: the system ID of the element
+                    uuid:
+                      type: integer
+                      description: the database record ID of the element
+                    element_uuids:
+                      type: array
+                      description: a list of database record IDs of child elements
+                      items:
+                        type: integer
+                    survey_attrs:
+                      type: object
+                      description: survey attributes
+                    report:
+                      type: string
+                      format: json
+                      description: reports json
+    put:
+      operationId: updateLibrariesCompanyElement
+      summary: Update element
+      description: Update an element in the library.
+      tags:
+      - Company Element
+      parameters:
+      - name: company
+        description: company ID or name
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: eid
+        description: the unique element ID of the element to edit
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  description: the name/description of the element
+                  type: string
+                tags:
+                  description: 'a list of phrases to improve search/organization of the element
+
+                    '
+                  type: string
+                private:
+                  description: 'use true to indicate the element should be private and visible
+
+                    to the original author only
+
+                    '
+                  type: boolean
+                locked:
+                  description: use true to indicate this is a permanent element
+                  type: boolean
+                shared:
+                  description: 'use true to indicate this element should be available to all
+
+                    authors on a server (staff)
+
+                    '
+                  type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+    delete:
+      operationId: deleteLibrariesCompanyElement
+      summary: Delete element
+      description: Remove an element from the library.
+      tags:
+      - Company Element
+      parameters:
+      - description: company ID or name
+        in: path
+        name: company
+        required: true
+        schema:
+          type: string
+      - description: the unique element ID of the element to remove
+        in: path
+        name: eid
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+components:
+  securitySchemes:
+    APIKey:
+      type: apiKey
+      in: header
+      name: x-apikey
+      description: 'In order to access the api, you''ll need to generate an API key. Refer to the
+
+        instructions [here](/docs/decipher/api#section/API-Keys) to generate and
+
+        configure an API key with the appropriate permission sets. You can generate
+
+        as many keys as required.
+
+
+        Configure each request to include your API key in the request header. For example:
+
+
+        ```
+
+        x-apikey: dp48ss3mgsaucyjtybxw728h7s4cgnwzhejtszdwhf4xpe8yhmtdwpk2ntdhtwbs
+
+        ```
+
+        '
+x-tagGroups:
+- name: Autoclose
+  tags:
+  - Autoclose
+- name: Data Input and Output
+  tags:
+  - Data
+  - Data Feed
+  - Response Summary
+  - Modifying Data
+  - Datasources
+  - Datasources Data
+  - Umerge
+- name: Survey Metadata
+  tags:
+  - Simulated Data
+  - Survey State
+  - Survey Evaluate
+  - Survey Quotas
+  - Survey Files
+  - Survey Warnings
+  - Survey Terms
+  - Survey Subscribers
+  - Survey Users
+  - Survey Tasks
+- name: Panels
+  tags:
+  - Panel Data
+  - Panel Datapoints
+  - Survey Panels
+- name: Research Hub
+  tags:
+  - Users
+  - Companies
+  - Categories
+  - Surveys
+  - Panels
+  - Crosstabs
+  - Archives
+  - Archival Reports
+  - API Keys
+  - Usage
+  - Warnings Summary
+- name: Crosstabs
+  tags:
+  - Crosstabs Configuration
+  - Crosstabs Execution
+  - Crosstabs Nets
+  - Saved Crosstabs
+  - Crosstabs Table Settings
+  - Crosstabs Validation
+  - Crosstabs Rim Weighting
+- name: Dashboards
+  tags:
+  - Dashboards
+- name: DQ APIs
+  tags:
+  - DQ-Specific API Calls
+  - MaxDiff API Calls
+  - Discrete Choice Model API Calls
+  - Media Testimonial API Calls
+- name: Response Summary
+  tags:
+  - Share Link
+- name: Sample Management
+  tags:
+  - Bounced Emails
+  - Participant Sources
+- name: Distribution
+  tags:
+  - Email Distribution
+  - SFTP Distribution
+  - Slack Distribution
+- name: Campaign Manager
+  tags:
+  - Campaigns
+  - Campaign Email Invites
+  - Campaign Exports
+  - Campaign Lists
+  - Shared Campaign Lists
+  - Campaign Sends
+  - Campaign Status Lists
+  - Supression Lists
+- name: Question Library
+  tags:
+  - Company Element
+  - Company Elements
+  - Survey Elements
+  - Survey Element Report Settings
+- name: Language Manager
+  tags:
+  - LM Application Data
+  - LM Application Translations
+  - Translation Resources
+  - Translations
+  - Translation Deltas
+  - Translation Reservations
+  - Primary Survey Language
+  - Other Survey Languages
+  - Unused Survey Languages
+- name: Project Parameters
+  tags:
+  - Available Project Parameters
+  - Saved Project Parameters
+  - Project Parameters Configuration
+- name: Multi-User Editing
+  tags:
+  - Available Sections
+  - Check Out Section
+  - Check In Section
+  - Sync Section
+  - Section Editor
+  - Abandon Section
+  - Validate Section
+- name: Video Management
+  tags:
+  - Videos
+  - Watermarked Videos
+- name: Miscellaneous
+  tags:
+  - System Information
+  - Logic Nodes
+  - Logic Events
+  - CATI
+  - Global Search
+  - Miscellaneous

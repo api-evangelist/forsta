@@ -1,0 +1,246 @@
+openapi: 3.2.0
+info:
+  version: 1.0-beta
+  title: Sample Marketplace Partner API Contract Projects API
+  description: '# Summary
+
+
+    Sample providers that wish to be added to the Forsta Sample Marketplace must implement
+
+    an API following the specifications outlined in this document after obtaining an authentication key from Forsta.'
+tags:
+- name: Projects
+  description: The Project resources are used to create organizational containers for Samples. The Forsta Sample Marketplace expects responses to these calls within 10 seconds before terminating the request.
+paths:
+  /projects/{project_id}:
+    get:
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        example: f7694b5e-3f50-4bb6-b307-f68b0fe111aa
+        description: The ID tied to a specific project.
+        schema:
+          type: string
+      tags:
+      - Projects
+      summary: Get project data
+      security:
+      - OAuth2: []
+      operationId: demo.get_project
+      responses:
+        '200':
+          description: Project data retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Projects'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
+    patch:
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        example: f7694b5e-3f50-4bb6-b307-f68b0fe111aa
+        description: The ID tied to a specific project.
+        schema:
+          type: string
+      operationId: demo.patch_project
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+              - type: object
+                properties:
+                  name:
+                    type: string
+                    example: Myke's Project
+                    description: The name used to identify the project.
+      tags:
+      - Projects
+      summary: Update project data
+      security:
+      - OAuth2: []
+      responses:
+        '200':
+          description: Project updated
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/Projects'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+  /projects:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+              - type: object
+                properties:
+                  name:
+                    type: string
+                    example: Myke's Project
+                    description: The name associated with the project. For organizational purposes.
+      tags:
+      - Projects
+      summary: Create project
+      security:
+      - OAuth2: []
+      operationId: demo.post_project
+      responses:
+        '201':
+          description: Project created
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/Projects'
+        '401':
+          $ref: '#/components/responses/401'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+components:
+  schemas:
+    Projects:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Myke's Projects
+          description: The name of the project.
+        project_id:
+          type: string
+          example: f7694b5e-3f50-4bb6-b307-f68b0fe111aa
+          description: The unique identifier of the project.
+  responses:
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                description: Error code and message
+                properties:
+                  status:
+                    type: string
+                    description: HTTP status Code
+                    enum:
+                    - 500
+                  message:
+                    type: string
+                    description: Status message
+                    enum:
+                    - Internal Server Error
+    '404':
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: HTTP status Code
+                    example: 404
+                    enum:
+                    - 404
+                  message:
+                    type: string
+                    example: Not found
+                    description: Status message
+                    enum:
+                    - Not found
+    '422':
+      description: Unprocessable entity
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                description: Error code and message
+                properties:
+                  status:
+                    type: string
+                    description: HTTP status Code
+                    example: 422
+                    enum:
+                    - 422
+                  message:
+                    type: string
+                    example: Unprocessable entity
+                    description: Status message
+                    enum:
+                    - Unprocessable entity
+                  errors:
+                    type: array
+                    example:
+                    - attribute: name
+                      message: Expected type "string", got "number"
+                    description: List of error objects with `attribute` and `message` keys.
+                    items:
+                      type: object
+                      properties:
+                        attribute:
+                          type: string
+                        message:
+                          type: string
+    '401':
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                description: Error code and message
+                properties:
+                  status:
+                    type: string
+                    description: HTTP status Code
+                    enum:
+                    - 401
+                  message:
+                    type: string
+                    example: Unauthorized
+                    description: Status message
+                    enum:
+                    - Unauthorized
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      description: See https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html
+      flows:
+        clientCredentials:
+          tokenUrl: /oauth2/token/
+          scopes: {}
+      x-tokenInfoFunc: demo.token_auth
+    BasicAuth:
+      type: http
+      scheme: basic
+      x-basicInfoFunc: demo.basic_auth

@@ -1,0 +1,1854 @@
+openapi: 3.2.0
+info:
+  title: Decipher Rest Crosstabs API
+  version: '1.0'
+  description: The Decipher REST API allows comprehensive automation of your private or shared Decipher instance.
+servers:
+- url: https://{server}/api/v1
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: selfserve.decipherinc.com
+      description: Server domain
+security:
+- APIKey: []
+tags:
+- name: Crosstabs
+paths:
+  /rh/companies/{company}/crosstab-report-defaults:
+    get:
+      operationId: getRHCompanyCrosstabReportDefaults
+      summary: Get crosstab preferences
+      description: Retrieves company Crosstab Report Preference configuration file.
+      tags:
+      - Crosstabs
+      parameters:
+      - name: company
+        description: company ID
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  singleSelectOneD:
+                    type: object
+                    description: 'Report defaults for single select (radio/select) one
+
+                      dimensional question.
+
+                      '
+                    properties:
+                      customBase:
+                        type: string
+                        description: Sets the default % Base.
+                        enum:
+                        - answering
+                        - shown
+                        - segment
+                      expandable:
+                        type: boolean
+                        description: 'Sets the default choice for ''Nest Rows Under Nets''.
+
+                          '
+                      stats:
+                        type: array
+                        description: Sets default stats.
+                        items:
+                          type: string
+                          enum:
+                          - mean
+                          - median
+                          - stddev
+                          - se
+                      transpose:
+                        type: boolean
+                        description: 'Sets default choice for transposing of question table.
+
+                          '
+                      questionTableChartType:
+                        type: string
+                        description: 'Sets defaults choice for chart type.
+
+                          '
+                        enum:
+                        - bar
+                        - column
+                        - pie
+                        - area
+                        - line
+                  singleSelectMultiD:
+                    type: object
+                    description: 'Report defaults for single select (radio/select)
+
+                      multi-dimensional question.
+
+                      '
+                    properties:
+                      customBase:
+                        type: string
+                        enum:
+                        - answering
+                        - shown
+                        - segment
+                        description: 'Sets the default % Base.
+
+                          '
+                      expandable:
+                        type: boolean
+                        description: 'Sets the default choice for ''Nest Rows Under Nets''
+
+                          '
+                      stats:
+                        type: array
+                        description: Sets default stats.
+                        items:
+                          type: string
+                          enum:
+                          - mean
+                          - median
+                          - stddev
+                          - se
+                          - sum
+                          - min
+                          - max
+                      summary:
+                        type: array
+                        description: Sets default summary tables.
+                        items:
+                          type: string
+                          enum:
+                          - mean
+                          - median
+                          - stddev
+                          - se
+                          - sum
+                          - min
+                          - max
+                      showGridTable:
+                        type: boolean
+                        description: Sets the default choice to display a grid table.
+                      showAllTables:
+                        type: boolean
+                        description: Sets the default choice to display all tables.
+                      transpose:
+                        type: array
+                        description: 'Sets defaults choice for transposing of grid, main and
+
+                          stats summary tables.
+
+                          '
+                        items:
+                          type: string
+                          enum:
+                          - gridTable
+                          - rowTable
+                          - mean
+                          - median
+                          - stddev
+                          - se
+                          - sum
+                          - min
+                          - max
+                      addRowSummaryTable:
+                        type: boolean
+                        description: 'Sets the default choice to add a summary table for newly
+
+                          added rows (nets).
+
+                          '
+                      chartTypeMapping:
+                        type: object
+                        description: 'Sets charts for grid, main or stat tables. See values of
+
+                          transpose for object key and values of
+
+                          `questionTableChartType` for value mapping.
+
+                          '
+                  multiSelectOneD:
+                    type: object
+                    description: 'Report defaults for multiselect (checkbox) one dimensional question.
+
+                      '
+                    properties:
+                      customBase:
+                        type: string
+                        description: Sets the default % Base
+                        enum:
+                        - answering
+                        - shown
+                        - segment
+                        - responses
+                      expandable:
+                        type: boolean
+                        description: 'Sets the default choice for ''Nest Rows Under Nets''.
+
+                          '
+                      stats:
+                        type: array
+                        description: Sets default stats.
+                        items:
+                          type: string
+                          enum:
+                          - counts
+                      transpose:
+                        type: boolean
+                        description: 'Sets defaults choice for transposing of question table.
+
+                          '
+                      questionTableChartType:
+                        type: string
+                        description: 'Sets defaults choice for chart type.
+
+                          '
+                        enum:
+                        - bar
+                        - column
+                        - area
+                        - line
+                  multiSelectMultiD:
+                    type: object
+                    description: 'Report defaults for multi-select (checkbox) two dimensional
+
+                      question.
+
+                      '
+                    properties:
+                      customBase:
+                        type: string
+                        description: Sets the default % Base.
+                        enum:
+                        - answering
+                        - shown
+                        - segment
+                        - responses
+                      expandable:
+                        type: boolean
+                        description: 'Sets the default choice for ''Nest Rows Under Nets''
+
+                          '
+                      stats:
+                        type: array
+                        description: Sets default stats.
+                        items:
+                          type: string
+                          enum:
+                          - counts
+                      summary:
+                        type: array
+                        description: Sets default summary tables.
+                        items:
+                          type: string
+                          enum:
+                          - counts
+                      showGridTable:
+                        type: boolean
+                        description: Sets the default choice to display a grid table.
+                      showAllTables:
+                        type: boolean
+                        description: Sets the default choice to display all tables.
+                      transpose:
+                        type: array
+                        description: 'Sets defaults choice for transposing of grid, main and
+
+                          stats summary tables.
+
+                          '
+                        items:
+                          type: string
+                          enum:
+                          - gridTable
+                          - rowTable
+                          - counts
+                      addRowSummaryTable:
+                        type: boolean
+                        description: 'Sets the default choice to add summary table or newly
+
+                          added rows (nets).
+
+                          '
+                      chartTypeMapping:
+                        type: object
+                        description: 'Sets charts for grid, main or stat tables. See values of
+
+                          transpose for object key and values of
+
+                          `questionTableChartType` for value mapping.
+
+                          '
+                  numberOneD:
+                    type: object
+                    description: 'Report defaults for one dimensional numeric question.
+
+                      '
+                    properties:
+                      customBase:
+                        type: string
+                        description: Sets the default % Base.
+                        enum:
+                        - answering
+                        - shown
+                        - segment
+                      expandable:
+                        type: boolean
+                        description: 'Sets the default choice for ''Nest Rows Under Nets''.
+
+                          '
+                      stats:
+                        type: array
+                        description: Sets default stats.
+                        items:
+                          type: string
+                          enum:
+                          - mean
+                          - median
+                          - stddev
+                          - se
+                          - sum
+                          - min
+                          - max
+                      transpose:
+                        type: boolean
+                        description: 'Sets defaults choice for transposing of question table.
+
+                          '
+                  numberMultiD:
+                    type: object
+                    description: 'Report defaults for two dimensional numeric question.
+
+                      '
+                    properties:
+                      customBase:
+                        type: string
+                        description: Sets the default % Base.
+                        enum:
+                        - answering
+                        - shown
+                        - segment
+                      expandable:
+                        type: boolean
+                        description: 'Sets the default choice for ''Nest Rows Under Nets''.
+
+                          '
+                      stats:
+                        type: array
+                        description: Sets default stats.
+                        items:
+                          type: string
+                          enum:
+                          - mean
+                          - median
+                          - stddev
+                          - se
+                          - sum
+                          - min
+                          - max
+                      summary:
+                        type: array
+                        description: Sets default summary tables.
+                        items:
+                          type: string
+                          enum:
+                          - mean
+                          - median
+                          - stddev
+                          - se
+                          - sum
+                          - min
+                          - max
+                      transpose:
+                        type: array
+                        description: 'Sets default choices for transposing of grid, main, and
+
+                          stats summary tables.
+
+                          '
+                        items:
+                          type: string
+                          enum:
+                          - gridTable
+                          - rowTable
+                          - mean
+                          - median
+                          - stddev
+                          - se
+                          - sum
+                          - min
+                          - max
+                      chartTypeMapping:
+                        type: object
+                        description: 'Sets charts for main or stat tables. See values of
+
+                          transpose for object key and values of
+
+                          questionTableChartType for value mapping.
+
+                          '
+                  ratingOneD:
+                    type: object
+                    description: 'Report defaults for Rating one dimensional question.
+
+                      '
+                    properties:
+                      customBase:
+                        type: string
+                        description: Sets the default % Base.
+                        enum:
+                        - answering
+                        - shown
+                        - segment
+                      expandable:
+                        type: boolean
+                        description: 'Sets the default choice for ''Nest Rows Under Nets''.
+
+                          '
+                      stats:
+                        type: array
+                        description: Sets default stats.
+                        items:
+                          type: string
+                          enum:
+                          - mean
+                          - median
+                          - stddev
+                          - se
+                          - sum
+                          - min
+                          - max
+                      transpose:
+                        type: boolean
+                        description: 'Sets defaults choice for transposing of question table.
+
+                          '
+                      questionTableChartType:
+                        type: string
+                        description: Sets default choice for chart type.
+                        enum:
+                        - bar
+                        - column
+                        - pie
+                        - area
+                        - line
+                  ratingMultiD:
+                    type: object
+                    description: 'Report defaults for Rating multi-dimensional question.
+
+                      '
+                    properties:
+                      customBase:
+                        type: string
+                        description: Sets the default % Base.
+                        enum:
+                        - answering
+                        - shown
+                        - segment
+                      expandable:
+                        type: boolean
+                        description: 'Sets the default choice for ''Nest Rows Under Nets''.
+
+                          '
+                      stats:
+                        type: array
+                        description: Sets default stats.
+                        items:
+                          type: string
+                          enum:
+                          - mean
+                          - median
+                          - stddev
+                          - se
+                          - sum
+                          - min
+                          - max
+                      summary:
+                        type: array
+                        description: Sets default summary tables.
+                        items:
+                          type: string
+                          enum:
+                          - mean
+                          - median
+                          - stddev
+                          - se
+                          - sum
+                          - min
+                          - max
+                      showGridTable:
+                        type: boolean
+                        description: 'Sets the default choice to display a grid table.
+
+                          '
+                      showAllTables:
+                        type: boolean
+                        description: Sets the default choice to display all tables.
+                      addRowSummaryTable:
+                        type: boolean
+                        description: 'Sets the default choice to add summary table for newly
+
+                          added rows (nets).
+
+                          '
+                      transpose:
+                        type: array
+                        description: 'Sets defaults choice for transposing of question grid,
+
+                          main or stat summary tables.
+
+                          '
+                        items:
+                          type: string
+                          enum:
+                          - gridTable
+                          - rowTable
+                          - mean
+                          - median
+                          - stddev
+                          - se
+                          - sum
+                          - min
+                          - max
+                      chartTypeMapping:
+                        type: object
+                        description: 'Sets charts for grid, main or stat tables. See values of
+
+                          transpose for object key and values of
+
+                          questionTableChartType for value mapping.
+
+                          '
+              examples:
+                response:
+                  value:
+                    multiSelectMultiD:
+                      addRowSummaryTable: true
+                      chartTypeMapping:
+                        counts: bar
+                        gridTable: column
+                        rowTable: line
+                      customBase: shown
+                      expandable: true
+                      showAllTables: true
+                      showGridTable: true
+                      stats:
+                      - counts
+                      transpose:
+                      - gridTable
+                      - counts
+                    multiSelectOneD:
+                      customBase: shown
+                      expandable: true
+                      questionTableChartType: column
+                      stats:
+                      - counts
+                      transpose: true
+                    numberMultiD:
+                      customBase: answering
+                      expandable: true
+                      stats:
+                      - mean
+                      - median
+                      - stddev
+                      - se
+                      - sum
+                      - min
+                      - max
+                      summary:
+                      - mean
+                      - median
+                      - stddev
+                      - se
+                      - sum
+                      - min
+                      - max
+                    numberOneD:
+                      customBase: shown
+                      expandable: true
+                      stats:
+                      - mean
+                      - median
+                      - stddev
+                      - se
+                      - sum
+                      - min
+                      - max
+                    ratingMultiD:
+                      addRowSummaryTable: true
+                      customBase: shown
+                      expandable: true
+                      showAllTables: false
+                      showGridTable: true
+                      stats:
+                      - mean
+                    ratingOneD:
+                      customBase: shown
+                      expandable: true
+                      stats:
+                      - se
+                      - mean
+                      - median
+                      summary:
+                      - se
+                      - mean
+                      - median
+                    singleSelectMultiD:
+                      addRowSummaryTable: true
+                      customBase: shown
+                      expandable: true
+                      showAllTables: true
+                      showGridTable: true
+                      stats:
+                      - mean
+                    singleSelectOneD:
+                      customBase: shown
+                      expandable: true
+                      stats:
+                      - mean
+    put:
+      operationId: updateRHCompanyCrosstabReportDefaults
+      summary: Update crosstab preferences
+      description: Update a company Crosstab Reports Preference configuration file. Only parameters being updated need to be included.
+      tags:
+      - Crosstabs
+      parameters:
+      - name: company
+        description: company ID
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                configs:
+                  type: object
+                  properties:
+                    singleSelectOneD:
+                      type: object
+                      description: 'Report defaults for single select (radio/select) one
+
+                        dimensional question.
+
+                        '
+                      properties:
+                        customBase:
+                          type: string
+                          description: Sets the default % Base.
+                          enum:
+                          - answering
+                          - shown
+                          - segment
+                        expandable:
+                          type: boolean
+                          description: 'Sets the default choice for ''Nest Rows Under Nets''.
+
+                            '
+                        stats:
+                          type: array
+                          description: Sets default stats.
+                          items:
+                            type: string
+                            enum:
+                            - mean
+                            - median
+                            - stddev
+                            - se
+                        transpose:
+                          type: boolean
+                          description: 'Sets default choice for transposing of question table.
+
+                            '
+                        questionTableChartType:
+                          type: string
+                          description: 'Sets defaults choice for chart type.
+
+                            '
+                          enum:
+                          - bar
+                          - column
+                          - pie
+                          - area
+                          - line
+                    singleSelectMultiD:
+                      type: object
+                      description: 'Report defaults for single select (radio/select)
+
+                        multi-dimensional question.
+
+                        '
+                      properties:
+                        customBase:
+                          type: string
+                          enum:
+                          - answering
+                          - shown
+                          - segment
+                          description: 'Sets the default % Base.
+
+                            '
+                        expandable:
+                          type: boolean
+                          description: 'Sets the default choice for ''Nest Rows Under Nets''
+
+                            '
+                        stats:
+                          type: array
+                          description: Sets default stats.
+                          items:
+                            type: string
+                            enum:
+                            - mean
+                            - median
+                            - stddev
+                            - se
+                            - sum
+                            - min
+                            - max
+                        summary:
+                          type: array
+                          description: Sets default summary tables.
+                          items:
+                            type: string
+                            enum:
+                            - mean
+                            - median
+                            - stddev
+                            - se
+                            - sum
+                            - min
+                            - max
+                        showGridTable:
+                          type: boolean
+                          description: Sets the default choice to display a grid table.
+                        showAllTables:
+                          type: boolean
+                          description: Sets the default choice to display all tables.
+                        transpose:
+                          type: array
+                          description: 'Sets defaults choice for transposing of grid, main and
+
+                            stats summary tables.
+
+                            '
+                          items:
+                            type: string
+                            enum:
+                            - gridTable
+                            - rowTable
+                            - mean
+                            - median
+                            - stddev
+                            - se
+                            - sum
+                            - min
+                            - max
+                        addRowSummaryTable:
+                          type: boolean
+                          description: 'Sets the default choice to add a summary table for newly
+
+                            added rows (nets).
+
+                            '
+                        chartTypeMapping:
+                          type: object
+                          description: 'Sets charts for grid, main or stat tables. See values of
+
+                            transpose for object key and values of
+
+                            `questionTableChartType` for value mapping.
+
+                            '
+                    multiSelectOneD:
+                      type: object
+                      description: 'Report defaults for multiselect (checkbox) one dimensional question.
+
+                        '
+                      properties:
+                        customBase:
+                          type: string
+                          description: Sets the default % Base
+                          enum:
+                          - answering
+                          - shown
+                          - segment
+                          - responses
+                        expandable:
+                          type: boolean
+                          description: 'Sets the default choice for ''Nest Rows Under Nets''.
+
+                            '
+                        stats:
+                          type: array
+                          description: Sets default stats.
+                          items:
+                            type: string
+                            enum:
+                            - counts
+                        transpose:
+                          type: boolean
+                          description: 'Sets defaults choice for transposing of question table.
+
+                            '
+                        questionTableChartType:
+                          type: string
+                          description: 'Sets defaults choice for chart type.
+
+                            '
+                          enum:
+                          - bar
+                          - column
+                          - area
+                          - line
+                    multiSelectMultiD:
+                      type: object
+                      description: 'Report defaults for multi-select (checkbox) two dimensional
+
+                        question.
+
+                        '
+                      properties:
+                        customBase:
+                          type: string
+                          description: Sets the default % Base.
+                          enum:
+                          - answering
+                          - shown
+                          - segment
+                          - responses
+                        expandable:
+                          type: boolean
+                          description: 'Sets the default choice for ''Nest Rows Under Nets''
+
+                            '
+                        stats:
+                          type: array
+                          description: Sets default stats.
+                          items:
+                            type: string
+                            enum:
+                            - counts
+                        summary:
+                          type: array
+                          description: Sets default summary tables.
+                          items:
+                            type: string
+                            enum:
+                            - counts
+                        showGridTable:
+                          type: boolean
+                          description: Sets the default choice to display a grid table.
+                        showAllTables:
+                          type: boolean
+                          description: Sets the default choice to display all tables.
+                        transpose:
+                          type: array
+                          description: 'Sets defaults choice for transposing of grid, main and
+
+                            stats summary tables.
+
+                            '
+                          items:
+                            type: string
+                            enum:
+                            - gridTable
+                            - rowTable
+                            - counts
+                        addRowSummaryTable:
+                          type: boolean
+                          description: 'Sets the default choice to add summary table or newly
+
+                            added rows (nets).
+
+                            '
+                        chartTypeMapping:
+                          type: object
+                          description: 'Sets charts for grid, main or stat tables. See values of
+
+                            transpose for object key and values of
+
+                            `questionTableChartType` for value mapping.
+
+                            '
+                    numberOneD:
+                      type: object
+                      description: 'Report defaults for one dimensional numeric question.
+
+                        '
+                      properties:
+                        customBase:
+                          type: string
+                          description: Sets the default % Base.
+                          enum:
+                          - answering
+                          - shown
+                          - segment
+                        expandable:
+                          type: boolean
+                          description: 'Sets the default choice for ''Nest Rows Under Nets''.
+
+                            '
+                        stats:
+                          type: array
+                          description: Sets default stats.
+                          items:
+                            type: string
+                            enum:
+                            - mean
+                            - median
+                            - stddev
+                            - se
+                            - sum
+                            - min
+                            - max
+                        transpose:
+                          type: boolean
+                          description: 'Sets defaults choice for transposing of question table.
+
+                            '
+                    numberMultiD:
+                      type: object
+                      description: 'Report defaults for two dimensional numeric question.
+
+                        '
+                      properties:
+                        customBase:
+                          type: string
+                          description: Sets the default % Base.
+                          enum:
+                          - answering
+                          - shown
+                          - segment
+                        expandable:
+                          type: boolean
+                          description: 'Sets the default choice for ''Nest Rows Under Nets''.
+
+                            '
+                        stats:
+                          type: array
+                          description: Sets default stats.
+                          items:
+                            type: string
+                            enum:
+                            - mean
+                            - median
+                            - stddev
+                            - se
+                            - sum
+                            - min
+                            - max
+                        summary:
+                          type: array
+                          description: Sets default summary tables.
+                          items:
+                            type: string
+                            enum:
+                            - mean
+                            - median
+                            - stddev
+                            - se
+                            - sum
+                            - min
+                            - max
+                        transpose:
+                          type: array
+                          description: 'Sets default choices for transposing of grid, main, and
+
+                            stats summary tables.
+
+                            '
+                          items:
+                            type: string
+                            enum:
+                            - gridTable
+                            - rowTable
+                            - mean
+                            - median
+                            - stddev
+                            - se
+                            - sum
+                            - min
+                            - max
+                        chartTypeMapping:
+                          type: object
+                          description: 'Sets charts for main or stat tables. See values of
+
+                            transpose for object key and values of
+
+                            questionTableChartType for value mapping.
+
+                            '
+                    ratingOneD:
+                      type: object
+                      description: 'Report defaults for Rating one dimensional question.
+
+                        '
+                      properties:
+                        customBase:
+                          type: string
+                          description: Sets the default % Base.
+                          enum:
+                          - answering
+                          - shown
+                          - segment
+                        expandable:
+                          type: boolean
+                          description: 'Sets the default choice for ''Nest Rows Under Nets''.
+
+                            '
+                        stats:
+                          type: array
+                          description: Sets default stats.
+                          items:
+                            type: string
+                            enum:
+                            - mean
+                            - median
+                            - stddev
+                            - se
+                            - sum
+                            - min
+                            - max
+                        transpose:
+                          type: boolean
+                          description: 'Sets defaults choice for transposing of question table.
+
+                            '
+                        questionTableChartType:
+                          type: string
+                          description: Sets default choice for chart type.
+                          enum:
+                          - bar
+                          - column
+                          - pie
+                          - area
+                          - line
+                    ratingMultiD:
+                      type: object
+                      description: 'Report defaults for Rating multi-dimensional question.
+
+                        '
+                      properties:
+                        customBase:
+                          type: string
+                          description: Sets the default % Base.
+                          enum:
+                          - answering
+                          - shown
+                          - segment
+                        expandable:
+                          type: boolean
+                          description: 'Sets the default choice for ''Nest Rows Under Nets''.
+
+                            '
+                        stats:
+                          type: array
+                          description: Sets default stats.
+                          items:
+                            type: string
+                            enum:
+                            - mean
+                            - median
+                            - stddev
+                            - se
+                            - sum
+                            - min
+                            - max
+                        summary:
+                          type: array
+                          description: Sets default summary tables.
+                          items:
+                            type: string
+                            enum:
+                            - mean
+                            - median
+                            - stddev
+                            - se
+                            - sum
+                            - min
+                            - max
+                        showGridTable:
+                          type: boolean
+                          description: 'Sets the default choice to display a grid table.
+
+                            '
+                        showAllTables:
+                          type: boolean
+                          description: Sets the default choice to display all tables.
+                        addRowSummaryTable:
+                          type: boolean
+                          description: 'Sets the default choice to add summary table for newly
+
+                            added rows (nets).
+
+                            '
+                        transpose:
+                          type: array
+                          description: 'Sets defaults choice for transposing of question grid,
+
+                            main or stat summary tables.
+
+                            '
+                          items:
+                            type: string
+                            enum:
+                            - gridTable
+                            - rowTable
+                            - mean
+                            - median
+                            - stddev
+                            - se
+                            - sum
+                            - min
+                            - max
+                        chartTypeMapping:
+                          type: object
+                          description: 'Sets charts for grid, main or stat tables. See values of
+
+                            transpose for object key and values of
+
+                            questionTableChartType for value mapping.
+
+                            '
+              required:
+              - configs
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  singleSelectOneD:
+                    type: object
+                    description: 'Report defaults for single select (radio/select) one
+
+                      dimensional question.
+
+                      '
+                    properties:
+                      customBase:
+                        type: string
+                        description: Sets the default % Base.
+                        enum:
+                        - answering
+                        - shown
+                        - segment
+                      expandable:
+                        type: boolean
+                        description: 'Sets the default choice for ''Nest Rows Under Nets''.
+
+                          '
+                      stats:
+                        type: array
+                        description: Sets default stats.
+                        items:
+                          type: string
+                          enum:
+                          - mean
+                          - median
+                          - stddev
+                          - se
+                      transpose:
+                        type: boolean
+                        description: 'Sets default choice for transposing of question table.
+
+                          '
+                      questionTableChartType:
+                        type: string
+                        description: 'Sets defaults choice for chart type.
+
+                          '
+                        enum:
+                        - bar
+                        - column
+                        - pie
+                        - area
+                        - line
+                  singleSelectMultiD:
+                    type: object
+                    description: 'Report defaults for single select (radio/select)
+
+                      multi-dimensional question.
+
+                      '
+                    properties:
+                      customBase:
+                        type: string
+                        enum:
+                        - answering
+                        - shown
+                        - segment
+                        description: 'Sets the default % Base.
+
+                          '
+                      expandable:
+                        type: boolean
+                        description: 'Sets the default choice for ''Nest Rows Under Nets''
+
+                          '
+                      stats:
+                        type: array
+                        description: Sets default stats.
+                        items:
+                          type: string
+                          enum:
+                          - mean
+                          - median
+                          - stddev
+                          - se
+                          - sum
+                          - min
+                          - max
+                      summary:
+                        type: array
+                        description: Sets default summary tables.
+                        items:
+                          type: string
+                          enum:
+                          - mean
+                          - median
+                          - stddev
+                          - se
+                          - sum
+                          - min
+                          - max
+                      showGridTable:
+                        type: boolean
+                        description: Sets the default choice to display a grid table.
+                      showAllTables:
+                        type: boolean
+                        description: Sets the default choice to display all tables.
+                      transpose:
+                        type: array
+                        description: 'Sets defaults choice for transposing of grid, main and
+
+                          stats summary tables.
+
+                          '
+                        items:
+                          type: string
+                          enum:
+                          - gridTable
+                          - rowTable
+                          - mean
+                          - median
+                          - stddev
+                          - se
+                          - sum
+                          - min
+                          - max
+                      addRowSummaryTable:
+                        type: boolean
+                        description: 'Sets the default choice to add a summary table for newly
+
+                          added rows (nets).
+
+                          '
+                      chartTypeMapping:
+                        type: object
+                        description: 'Sets charts for grid, main or stat tables. See values of
+
+                          transpose for object key and values of
+
+                          `questionTableChartType` for value mapping.
+
+                          '
+                  multiSelectOneD:
+                    type: object
+                    description: 'Report defaults for multiselect (checkbox) one dimensional question.
+
+                      '
+                    properties:
+                      customBase:
+                        type: string
+                        description: Sets the default % Base
+                        enum:
+                        - answering
+                        - shown
+                        - segment
+                        - responses
+                      expandable:
+                        type: boolean
+                        description: 'Sets the default choice for ''Nest Rows Under Nets''.
+
+                          '
+                      stats:
+                        type: array
+                        description: Sets default stats.
+                        items:
+                          type: string
+                          enum:
+                          - counts
+                      transpose:
+                        type: boolean
+                        description: 'Sets defaults choice for transposing of question table.
+
+                          '
+                      questionTableChartType:
+                        type: string
+                        description: 'Sets defaults choice for chart type.
+
+                          '
+                        enum:
+                        - bar
+                        - column
+                        - area
+                        - line
+                  multiSelectMultiD:
+                    type: object
+                    description: 'Report defaults for multi-select (checkbox) two dimensional
+
+                      question.
+
+                      '
+                    properties:
+                      customBase:
+                        type: string
+                        description: Sets the default % Base.
+                        enum:
+                        - answering
+                        - shown
+                        - segment
+                        - responses
+                      expandable:
+                        type: boolean
+                        description: 'Sets the default choice for ''Nest Rows Under Nets''
+
+                          '
+                      stats:
+                        type: array
+                        description: Sets default stats.
+                        items:
+                          type: string
+                          enum:
+                          - counts
+                      summary:
+                        type: array
+                        description: Sets default summary tables.
+                        items:
+                          type: string
+                          enum:
+                          - counts
+                      showGridTable:
+                        type: boolean
+                        description: Sets the default choice to display a grid table.
+                      showAllTables:
+                        type: boolean
+                        description: Sets the default choice to display all tables.
+                      transpose:
+                        type: array
+                        description: 'Sets defaults choice for transposing of grid, main and
+
+                          stats summary tables.
+
+                          '
+                        items:
+                          type: string
+                          enum:
+                          - gridTable
+                          - rowTable
+                          - counts
+                      addRowSummaryTable:
+                        type: boolean
+                        description: 'Sets the default choice to add summary table or newly
+
+                          added rows (nets).
+
+                          '
+                      chartTypeMapping:
+                        type: object
+                        description: 'Sets charts for grid, main or stat tables. See values of
+
+                          transpose for object key and values of
+
+                          `questionTableChartType` for value mapping.
+
+                          '
+                  numberOneD:
+                    type: object
+                    description: 'Report defaults for one dimensional numeric question.
+
+                      '
+                    properties:
+                      customBase:
+                        type: string
+                        description: Sets the default % Base.
+                        enum:
+                        - answering
+                        - shown
+                        - segment
+                      expandable:
+                        type: boolean
+                        description: 'Sets the default choice for ''Nest Rows Under Nets''.
+
+                          '
+                      stats:
+                        type: array
+                        description: Sets default stats.
+                        items:
+                          type: string
+                          enum:
+                          - mean
+                          - median
+                          - stddev
+                          - se
+                          - sum
+                          - min
+                          - max
+                      transpose:
+                        type: boolean
+                        description: 'Sets defaults choice for transposing of question table.
+
+                          '
+                  numberMultiD:
+                    type: object
+                    description: 'Report defaults for two dimensional numeric question.
+
+                      '
+                    properties:
+                      customBase:
+                        type: string
+                        description: Sets the default % Base.
+                        enum:
+                        - answering
+                        - shown
+                        - segment
+                      expandable:
+                        type: boolean
+                        description: 'Sets the default choice for ''Nest Rows Under Nets''.
+
+                          '
+                      stats:
+                        type: array
+                        description: Sets default stats.
+                        items:
+                          type: string
+                          enum:
+                          - mean
+                          - median
+                          - stddev
+                          - se
+                          - sum
+                          - min
+                          - max
+                      summary:
+                        type: array
+                        description: Sets default summary tables.
+                        items:
+                          type: string
+                          enum:
+                          - mean
+                          - median
+                          - stddev
+                          - se
+                          - sum
+                          - min
+                          - max
+                      transpose:
+                        type: array
+                        description: 'Sets default choices for transposing of grid, main, and
+
+                          stats summary tables.
+
+                          '
+                        items:
+                          type: string
+                          enum:
+                          - gridTable
+                          - rowTable
+                          - mean
+                          - median
+                          - stddev
+                          - se
+                          - sum
+                          - min
+                          - max
+                      chartTypeMapping:
+                        type: object
+                        description: 'Sets charts for main or stat tables. See values of
+
+                          transpose for object key and values of
+
+                          questionTableChartType for value mapping.
+
+                          '
+                  ratingOneD:
+                    type: object
+                    description: 'Report defaults for Rating one dimensional question.
+
+                      '
+                    properties:
+                      customBase:
+                        type: string
+                        description: Sets the default % Base.
+                        enum:
+                        - answering
+                        - shown
+                        - segment
+                      expandable:
+                        type: boolean
+                        description: 'Sets the default choice for ''Nest Rows Under Nets''.
+
+                          '
+                      stats:
+                        type: array
+                        description: Sets default stats.
+                        items:
+                          type: string
+                          enum:
+                          - mean
+                          - median
+                          - stddev
+                          - se
+                          - sum
+                          - min
+                          - max
+                      transpose:
+                        type: boolean
+                        description: 'Sets defaults choice for transposing of question table.
+
+                          '
+                      questionTableChartType:
+                        type: string
+                        description: Sets default choice for chart type.
+                        enum:
+                        - bar
+                        - column
+                        - pie
+                        - area
+                        - line
+                  ratingMultiD:
+                    type: object
+                    description: 'Report defaults for Rating multi-dimensional question.
+
+                      '
+                    properties:
+                      customBase:
+                        type: string
+                        description: Sets the default % Base.
+                        enum:
+                        - answering
+                        - shown
+                        - segment
+                      expandable:
+                        type: boolean
+                        description: 'Sets the default choice for ''Nest Rows Under Nets''.
+
+                          '
+                      stats:
+                        type: array
+                        description: Sets default stats.
+                        items:
+                          type: string
+                          enum:
+                          - mean
+                          - median
+                          - stddev
+                          - se
+                          - sum
+                          - min
+                          - max
+                      summary:
+                        type: array
+                        description: Sets default summary tables.
+                        items:
+                          type: string
+                          enum:
+                          - mean
+                          - median
+                          - stddev
+                          - se
+                          - sum
+                          - min
+                          - max
+                      showGridTable:
+                        type: boolean
+                        description: 'Sets the default choice to display a grid table.
+
+                          '
+                      showAllTables:
+                        type: boolean
+                        description: Sets the default choice to display all tables.
+                      addRowSummaryTable:
+                        type: boolean
+                        description: 'Sets the default choice to add summary table for newly
+
+                          added rows (nets).
+
+                          '
+                      transpose:
+                        type: array
+                        description: 'Sets defaults choice for transposing of question grid,
+
+                          main or stat summary tables.
+
+                          '
+                        items:
+                          type: string
+                          enum:
+                          - gridTable
+                          - rowTable
+                          - mean
+                          - median
+                          - stddev
+                          - se
+                          - sum
+                          - min
+                          - max
+                      chartTypeMapping:
+                        type: object
+                        description: 'Sets charts for grid, main or stat tables. See values of
+
+                          transpose for object key and values of
+
+                          questionTableChartType for value mapping.
+
+                          '
+              examples:
+                response:
+                  value:
+                    multiSelectMultiD:
+                      addRowSummaryTable: true
+                      chartTypeMapping:
+                        counts: bar
+                        gridTable: column
+                        rowTable: line
+                      customBase: shown
+                      expandable: true
+                      showAllTables: true
+                      showGridTable: true
+                      stats:
+                      - counts
+                      transpose:
+                      - gridTable
+                      - counts
+                    multiSelectOneD:
+                      customBase: shown
+                      expandable: true
+                      questionTableChartType: column
+                      stats:
+                      - counts
+                      transpose: true
+                    numberMultiD:
+                      customBase: answering
+                      expandable: true
+                      stats:
+                      - mean
+                      - median
+                      - stddev
+                      - se
+                      - sum
+                      - min
+                      - max
+                      summary:
+                      - mean
+                      - median
+                      - stddev
+                      - se
+                      - sum
+                      - min
+                      - max
+                    numberOneD:
+                      customBase: shown
+                      expandable: true
+                      stats:
+                      - mean
+                      - median
+                      - stddev
+                      - se
+                      - sum
+                      - min
+                      - max
+                    ratingMultiD:
+                      addRowSummaryTable: true
+                      customBase: shown
+                      expandable: true
+                      showAllTables: false
+                      showGridTable: true
+                      stats:
+                      - mean
+                    ratingOneD:
+                      customBase: shown
+                      expandable: true
+                      stats:
+                      - se
+                      - mean
+                      - median
+                      summary:
+                      - se
+                      - mean
+                      - median
+                    singleSelectMultiD:
+                      addRowSummaryTable: true
+                      customBase: shown
+                      expandable: true
+                      showAllTables: true
+                      showGridTable: true
+                      stats:
+                      - counts
+                    singleSelectOneD:
+                      customBase: shown
+                      expandable: true
+                      stats:
+                      - mean
+components:
+  securitySchemes:
+    APIKey:
+      type: apiKey
+      in: header
+      name: x-apikey
+      description: 'In order to access the api, you''ll need to generate an API key. Refer to the
+
+        instructions [here](/docs/decipher/api#section/API-Keys) to generate and
+
+        configure an API key with the appropriate permission sets. You can generate
+
+        as many keys as required.
+
+
+        Configure each request to include your API key in the request header. For example:
+
+
+        ```
+
+        x-apikey: dp48ss3mgsaucyjtybxw728h7s4cgnwzhejtszdwhf4xpe8yhmtdwpk2ntdhtwbs
+
+        ```
+
+        '
+x-tagGroups:
+- name: Autoclose
+  tags:
+  - Autoclose
+- name: Data Input and Output
+  tags:
+  - Data
+  - Data Feed
+  - Response Summary
+  - Modifying Data
+  - Datasources
+  - Datasources Data
+  - Umerge
+- name: Survey Metadata
+  tags:
+  - Simulated Data
+  - Survey State
+  - Survey Evaluate
+  - Survey Quotas
+  - Survey Files
+  - Survey Warnings
+  - Survey Terms
+  - Survey Subscribers
+  - Survey Users
+  - Survey Tasks
+- name: Panels
+  tags:
+  - Panel Data
+  - Panel Datapoints
+  - Survey Panels
+- name: Research Hub
+  tags:
+  - Users
+  - Companies
+  - Categories
+  - Surveys
+  - Panels
+  - Crosstabs
+  - Archives
+  - Archival Reports
+  - API Keys
+  - Usage
+  - Warnings Summary
+- name: Crosstabs
+  tags:
+  - Crosstabs Configuration
+  - Crosstabs Execution
+  - Crosstabs Nets
+  - Saved Crosstabs
+  - Crosstabs Table Settings
+  - Crosstabs Validation
+  - Crosstabs Rim Weighting
+- name: Dashboards
+  tags:
+  - Dashboards
+- name: DQ APIs
+  tags:
+  - DQ-Specific API Calls
+  - MaxDiff API Calls
+  - Discrete Choice Model API Calls
+  - Media Testimonial API Calls
+- name: Response Summary
+  tags:
+  - Share Link
+- name: Sample Management
+  tags:
+  - Bounced Emails
+  - Participant Sources
+- name: Distribution
+  tags:
+  - Email Distribution
+  - SFTP Distribution
+  - Slack Distribution
+- name: Campaign Manager
+  tags:
+  - Campaigns
+  - Campaign Email Invites
+  - Campaign Exports
+  - Campaign Lists
+  - Shared Campaign Lists
+  - Campaign Sends
+  - Campaign Status Lists
+  - Supression Lists
+- name: Question Library
+  tags:
+  - Company Element
+  - Company Elements
+  - Survey Elements
+  - Survey Element Report Settings
+- name: Language Manager
+  tags:
+  - LM Application Data
+  - LM Application Translations
+  - Translation Resources
+  - Translations
+  - Translation Deltas
+  - Translation Reservations
+  - Primary Survey Language
+  - Other Survey Languages
+  - Unused Survey Languages
+- name: Project Parameters
+  tags:
+  - Available Project Parameters
+  - Saved Project Parameters
+  - Project Parameters Configuration
+- name: Multi-User Editing
+  tags:
+  - Available Sections
+  - Check Out Section
+  - Check In Section
+  - Sync Section
+  - Section Editor
+  - Abandon Section
+  - Validate Section
+- name: Video Management
+  tags:
+  - Videos
+  - Watermarked Videos
+- name: Miscellaneous
+  tags:
+  - System Information
+  - Logic Nodes
+  - Logic Events
+  - CATI
+  - Global Search
+  - Miscellaneous

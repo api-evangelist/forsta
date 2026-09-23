@@ -1,0 +1,129 @@
+openapi: 3.2.0
+info:
+  title: Integration Token API
+  version: ''
+servers:
+- url: https://{server}
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: staging.panel.dev.focusvision.com/
+      description: Server domain
+tags:
+- name: Token
+paths:
+  /api.pro#method=integration.token.get:
+    post:
+      operationId: getToken
+      summary: Get status of long running process
+      description: Retrieve the result or current status of a long-running import or export process.
+      tags:
+      - Token
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.token.get
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - sesKey
+              - token
+              properties:
+                sesKey:
+                  description: A valid login hash.
+                  type: string
+                  example: '[your sesKey]'
+                token:
+                  description: The token returned by either `integration.panelist.bulkUpdate` or `integration.panelist.bulkRead`
+                  type: string
+                  example: 28timgls19hcck4sccocc8gg
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                    status:
+                      type: string
+                      description: The status of the process
+                    result:
+                      type: array
+                      description: The result of the process
+                      items:
+                        type: object
+                        properties:
+                          success:
+                            type: boolean
+                          errors:
+                            type: array
+                            items:
+                              type: string
+                          warnings:
+                            type: array
+                            items:
+                              type: string
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    status: complete
+                    result: []
+components:
+  parameters:
+    method:
+      name: method
+      in: query
+      required: true
+      description: Method
+      schema:
+        type: string
+  schemas:
+    error:
+      type: object
+      properties:
+        success:
+          type: boolean
+        error:
+          description: The error message.
+          type: string
+        errno:
+          description: The error code.
+          type: string
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+    ApiKey:
+      type: apiKey
+      in: query
+      name: sesKey
+x-tagGroups:
+- name: Data Input and Output
+  tags:
+  - Auth
+  - Campaign
+  - Category
+  - Community
+  - Datapoint
+  - Panel
+  - Notes
+  - Panelist
+  - Project
+  - Reminder
+  - Sample
+  - Session
+  - Survey
+  - Token

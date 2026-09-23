@@ -1,0 +1,1225 @@
+openapi: 3.2.0
+info:
+  title: Decipher Rest Modifying Data API
+  version: '1.0'
+  description: The Decipher REST API allows comprehensive automation of your private or shared Decipher instance.
+servers:
+- url: https://{server}/api/v1
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: selfserve.decipherinc.com
+      description: Server domain
+security:
+- APIKey: []
+tags:
+- name: Modifying Data
+  description: Allows for modification of the participant data.
+paths:
+  /surveys/{survey}/data/edit:
+    post:
+      operationId: createSurveyDataEdit
+      summary: Create new data
+      description: 'Create new records in the survey. All records specified are
+
+        always created anew (if you suspect some exist in the survey
+
+        already, you should fetch and filter before sending new data).
+
+        Validation of data works exactly as with the PUT variant.'
+      tags:
+      - Modifying Data
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                  description: 'The field used to match your participant data. This should
+
+                    be a unique variable. Supplying a non-unique key will
+
+                    change every matching record. This is implicitly null when
+
+                    creating new records.
+
+                    '
+                  example: uuid
+                data:
+                  type: array
+                  description: 'An array of the participant records. Each element of the array
+
+                    is an object with the key being the column name matching a
+
+                    variable name, and the value the value you want to set or update.
+
+                    You can specify any amount of variables.
+
+                    '
+                  items:
+                    type: object
+                  example:
+                  - q1: Bob Boson
+                    source: 3
+                    q2: 1
+                  - q1: Joe Q. Joeson
+                    source: 4
+                    q2: 42
+                test:
+                  type: boolean
+                  description: 'Do not execute the edit, but return the changes that would be
+
+                    applied at the time of the call.
+
+                    '
+                  default: false
+                layout:
+                  type: integer
+                  description: 'The id of a custom data layout. A custom export layout
+
+                    can relabel fields. If you exported some data with fields that have
+
+                    been relabelled in a layout and now are importing it back, you
+
+                    should use the same layout.
+
+                    '
+                allVariables:
+                  type: boolean
+                  description: Allow editing of notdb variables
+                  default: false
+              required:
+              - key
+              - data
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stats:
+                    description: 'Overall statistics of what happened with your data edit requested.
+
+                      '
+                    type: object
+                    properties:
+                      fieldsIgnored:
+                        type: integer
+                        description: 'Cells ignored because uploading into legacy weight/record
+
+                          values (this is for surveys older than 2005).
+
+                          '
+                      rows:
+                        type: integer
+                        description: 'Number of fields in your input data.
+
+                          '
+                      fieldsErronous:
+                        type: integer
+                        description: Data supplied that was not valid.
+                      rewritten:
+                        type: integer
+                        description: Records where data was modified.
+                      created:
+                        type: integer
+                        description: Number of new records created.
+                      deleted:
+                        type: integer
+                        description: Number of records deleted.
+                      disqualified:
+                        type: integer
+                        description: Number of qualified records disqualified or deleted.
+                      unchanged:
+                        type: integer
+                        description: Records where your updated data did not cause changes.
+                      updated:
+                        type: integer
+                        description: Number of records updated.
+                      bad:
+                        type: array
+                        description: Invalid values detected during edit/update
+                      fieldsUpdated:
+                        type: integer
+                        description: Data fields updated by the request.
+                      unseen:
+                        type: integer
+                        description: 'Number of rows that did not match existing records
+
+                          when not creating new records.
+
+                          '
+                      fieldsIdentical:
+                        type: integer
+                        description: 'Data update requests not done because existing data was
+
+                          identical. This counts individual cells.
+
+                          '
+                      inrows:
+                        type: integer
+                        description: 'Total amount of records processed (rewritten +
+
+                          unchanged + deleted + created).
+
+                          '
+                      unmatchedDeletions:
+                        type: integer
+                        description: 'Records that you asked to be deleted but did not
+
+                          match existing records.
+
+                          '
+                      fieldsProcessed:
+                        type: integer
+                        description: 'Total fields processed.
+
+                          '
+                  backup:
+                    type: string
+                    description: 'Where is the previous version of the data? This can be
+
+                      restored by support or a shell user on a Beacon Cloud
+
+                      installation.
+
+                      '
+                    example: selfserve/1234/dataedit/data/old-results/011.results.*
+      x-codeSamples:
+      - lang: Curl
+        source: 'curl -H x-apikey: {api_key} -X POST {server}/api/v1/surveys/{survey}/data/edit?data=[]
+
+          '
+      - lang: Cli
+        source: 'beacon post surveys/{survey}/data data=[]
+
+          '
+    put:
+      operationId: updateSurveyDataEdit
+      summary: Update survey data
+      description: 'Modify data of existing participants in the survey. As data, supply objects containing the data you want to update. As with all variants, you must supply a key to match by and supply that key for each record.
+
+        Elements in data that do not match an existing record are discarded.'
+      tags:
+      - Modifying Data
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                  description: 'The field used to match your participant data. This should
+
+                    be a unique variable. Supplying a non-unique key will
+
+                    change every matching record. This is implicitly null when
+
+                    creating new records.
+
+                    '
+                  example: uuid
+                data:
+                  type: array
+                  description: 'An array of the participant records. Each element of the array
+
+                    is an object with the key being the column name matching a
+
+                    variable name, and the value the value you want to update.
+
+                    You can specify any amount of variables.
+
+                    '
+                  items:
+                    type: object
+                  example:
+                  - q1: Bob Boson
+                    source: 3
+                    q2: 1
+                  - q1: Joe Q. Joeson
+                    source: 4
+                    q2: 42
+                layout:
+                  type: integer
+                  description: layout id
+                test:
+                  type: boolean
+                  description: 'Do not execute the edit, but return the changes that would be
+
+                    applied at the time of the call.
+
+                    '
+                  default: false
+              required:
+              - key
+              - data
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stats:
+                    description: 'Overall statistics of what happened with your data edit requested.
+
+                      '
+                    type: object
+                    properties:
+                      fieldsIgnored:
+                        type: integer
+                        description: 'Cells ignored because uploading into legacy weight/record
+
+                          values (this is for surveys older than 2005).
+
+                          '
+                      rows:
+                        type: integer
+                        description: 'Number of fields in your input data.
+
+                          '
+                      fieldsErronous:
+                        type: integer
+                        description: Data supplied that was not valid.
+                      rewritten:
+                        type: integer
+                        description: Records where data was modified.
+                      created:
+                        type: integer
+                        description: Number of new records created.
+                      deleted:
+                        type: integer
+                        description: Number of records deleted.
+                      disqualified:
+                        type: integer
+                        description: Number of qualified records disqualified or deleted.
+                      unchanged:
+                        type: integer
+                        description: Records where your updated data did not cause changes.
+                      updated:
+                        type: integer
+                        description: Number of records updated.
+                      bad:
+                        type: array
+                        description: Invalid values detected during edit/update
+                      fieldsUpdated:
+                        type: integer
+                        description: Data fields updated by the request.
+                      unseen:
+                        type: integer
+                        description: 'Number of rows that did not match existing records
+
+                          when not creating new records.
+
+                          '
+                      fieldsIdentical:
+                        type: integer
+                        description: 'Data update requests not done because existing data was
+
+                          identical. This counts individual cells.
+
+                          '
+                      inrows:
+                        type: integer
+                        description: 'Total amount of records processed (rewritten +
+
+                          unchanged + deleted + created).
+
+                          '
+                      unmatchedDeletions:
+                        type: integer
+                        description: 'Records that you asked to be deleted but did not
+
+                          match existing records.
+
+                          '
+                      fieldsProcessed:
+                        type: integer
+                        description: 'Total fields processed.
+
+                          '
+                  backup:
+                    type: string
+                    description: 'Where is the previous version of the data? This can be
+
+                      restored by support or a shell user on a Beacon Cloud
+
+                      installation.
+
+                      '
+                    example: selfserve/1234/dataedit/data/old-results/011.results.*
+      x-codeSamples:
+      - lang: Curl
+        source: 'curl -H x-apikey: {api_key} -X PUT {server}/api/v1/surveys/{survey}/data/edit?data=[]
+
+          '
+      - lang: Cli
+        source: 'beacon put surveys/{survey}/data data=[]
+
+          '
+    delete:
+      operationId: deleteSurveyDataEdit
+      summary: Delete or disqualify survey data
+      description: 'Disqualify or delete the records. You must set `mode` to “delete” to
+
+        delete data. We recommend disqualifying rather than deleting,
+
+        as deleted records can only be restored by support or a shell user
+
+        on a Beacon Cloud installation. Disqualified records can be re-qualified
+
+        by update their `markers` variable to contain the qualified marker.
+
+
+        If disqualifying, you may set `disqualify` to the name of the
+
+        marker to be set. The normal “Edit Data” screen sets the following
+
+        markers: `speeder`, `straightliner`, `badopen`, `foreigner`. You can set
+
+        any marker you want: this is just additional information.
+
+
+        Disqualified records are stripped of their `qualified` marker and any
+
+        quota marker (e.g. /Quota_Sheet/marker) is prefixed with `bad:`.'
+      tags:
+      - Modifying Data
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                  description: 'The field used to match your participant data. This should
+
+                    be a unique variable. Supplying a non-unique `key` will
+
+                    change every matching record. This is implicitly `null` when
+
+                    creating new records.
+
+                    '
+                  example: record
+                data:
+                  type: array
+                  description: 'An array of the participant records. Each element of the array
+
+                    is an object with the key being the column name matching a
+
+                    variable name, and the value the value you want to update.
+
+                    You can specify any amount of variables.
+
+                    '
+                  items:
+                    type: object
+                  example:
+                  - record: '2'
+                  - record: '4'
+                  - record: '5'
+                test:
+                  type: boolean
+                  description: 'Do not execute the edit, but return the changes that would be
+
+                    applied at the time of the call.
+
+                    '
+                  default: false
+                layout:
+                  type: integer
+                  description: 'The id of a custom data layout. A custom export layout
+
+                    can relabel fields. If you exported some data with fields that have
+
+                    been relabelled in a layout and now are importing it back, you
+
+                    should use the same layout.
+
+                    '
+                allVariables:
+                  type: boolean
+                  description: Allow editing of notdb variables
+                  default: false
+                mode:
+                  type: string
+                  description: Do we want to delete or disqualify these records?
+                  enum:
+                  - delete
+                  - disqualify
+                  default: disqualify
+                  example: disqualify
+                disqualify:
+                  type: string
+                  description: marker to set
+                  example: speeder
+              required:
+              - key
+              - data
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stats:
+                    description: 'Overall statistics of what happened with your data edit requested.
+
+                      '
+                    type: object
+                    properties:
+                      fieldsIgnored:
+                        type: integer
+                        description: 'Cells ignored because uploading into legacy weight/record
+
+                          values (this is for surveys older than 2005).
+
+                          '
+                      rows:
+                        type: integer
+                        description: 'Number of fields in your input data.
+
+                          '
+                      fieldsErronous:
+                        type: integer
+                        description: Data supplied that was not valid.
+                      rewritten:
+                        type: integer
+                        description: Records where data was modified.
+                      created:
+                        type: integer
+                        description: Number of new records created.
+                      deleted:
+                        type: integer
+                        description: Number of records deleted.
+                      disqualified:
+                        type: integer
+                        description: Number of qualified records disqualified or deleted.
+                      unchanged:
+                        type: integer
+                        description: Records where your updated data did not cause changes.
+                      updated:
+                        type: integer
+                        description: Number of records updated.
+                      bad:
+                        type: array
+                        description: Invalid values detected during edit/update
+                      fieldsUpdated:
+                        type: integer
+                        description: Data fields updated by the request.
+                      unseen:
+                        type: integer
+                        description: 'Number of rows that did not match existing records
+
+                          when not creating new records.
+
+                          '
+                      fieldsIdentical:
+                        type: integer
+                        description: 'Data update requests not done because existing data was
+
+                          identical. This counts individual cells.
+
+                          '
+                      inrows:
+                        type: integer
+                        description: 'Total amount of records processed (rewritten +
+
+                          unchanged + deleted + created).
+
+                          '
+                      unmatchedDeletions:
+                        type: integer
+                        description: 'Records that you asked to be deleted but did not
+
+                          match existing records.
+
+                          '
+                      fieldsProcessed:
+                        type: integer
+                        description: 'Total fields processed.
+
+                          '
+                  backup:
+                    type: string
+                    description: 'Where is the previous version of the data? This can be
+
+                      restored by support or a shell user on a Beacon Cloud
+
+                      installation.
+
+                      '
+                    example: selfserve/1234/dataedit/data/old-results/011.results.*
+      x-codeSamples:
+      - lang: Curl
+        source: 'curl -H x-apikey: {api_key} -X DELETE {server}/api/v1/surveys/{survey}/data/edit?data=[]
+
+          '
+      - lang: Cli
+        source: 'beacon delete surveys/{survey}/data data=[]
+
+          '
+  /surveys/{survey}/data/edit/markers:
+    put:
+      operationId: updateSurveyDataEditMarkers
+      summary: Update markers
+      description: 'Allows for updating participant markers that may have become
+
+        outdated due to quota changes or data edits. Requires data
+
+        edit permission for the project.'
+      tags:
+      - Modifying Data
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tablesBySheet:
+                  type: object
+                  description: 'Used to specify which sheets and tables to be updated.
+
+                    Each key of the object is a sheet name with a value that is an
+
+                    array of the table indexes. The first table on the sheet will
+
+                    have an index of 0. An empty array will include all tables
+
+                    for the sheet.
+
+                    '
+                  example:
+                  - Gender:
+                    - 0
+                test:
+                  type: boolean
+                  description: 'Do not execute the edit, but return the changes that would be
+
+                    applied at the time of the call.
+
+                    '
+                  default: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  comparison:
+                    description: 'Overview of what the new marker counts are
+
+                      compared against the current marker counts
+
+                      '
+                    type: object
+                  backup:
+                    type: string
+                    description: 'Where is the previous version of the data? This can be
+
+                      restored by support or a shell user on a Beacon Cloud
+
+                      installation.
+
+                      '
+                    example: selfserve/1234/dataedit/data/old-results/011.results.*
+      x-codeSamples:
+      - lang: Curl
+        source: 'curl -H x-apikey: {api_key} -X PUT {server}/api/v1/surveys/{survey}/data/edit/markers
+
+          '
+      - lang: Cli
+        source: 'beacon put surveys/{survey}/data/edit/markers
+
+          '
+  /surveys/{survey}/respondents/import:
+    post:
+      operationId: createSurveyDataRespondentsImport
+      summary: Import survey data
+      description: 'Allows for modification of the participant data by specifying a file
+
+        to import. Based on the arguments provided the columns in your file
+
+        will either be matched to existing variables or they will be created as
+
+        new variables. After appending new questions to your survey the data
+
+        from your file will be imported. Rows without a matching key variable in
+
+        the existng data will be created as new records. Creating new questions
+
+        will perform a live merge.'
+      tags:
+      - Modifying Data
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                  description: 'The field used to match your participant data. This should
+
+                    be a unique variable. Supplying a non-unique key will
+
+                    change every matching record. This is implicitly null when
+
+                    creating new records.
+
+                    '
+                  example: source
+                tabfile:
+                  type: string
+                  format: binary
+                  description: Tab delimited file to upload.
+                questions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      index:
+                        type: integer
+                        description: The index of this question in the data file.
+                      reportLabel:
+                        type: string
+                        description: The label of the survey variable that this variable should be matched to when importing. Omit this argument if this should be a newly created variable.
+                      label:
+                        type: string
+                        description: Required for new questions. When creating a new question this label will be the label of the new question.
+                      title:
+                        type: string
+                        description: Required for new questions. The title to appear in reports for this question.
+                      type:
+                        type: string
+                        description: 'Required for new questions.
+
+
+                          **single**
+
+
+                          - generates a “radio” question
+
+                          - single ordinal answer
+
+                          - you must declare one or more values
+
+
+                          **multiple**
+
+
+                          - generates a “checkbox”
+
+                          - multiple answers possible
+
+                          - you must declare one or more variables
+
+
+                          **number**
+
+
+                          - generates a “float” question
+
+                          - any number allowed
+
+
+                          **text**
+
+
+                          - generate a “text” question
+
+                          - any textual content allowed
+
+                          '
+                        enum:
+                        - single
+                        - multiple
+                        - number
+                        - text
+                      variables:
+                        description: 'required for “multiple”, optional for others. This allows
+
+                          creating multiple variables for this question rather than
+
+                          just a single one.
+
+                          '
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            title:
+                              type: string
+                              description: Human readable title for this variable.
+                            column:
+                              type: string
+                              description: The label containing the variable in the data file. Rather than pulling data from the question’s column/label, this variable will be read from this column. A separate question object should not be provided for the specified column.
+              required:
+              - key
+              - tabfile
+              - questions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stats:
+                    description: 'Overall statistics of what happened with your data edit requested.
+
+                      '
+                    type: object
+                    properties:
+                      fieldsIgnored:
+                        type: integer
+                        description: 'Cells ignored because uploading into legacy weight/record
+
+                          values (this is for surveys older than 2005).
+
+                          '
+                      rows:
+                        type: integer
+                        description: 'Number of fields in your input data.
+
+                          '
+                      fieldsErronous:
+                        type: integer
+                        description: Data supplied that was not valid.
+                      rewritten:
+                        type: integer
+                        description: Records where data was modified.
+                      created:
+                        type: integer
+                        description: Number of new records created.
+                      deleted:
+                        type: integer
+                        description: Number of records deleted.
+                      disqualified:
+                        type: integer
+                        description: Number of qualified records disqualified or deleted.
+                      unchanged:
+                        type: integer
+                        description: Records where your updated data did not cause changes.
+                      updated:
+                        type: integer
+                        description: Number of records updated.
+                      bad:
+                        type: array
+                        description: Invalid values detected during edit/update
+                      fieldsUpdated:
+                        type: integer
+                        description: Data fields updated by the request.
+                      unseen:
+                        type: integer
+                        description: 'Number of rows that did not match existing records
+
+                          when not creating new records.
+
+                          '
+                      fieldsIdentical:
+                        type: integer
+                        description: 'Data update requests not done because existing data was
+
+                          identical. This counts individual cells.
+
+                          '
+                      inrows:
+                        type: integer
+                        description: 'Total amount of records processed (rewritten +
+
+                          unchanged + deleted + created).
+
+                          '
+                      unmatchedDeletions:
+                        type: integer
+                        description: 'Records that you asked to be deleted but did not
+
+                          match existing records.
+
+                          '
+                      fieldsProcessed:
+                        type: integer
+                        description: 'Total fields processed.
+
+                          '
+                  backup:
+                    type: string
+                    description: 'Where is the previous version of the data? This can be
+
+                      restored by support or a shell user on a Beacon Cloud
+
+                      installation.
+
+                      '
+                    example: selfserve/1234/dataedit/data/old-results/011.results.*
+      x-codeSamples:
+      - lang: Curl
+        source: 'curl -H x-apikey: {api_key} -X POST {server}/api/v1/surveys/{survey}/respondents/import
+
+          '
+      - lang: Cli
+        source: 'beacon post surveys/{survey}/respondents/import
+
+          '
+  /surveys/{survey}/edits/{edit}:
+    get:
+      operationId: getSurveyEdits
+      summary: Get survey response edits
+      description: Get edits that were performed on responses (e.g. in Portal > Responses > View/Edit Responses). An example of such an edit is disqualifying a respondent.
+      tags:
+      - Modifying Data
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      - name: edit
+        in: path
+        required: true
+        description: 'The identifier of the edit. It can either be a numerical
+
+          identifier such as "1", which will result in a response with only one edit,
+
+          or it can be "all", which will result in a response with a list of all
+
+          edits.
+
+          '
+        example: all
+        schema:
+          type: string
+      - name: uuid
+        in: query
+        required: false
+        description: Filter edits for this specific UUID.
+        example: tqwmpjbq8t6p8n43
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  previous:
+                    description: State of the response before the edit.
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                        description: Status of the response.
+                        example: q
+                      markers:
+                        type: array
+                        description: New markers.
+                        items:
+                          type: string
+                          description: Marker string.
+                          example: qualified
+                  new:
+                    description: New state of the response after the edit.
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                        description: Status of the response.
+                        example: t
+                      markers:
+                        type: array
+                        description: New markers.
+                        items:
+                          type: string
+                          description: Marker string.
+                          example: bad:qualified
+                  changes:
+                    type: string
+                    description: Description of the state change.
+                    example: 'status: q => t markers: [u''qualified''] => [u''bad:qualified'']'
+                  uuid:
+                    type: string
+                    description: Unique identifier of the change.
+                    example: tqwmpjbq8t6p8n43
+                  created_on:
+                    type: string
+                    description: Timestamp of the change.
+                    example: '2021-01-01T01:29:49Z'
+                  user_email:
+                    type: string
+                    format: email
+                    description: E-mail of the user who performed the edit.
+                    example: developer@decipherinc.com
+      x-codeSamples:
+      - lang: Curl
+        source: 'curl -H x-apikey: {api_key} -X GET {server}/api/v1/surveys/{survey}/edits/all
+
+          '
+      - lang: Cli
+        source: 'beacon get /surveys/{survey}/edits/all
+
+          '
+  /surveys/{survey}/data/delphi-conversion:
+    post:
+      operationId: createSurveyDataDelphiConversion
+      summary: Convert to Delphi
+      description: 'Attempts to convert the given non-delphi survey to delphi by converting any
+
+        existing data to delphi format and setting the delphi attribute to "1" if
+
+        required for the given compat. This is an async endpoint, which means it will
+
+        return the ident of the async task which may be used with the status endpoint
+
+        to check the status and retreive the results.
+
+
+        The results are a an object with an `output` key and the value is plain text
+
+        that is the output of the script which does the conversion. If an error
+
+        occurs in the script the endpoint will return a 500 error and include the
+
+        output of the script in the error message.
+
+
+        Requires `survey:edit` permission.'
+      tags:
+      - Modifying Data
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ident:
+                    description: 'The ident of the async task to be used with the status endpoint
+
+                      to check the status and retreive the results.
+
+                      '
+                    example: 9cdw1pu3kdaenyr1
+                    type: string
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+components:
+  parameters:
+    survey:
+      name: survey
+      in: path
+      required: true
+      description: The survey path.
+      example: selfserve/1a/123456
+      schema:
+        type: string
+        format: uri
+  responses:
+    '500':
+      description: An unexpected server error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+          example:
+            $code: 500
+            $error: An unexpected server error.
+    '403':
+      description: API key is valid but access to requested resource is forbidden.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+          example:
+            $code: 403
+            $error: API key is valid but access to requested resource is forbidden.
+  schemas:
+    error:
+      type: object
+      properties:
+        $code:
+          description: The error code.
+          type: integer
+        $error:
+          description: The error message.
+          type: string
+        extra:
+          description: Additional error information.
+          type: object
+          additionalProperties: true
+  securitySchemes:
+    APIKey:
+      type: apiKey
+      in: header
+      name: x-apikey
+      description: 'In order to access the api, you''ll need to generate an API key. Refer to the
+
+        instructions [here](/docs/decipher/api#section/API-Keys) to generate and
+
+        configure an API key with the appropriate permission sets. You can generate
+
+        as many keys as required.
+
+
+        Configure each request to include your API key in the request header. For example:
+
+
+        ```
+
+        x-apikey: dp48ss3mgsaucyjtybxw728h7s4cgnwzhejtszdwhf4xpe8yhmtdwpk2ntdhtwbs
+
+        ```
+
+        '
+x-tagGroups:
+- name: Autoclose
+  tags:
+  - Autoclose
+- name: Data Input and Output
+  tags:
+  - Data
+  - Data Feed
+  - Response Summary
+  - Modifying Data
+  - Datasources
+  - Datasources Data
+  - Umerge
+- name: Survey Metadata
+  tags:
+  - Simulated Data
+  - Survey State
+  - Survey Evaluate
+  - Survey Quotas
+  - Survey Files
+  - Survey Warnings
+  - Survey Terms
+  - Survey Subscribers
+  - Survey Users
+  - Survey Tasks
+- name: Panels
+  tags:
+  - Panel Data
+  - Panel Datapoints
+  - Survey Panels
+- name: Research Hub
+  tags:
+  - Users
+  - Companies
+  - Categories
+  - Surveys
+  - Panels
+  - Crosstabs
+  - Archives
+  - Archival Reports
+  - API Keys
+  - Usage
+  - Warnings Summary
+- name: Crosstabs
+  tags:
+  - Crosstabs Configuration
+  - Crosstabs Execution
+  - Crosstabs Nets
+  - Saved Crosstabs
+  - Crosstabs Table Settings
+  - Crosstabs Validation
+  - Crosstabs Rim Weighting
+- name: Dashboards
+  tags:
+  - Dashboards
+- name: DQ APIs
+  tags:
+  - DQ-Specific API Calls
+  - MaxDiff API Calls
+  - Discrete Choice Model API Calls
+  - Media Testimonial API Calls
+- name: Response Summary
+  tags:
+  - Share Link
+- name: Sample Management
+  tags:
+  - Bounced Emails
+  - Participant Sources
+- name: Distribution
+  tags:
+  - Email Distribution
+  - SFTP Distribution
+  - Slack Distribution
+- name: Campaign Manager
+  tags:
+  - Campaigns
+  - Campaign Email Invites
+  - Campaign Exports
+  - Campaign Lists
+  - Shared Campaign Lists
+  - Campaign Sends
+  - Campaign Status Lists
+  - Supression Lists
+- name: Question Library
+  tags:
+  - Company Element
+  - Company Elements
+  - Survey Elements
+  - Survey Element Report Settings
+- name: Language Manager
+  tags:
+  - LM Application Data
+  - LM Application Translations
+  - Translation Resources
+  - Translations
+  - Translation Deltas
+  - Translation Reservations
+  - Primary Survey Language
+  - Other Survey Languages
+  - Unused Survey Languages
+- name: Project Parameters
+  tags:
+  - Available Project Parameters
+  - Saved Project Parameters
+  - Project Parameters Configuration
+- name: Multi-User Editing
+  tags:
+  - Available Sections
+  - Check Out Section
+  - Check In Section
+  - Sync Section
+  - Section Editor
+  - Abandon Section
+  - Validate Section
+- name: Video Management
+  tags:
+  - Videos
+  - Watermarked Videos
+- name: Miscellaneous
+  tags:
+  - System Information
+  - Logic Nodes
+  - Logic Events
+  - CATI
+  - Global Search
+  - Miscellaneous

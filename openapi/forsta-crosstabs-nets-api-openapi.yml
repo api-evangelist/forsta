@@ -1,0 +1,347 @@
+openapi: 3.2.0
+info:
+  title: Decipher Rest Crosstabs Nets API
+  version: '1.0'
+  description: The Decipher REST API allows comprehensive automation of your private or shared Decipher instance.
+servers:
+- url: https://{server}/api/v1
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: selfserve.decipherinc.com
+      description: Server domain
+security:
+- APIKey: []
+tags:
+- name: Crosstabs Nets
+paths:
+  /surveys/{survey}/crosstabs/nets:
+    put:
+      operationId: updateSurveyCrosstabsNets
+      summary: Create or update nets
+      description: 'Create or overwrite all nets on a table, or update the nest setting on
+
+        existing nets.'
+      tags:
+      - Crosstabs Nets
+      parameters:
+      - name: survey
+        description: survey path to run crosstabs in
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tables:
+                  description: an array of the tables and their updated nets.
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      table:
+                        type: string
+                        description: The label of the target question
+                      nest:
+                        type: boolean
+                        description: 'When set to `true` the net rows will appear nested under the
+
+                          nets in the crosstab tables
+
+                          '
+                      nets:
+                        description: An array of the new nets.
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            label:
+                              type: string
+                              description: 'A label used to identify a net so that it may be included
+
+                                in the `items` of another net
+
+                                '
+                            summary:
+                              type: boolean
+                              description: 'Adds a summary table for the net (multidimensional
+
+                                questions only)
+
+                                '
+                            title:
+                              type: string
+                              description: 'The title to be shown in the crosstabs table for the net
+
+                                '
+                            items:
+                              description: 'An array of the question''s row labels to be included in
+
+                                this net
+
+                                '
+                              type: array
+                              items:
+                                type: string
+                            op:
+                              type: string
+                              enum:
+                              - or
+                              - and
+                              - count
+                              - mean
+                              - median
+                              - max
+                              - min
+                              - sum
+                              - se
+                              - stddev
+                              description: 'The operation of the net. May be one of the following:
+
+
+                                + `or` -- generates an "OR" net
+
+                                + `and` -- generates an "AND" net
+
+                                + `count` -- generates a "Count" net
+
+                                + `mean` -- generates a "Mean" net
+
+                                + `median` -- generate a "Median" net
+
+                                + `max` -- generate a "Maximum" net
+
+                                + `min` -- generate a "Minimum" net
+
+                                + `sum` -- generate a "Sum" net
+
+                                + `se` -- generate a "Standard Error" net
+
+                                + `stddev` -- generate a "Standard Deviation" net
+
+                                '
+                          required:
+                          - title
+                          - items
+                          - op
+                    required:
+                    - table
+              required:
+              - tables
+            examples:
+              New nets:
+                description: 'Providing a nets key in the table will trigger an overwrite of all
+
+                  existing nets in the table.
+
+                  '
+                value:
+                  tables:
+                  - table: q1
+                    nest: true
+                    nets:
+                    - title: 1 or 2
+                      op: or
+                      items:
+                      - r1
+                      - r2
+                      summary: false
+                    - title: 3 or 4
+                      op: and
+                      items:
+                      - r3
+                      - r4
+              Nested nets:
+                description: 'A nested net requires defining a sub net first with a unique `label`
+
+                  added in `items` in a parent net.
+
+                  '
+                value:
+                  tables:
+                  - table: q1
+                    nest: true
+                    nets:
+                    - label: subnet
+                      title: subnet for 1 or 2
+                      op: or
+                      items:
+                      - r1
+                      - r2
+                    - title: parent net
+                      op: or
+                      items:
+                      - subnet
+                      - r3
+              Toggle nesting:
+                description: 'To update only the ''Nest Rows under Nets'' setting without overwriting
+
+                  existing nets.
+
+                  '
+                value:
+                  tables:
+                  - table: q1
+                    nest: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+components:
+  securitySchemes:
+    APIKey:
+      type: apiKey
+      in: header
+      name: x-apikey
+      description: 'In order to access the api, you''ll need to generate an API key. Refer to the
+
+        instructions [here](/docs/decipher/api#section/API-Keys) to generate and
+
+        configure an API key with the appropriate permission sets. You can generate
+
+        as many keys as required.
+
+
+        Configure each request to include your API key in the request header. For example:
+
+
+        ```
+
+        x-apikey: dp48ss3mgsaucyjtybxw728h7s4cgnwzhejtszdwhf4xpe8yhmtdwpk2ntdhtwbs
+
+        ```
+
+        '
+x-tagGroups:
+- name: Autoclose
+  tags:
+  - Autoclose
+- name: Data Input and Output
+  tags:
+  - Data
+  - Data Feed
+  - Response Summary
+  - Modifying Data
+  - Datasources
+  - Datasources Data
+  - Umerge
+- name: Survey Metadata
+  tags:
+  - Simulated Data
+  - Survey State
+  - Survey Evaluate
+  - Survey Quotas
+  - Survey Files
+  - Survey Warnings
+  - Survey Terms
+  - Survey Subscribers
+  - Survey Users
+  - Survey Tasks
+- name: Panels
+  tags:
+  - Panel Data
+  - Panel Datapoints
+  - Survey Panels
+- name: Research Hub
+  tags:
+  - Users
+  - Companies
+  - Categories
+  - Surveys
+  - Panels
+  - Crosstabs
+  - Archives
+  - Archival Reports
+  - API Keys
+  - Usage
+  - Warnings Summary
+- name: Crosstabs
+  tags:
+  - Crosstabs Configuration
+  - Crosstabs Execution
+  - Crosstabs Nets
+  - Saved Crosstabs
+  - Crosstabs Table Settings
+  - Crosstabs Validation
+  - Crosstabs Rim Weighting
+- name: Dashboards
+  tags:
+  - Dashboards
+- name: DQ APIs
+  tags:
+  - DQ-Specific API Calls
+  - MaxDiff API Calls
+  - Discrete Choice Model API Calls
+  - Media Testimonial API Calls
+- name: Response Summary
+  tags:
+  - Share Link
+- name: Sample Management
+  tags:
+  - Bounced Emails
+  - Participant Sources
+- name: Distribution
+  tags:
+  - Email Distribution
+  - SFTP Distribution
+  - Slack Distribution
+- name: Campaign Manager
+  tags:
+  - Campaigns
+  - Campaign Email Invites
+  - Campaign Exports
+  - Campaign Lists
+  - Shared Campaign Lists
+  - Campaign Sends
+  - Campaign Status Lists
+  - Supression Lists
+- name: Question Library
+  tags:
+  - Company Element
+  - Company Elements
+  - Survey Elements
+  - Survey Element Report Settings
+- name: Language Manager
+  tags:
+  - LM Application Data
+  - LM Application Translations
+  - Translation Resources
+  - Translations
+  - Translation Deltas
+  - Translation Reservations
+  - Primary Survey Language
+  - Other Survey Languages
+  - Unused Survey Languages
+- name: Project Parameters
+  tags:
+  - Available Project Parameters
+  - Saved Project Parameters
+  - Project Parameters Configuration
+- name: Multi-User Editing
+  tags:
+  - Available Sections
+  - Check Out Section
+  - Check In Section
+  - Sync Section
+  - Section Editor
+  - Abandon Section
+  - Validate Section
+- name: Video Management
+  tags:
+  - Videos
+  - Watermarked Videos
+- name: Miscellaneous
+  tags:
+  - System Information
+  - Logic Nodes
+  - Logic Events
+  - CATI
+  - Global Search
+  - Miscellaneous

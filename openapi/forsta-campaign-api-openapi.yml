@@ -1,0 +1,943 @@
+openapi: 3.2.0
+info:
+  title: Integration Campaign API
+  version: ''
+servers:
+- url: https://{server}
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: staging.panel.dev.focusvision.com/
+      description: Server domain
+tags:
+- name: Campaign
+paths:
+  /api.pro#method=integration.campaign.createWithCommunity:
+    post:
+      operationId: campaignCreateWithCommunity
+      summary: Create a campaign with community
+      description: 'Schedule campaign for the panelists. Campaigns are typically used to send email invitations to the panelists. This allows for creation of links that will
+
+        show up in the community. It is available as of version 4.6.0.1854 (released on July 26th 2016).'
+      tags:
+      - Campaign
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.campaign.createWithCommunity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - sesKey
+              - settings
+              - communityMessages
+              - messages
+              - sampleids
+              properties:
+                sesKey:
+                  type: string
+                  description: A valid login hash.
+                settings:
+                  type: object
+                  description: An array of settings (name =&gt; value)
+                  properties:
+                    name:
+                      type: string
+                      description: Name of the campaign.
+                    startTime:
+                      type: string
+                      description: When to start sending out invitations.
+                      pattern: ^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$
+                    endTime:
+                      type: string
+                      description: When this campaign expires.
+                      pattern: ^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$
+                    messageTypes:
+                      type: array
+                      enum:
+                      - - email
+                      - - sms
+                      - - email
+                        - sms
+                      - []
+                      description: 'Message types used by campaign. An array consisting of <code>email</code> and/or (if available) <code>sms</code>, or an empty array for community-only campaigns. (Default: <code>[email]</code>)'
+                      default:
+                      - email
+                      items:
+                        type: string
+                    description:
+                      type: string
+                      description: The description of the campaign.
+                    purpose:
+                      type: string
+                      enum:
+                      - invitation
+                      - profiler
+                      default: invitation
+                      description: The purpose of the campaign.
+                    includePortal:
+                      type: string
+                      enum:
+                      - 'yes'
+                      - 'no'
+                      - exclusively
+                      default: 'yes'
+                      description: Whether or not to display this invitation to portal members
+                    pointsCompleted:
+                      type: integer
+                      description: Amount of points a panelist will receive upon completion.
+                    pointsProfile:
+                      type: integer
+                      description: Amount of points a panelist will receive when profile terminating.
+                    pointsQuota:
+                      type: integer
+                      description: Amount of points a panelist will receive when quota terminating.
+                    maxParticipation:
+                      type: integer
+                      description: Amount of times a panelist is allowed to participate.
+                    pointsTermination:
+                      type: string
+                      enum:
+                      - every
+                      - first
+                      default: every
+                      description: Reward panelist every time he participates or only the first time.
+                  required:
+                  - name
+                  - startTime
+                communityMessages:
+                  type: array
+                  description: An array of community messages. These values are displayed to community users and are always required, even when the campaign is not published to any community.
+                  items:
+                    type: object
+                    properties:
+                      communitySubject:
+                        type: string
+                        description: Community subject text
+                      communityContent:
+                        type: string
+                        description: Community message content
+                      locale:
+                        type: array
+                        description: Array of locale ids
+                        items:
+                          type: integer
+                    required:
+                    - communitySubject
+                    - communityContent
+                    - locale
+                messages:
+                  type: array
+                  description: An array of invitation messages (email and/or SMS). Not required when publishing to the community only.
+                  items:
+                    type: object
+                    properties:
+                      subject:
+                        type: string
+                        description: Email subject text
+                      content:
+                        type: string
+                        description: Email message content
+                      sms:
+                        type: string
+                        description: SMS message content (if available)
+                      locale:
+                        type: array
+                        description: Array of locale ids
+                        items:
+                          type: integer
+                    required:
+                    - locale
+                sampleids:
+                  type: array
+                  description: An array of sample IDs (obtained via <code>integration.sample.create</code>)
+                  items:
+                    type: integer
+            example:
+              sesKey: 5a15852c564933807bbd36da58071063
+              settings:
+                name: Home improvement Campaign
+                startTime: '2016-07-26 17:50:00'
+                messageTypes: []
+                includePortal: exclusively
+                pointsCompleted: 100
+              communityMessages:
+              - communitySubject: Home improvement survey
+                communityContent: Receive up to 100 points for taking this survey!
+                locale:
+                - 1
+              - communitySubject: Encuesta de mejoras para el hogar
+                communityContent: Recibe hasta 100 puntos por completar esta encuesta!
+                locale:
+                - 2
+              messages: []
+              sampleids:
+              - 42
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                    data:
+                      properties:
+                        campaignid:
+                          type: integer
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    data:
+                      campaignid: 2
+                error-0:
+                  description: The supplied settings name is not a string between 0-100 characters.
+                  summary: Settings name invalid
+                  value:
+                    success: false
+                    error: Name invalid
+                    errno: '0'
+                error-1:
+                  description: The supplied settings description is not a string between 0-65535 characters.
+                  summary: Settings description invalid
+                  value:
+                    success: false
+                    error: Description invalid
+                    errno: '0'
+                error-2:
+                  description: 'The supplied settings start time is not a string or is formatted incorrectly. Format: YYYY-MM-DD hh:mm:ss'
+                  summary: Settings start time invalid
+                  value:
+                    success: false
+                    error: Start time invalid
+                    errno: '0'
+                error-3:
+                  description: 'The supplied settings end time is not a string or is formatted incorrectly. Format: YYYY-MM-DD hh:mm:ss'
+                  summary: Settings end time invalid
+                  value:
+                    success: false
+                    error: End time invalid
+                    errno: '0'
+                error-4:
+                  description: The supplied settings purpose is not a valid string. The settings purpose parameter must be "invitation" or "profile".
+                  summary: Settings purpose invalid
+                  value:
+                    success: false
+                    error: Purpose invalid
+                    errno: '0'
+                error-5:
+                  description: The supplied include portal is not a valid string. The settings include portal parameter must be "invitation" or "profile".
+                  summary: Settings include portal invalid
+                  value:
+                    success: false
+                    error: Include portal invalid
+                    errno: '0'
+                error-6:
+                  description: The supplied settings points completed is not an integer.
+                  summary: Settings points completed
+                  value:
+                    success: false
+                    error: Points completed invalid
+                    errno: '0'
+                error-7:
+                  description: The supplied settings points profile is not an integer.
+                  summary: Settings points profile invalid
+                  value:
+                    success: false
+                    error: Points profile invalid
+                    errno: '0'
+                error-8:
+                  description: The supplied settings points quota is not an integer.
+                  summary: Settings points quota invalid
+                  value:
+                    success: false
+                    error: Points quota invalid
+                    errno: '0'
+                error-9:
+                  description: The supplied settings max participation is not an integer.
+                  summary: Settings max participation invalid
+                  value:
+                    success: false
+                    error: Max participation invalid
+                    errno: '0'
+                error-10:
+                  description: The supplied settings points termination is not a valid string. The settings points termination parameter must be "first" or "every".
+                  summary: Settings points termination invalid
+                  value:
+                    success: false
+                    error: Points termination invalid
+                    errno: '0'
+                error-11:
+                  description: The supplied settings message types is not an array.
+                  summary: Settings message types invalid
+                  value:
+                    success: false
+                    error: Message types invalid
+                    errno: '0'
+                error-12:
+                  description: The supplied settings message type is not a valid string. The settings message type parameter must be "sms" or "email".
+                  summary: Settings message type invalid
+                  value:
+                    success: false
+                    error: Message type invalid
+                    errno: '0'
+                error-13:
+                  description: Settings message types cannot be supplied for community only campaigns.
+                  summary: Message invalid
+                  value:
+                    success: false
+                    error: Message types can not be set for community only campaign
+                    errno: '0'
+                error-14:
+                  description: The supplied community messages is not an array.
+                  summary: Community messages invalid
+                  value:
+                    success: false
+                    error: Malformed community message array
+                    errno: '0'
+                error-15:
+                  description: One or more of the supplied community messages subject is not a string.
+                  summary: Community message subject invalid
+                  value:
+                    success: false
+                    error: Invalid community message subject
+                    errno: '0'
+                error-16:
+                  description: One or more of the supplied community messages content is not a string.
+                  summary: Community message content invalid
+                  value:
+                    success: false
+                    error: Invalid community message content
+                    errno: '0'
+                error-17:
+                  description: One or more of the supplied community messages subject is not a string between 1-65535 characters.
+                  summary: Community message subject invalid
+                  value:
+                    success: false
+                    error: Subject out of bounds
+                    errno: '0'
+                error-18:
+                  description: One or more of the supplied community messages content is not a string between 1-65535 characters.
+                  summary: Community message content invalid
+                  value:
+                    success: false
+                    error: Content out of bounds
+                    errno: '0'
+                error-19:
+                  description: One or more of the supplied community messages or messages locale is not an array.
+                  summary: Community messages/Messages locale invalid
+                  value:
+                    success: false
+                    error: Invalid locale array
+                    errno: '0'
+                error-20:
+                  description: One or more of the supplied community messages or messages locale is not a valid locale for the panel.
+                  summary: Community messages/Messages locale invalid
+                  value:
+                    success: false
+                    error: Invalid locale
+                    errno: '0'
+                error-21:
+                  description: The amount of community messages or messages are not equal to the amount of locales for panel.
+                  summary: Community messages/Messages invalid
+                  value:
+                    success: false
+                    error: Missing locales
+                    errno: '0'
+                error-22:
+                  description: The supplied messages is not an array.
+                  summary: Messages invalid
+                  value:
+                    success: false
+                    error: Malformed message array
+                    errno: '0'
+                error-23:
+                  description: One or more of the supplied messages subject is not a string.
+                  summary: Message subject invalid
+                  value:
+                    success: false
+                    error: Invalid message subject
+                    errno: '0'
+                error-24:
+                  description: One or more of the supplied messages content is not a string.
+                  summary: Message content invalid
+                  value:
+                    success: false
+                    error: Invalid message content
+                    errno: '0'
+                error-25:
+                  description: One or more of the supplied messages sms content is not a string.
+                  summary: Message sms content invalid
+                  value:
+                    success: false
+                    error: Invalid sms content
+                    errno: '0'
+                error-26:
+                  description: SMS messaging is not set up for this panel.
+                  summary: SMS gateway provider not found
+                  value:
+                    success: false
+                    error: No SMS gateway provider available
+                    errno: '0'
+                error-27:
+                  description: The messages parameter cannot be specified when the supplied settings include portal is set to "exclusively".
+                  summary: Messages invalid
+                  value:
+                    success: false
+                    error: Can not use messages for community exclusive campaign
+                    errno: '0'
+                error-28:
+                  description: The supplied sample IDs is empty.
+                  summary: Empty sample IDs
+                  value:
+                    success: false
+                    error: Invalid number of samples provided
+                    errno: '0'
+                error-29:
+                  description: Sample with supplied sample ID is not found.
+                  summary: Sample IDs not found
+                  value:
+                    success: false
+                    error: Invalid sample provided
+                    errno: '0'
+                error-30:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session has expired. You must start a new session.
+                    errno: '30100'
+                error-31:
+                  description: Session is not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: sessionkey not found
+                    errno: '30200'
+                error-32:
+                  description: User ID not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: userid for sessionkey not found
+                    errno: '30200'
+                error-33:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: sessionkey is invalid
+                    errno: '30300'
+                error-34:
+                  description: A panel needs to be selected before calling this method.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: You must select a panel before you can use this method.
+                    errno: '40001'
+                error-35:
+                  description: A project needs to be selected before calling this method.
+                  summary: Project not found
+                  value:
+                    success: false
+                    error: You must select a project before you can use this method.
+                    errno: '40002'
+  /api.pro#method=integration.campaign.listing:
+    post:
+      operationId: campaignListing
+      summary: List scheduled campaign
+      description: Read listing of all campaign scheduled for the current project.
+      tags:
+      - Campaign
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.campaign.listing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - sesKey
+              properties:
+                sesKey:
+                  description: A valid login hash.
+                  type: string
+                  example: 5a15852c564933807bbd36da58071063
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      example: true
+                      type: boolean
+                    data:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            description: Id of the campaign.
+                          name:
+                            type: string
+                            description: Name of the campaign.
+                          description:
+                            type: string
+                            description: Description of the campaign.
+                          starttime:
+                            type: string
+                            pattern: ^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$
+                            description: Start time of the campaign.
+                          endtime:
+                            type:
+                            - string
+                            - 'null'
+                            pattern: ^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$
+                            description: End time of the campaign.
+                          purpose:
+                            type: string
+                            description: 'Purpose of the campaign.
+
+                              '
+                          portalinvitation:
+                            type: string
+                            description: 'Was this campaign launched to the community (yes/no)
+
+                              '
+                          pointscompleted:
+                            description: Amount of points given for completing.
+                            type: integer
+                          pointsprofile:
+                            description: Amount of points given for profile terminating.
+                            type: integer
+                          pointsquota:
+                            description: Amount of points given for quota terminating.
+                            type: integer
+                          maxparticipation:
+                            description: Amount of times the campaign can be taken (0 = unlimited).
+                            type: integer
+                          pointstermination:
+                            description: When points are received terminating ("every"/"first").
+                            type: string
+                          created_by:
+                            type: string
+                            description: Name of the user who created the campaign.
+                          created:
+                            type: string
+                            description: Time and date of the creation of the campaign.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    data:
+                    - id: 2
+                      name: New portal only campaign
+                      description: ''
+                      starttime: '2011-10-11 19:00:00'
+                      endtime: null
+                      purpose: portal
+                      portalinvitation: 'yes'
+                      pointscompleted: 100
+                      pointsprofile: 30
+                      pointsquota: 10
+                      maxparticipation: 1
+                      pointstermination: first
+                      created_by: Panelsis Tester
+                      created: '2011-10-14 12:46:52'
+                error-0:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session has expired. You must start a new session.
+                    errno: '30100'
+                error-1:
+                  description: Session is not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: sessionkey not found
+                    errno: '30200'
+                error-2:
+                  description: User ID not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: userid for sessionkey not found
+                    errno: '30200'
+                error-3:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: sessionkey is invalid
+                    errno: '30300'
+                error-4:
+                  description: A panel needs to be selected before calling this method.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: You must select a panel before you can use this method.
+                    errno: '40001'
+                error-5:
+                  description: A project needs to be selected before calling this method.
+                  summary: Project not found
+                  value:
+                    success: false
+                    error: You must select a project before you can use this method.
+                    errno: '40002'
+  /api.pro#method=integration.campaign.get:
+    post:
+      operationId: campaignGet
+      summary: Get campaign
+      description: Get info on one specific campaign in the current project.
+      tags:
+      - Campaign
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.campaign.get
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - sesKey
+              - campaingid
+              properties:
+                sesKey:
+                  description: A valid login hash.
+                  type: string
+                  example: 5a15852c564933807bbd36da58071063
+                campaingid:
+                  description: The id of the campaign.
+                  type: integer
+                  example: 42
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                    data:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          description: Id of the campaign.
+                        name:
+                          type: string
+                          description: Name of the campaign.
+                        description:
+                          type: string
+                          description: Description of the campaign.
+                        starttime:
+                          type: string
+                          description: Start time of the campaign.
+                        endtime:
+                          type:
+                          - string
+                          - 'null'
+                          description: End time of the campaign.
+                        purpose:
+                          type: string
+                          description: Purpose of the campaign.
+                        portalinvitation:
+                          type: string
+                          description: Was this campaign launched to the community (yes/no).
+                        pointscompleted:
+                          type: integer
+                          description: Amount of points given for completing.
+                        pointsprofile:
+                          type: integer
+                          description: Amount of points given for profile terminating.
+                        pointsquota:
+                          type: integer
+                          description: Amount of points given for quota terminating.
+                        maxparticipation:
+                          type: integer
+                          description: Amount of times the campaign can be taken (0 = unlimited).
+                        pointstermination:
+                          type: string
+                          description: When points are received terminating ("every"/"first").
+                        created_by:
+                          type: string
+                          description: Name of the user who created the campaign.
+                        created:
+                          type: string
+                          description: Time and date of the creation of the campaign.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    data:
+                      id: 2
+                      name: New portal only campaign
+                      description: ''
+                      starttime: '2011-10-11 19:00:00'
+                      endtime: null
+                      purpose: portal
+                      portalinvitation: 'yes'
+                      pointscompleted: 100
+                      pointsprofile: 30
+                      pointsquota: 10
+                      maxparticipation: 1
+                      pointstermination: first
+                      created_by: Kinesis Tester
+                      created: '2011-10-14 12:46:52'
+                error-0:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session has expired. You must start a new session.
+                    errno: '30100'
+                error-1:
+                  description: Session is not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: sessionkey not found
+                    errno: '30200'
+                error-2:
+                  description: User ID not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: userid for sessionkey not found
+                    errno: '30200'
+                error-3:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: sessionkey is invalid
+                    errno: '30300'
+                error-4:
+                  description: A panel needs to be selected before calling this method.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: You must select a panel before you can use this method.
+                    errno: '40001'
+                error-5:
+                  description: A project needs to be selected before calling this method.
+                  summary: Project not found
+                  value:
+                    success: false
+                    error: You must select a project before you can use this method.
+                    errno: '40002'
+  /api.pro#method=integration.campaign.schedule:
+    post:
+      operationId: scheduleCampaign
+      summary: Lists all samples and reminders scheduled for a campaign
+      description: Outputs a list of all samples and reminders that were scheduled for a specific campaign.
+      tags:
+      - Campaign
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.campaign.schedule
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - sesKey
+              - campaignid
+              properties:
+                sesKey:
+                  description: A valid login hash.
+                  type: string
+                  example: 5a15852c564933807bbd36da58071063
+                campaignid:
+                  type: integer
+                  description: 'The campaignid of the campaign to list the schedule of.
+
+                    '
+                  example: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      example: true
+                      type: boolean
+                    data:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        type:
+                          description: The type (reminder, sample)
+                          type: string
+                        scheduled:
+                          description: The date and time it was scheduled.
+                          type: string
+                        sampleid:
+                          type:
+                          - integer
+                          - 'null'
+                          description: If type is "sample", the sampleid will be listed here.
+                        created_by:
+                          description: The user the reminder or sample was created by.
+                          type: string
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    data:
+                      type: sample
+                      scheduled: '2011-10-11 19:00:00'
+                      name: Sample import from list by Kinesis
+                      sampleid: 4
+                      created_by: Kinesis Tester
+                error-0:
+                  description: The supplied campaign ID is not numeric.
+                  summary: Campaign ID invalid
+                  value:
+                    success: false
+                    error: The supplied campaign id is invalid.
+                    errno: '20102'
+                error-1:
+                  description: Campaign with supplied campaign ID is not found.
+                  summary: Campaign ID not found
+                  value:
+                    success: false
+                    error: 'No data found for Campaign ID: (campaign ID)'
+                    errno: '20302'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session has expired. You must start a new session.
+                    errno: '30100'
+                error-3:
+                  description: Session is not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: sessionkey not found
+                    errno: '30200'
+                error-4:
+                  description: User ID not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: userid for sessionkey not found
+                    errno: '30200'
+                error-5:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: sessionkey is invalid
+                    errno: '30300'
+                error-6:
+                  description: A panel needs to be selected before calling this method.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: You must select a panel before you can use this method.
+                    errno: '40001'
+                error-7:
+                  description: A project needs to be selected before calling this method.
+                  summary: Project not found
+                  value:
+                    success: false
+                    error: You must select a project before you can use this method.
+                    errno: '40002'
+components:
+  parameters:
+    method:
+      name: method
+      in: query
+      required: true
+      description: Method
+      schema:
+        type: string
+  schemas:
+    error:
+      type: object
+      properties:
+        success:
+          type: boolean
+        error:
+          description: The error message.
+          type: string
+        errno:
+          description: The error code.
+          type: string
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+    ApiKey:
+      type: apiKey
+      in: query
+      name: sesKey
+x-tagGroups:
+- name: Data Input and Output
+  tags:
+  - Auth
+  - Campaign
+  - Category
+  - Community
+  - Datapoint
+  - Panel
+  - Notes
+  - Panelist
+  - Project
+  - Reminder
+  - Sample
+  - Session
+  - Survey
+  - Token

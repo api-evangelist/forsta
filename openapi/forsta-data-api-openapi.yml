@@ -1,0 +1,987 @@
+openapi: 3.2.0
+info:
+  title: Decipher Rest Data API
+  version: '1.0'
+  description: The Decipher REST API allows comprehensive automation of your private or shared Decipher instance.
+servers:
+- url: https://{server}/api/v1
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: selfserve.decipherinc.com
+      description: Server domain
+security:
+- APIKey: []
+tags:
+- name: Data
+paths:
+  /surveys/{survey}/data:
+    get:
+      operationId: getSurveyData
+      summary: Download data
+      description: 'Returns list of survey responses filterable through a robust set of query
+
+        parameters.
+
+
+        ## Formats
+
+
+        The following data formats can be requested using the `format` parameter.
+
+
+        Format | Description
+
+        --------------|------------------
+
+        `tab` | A tab-delimited format with column headings.
+
+        `tab_uq` | A tab-delimited format with column headings and unquoted values.
+
+        `fwu` | A fixed-width format with offsets based on unicode characters.
+
+        `fw` | A fixed-width format with offsets based on raw bytes
+
+        `flat` | A flattened format containing OE data
+
+        `flat_all` | A flattened format containing non-blank data for all fields.
+
+        `pipe` | A pipe delimited format with column headings.
+
+        `csv` | A comma delimited format with column headings.
+
+        `cb` | An IBM column binary.
+
+        `json` | Standard JSON.
+
+        `jsonl` | JSON with labeled values (returns value labels instead of numeric codes).
+
+        `spss` | The SPSS default format (SPSS 15).
+
+        `spss16` | SPSS 16+ (*.sav) file with Unicode Support (zipped).
+
+        `spss15` | SPSS 15 (*.sav) file (zipped).
+
+        `spss16_oe` | SPSS 16+ (*.sav) file including all OE data (zipped).
+
+        `spss_data` | A fixed-width data file and SPSS script file (zipped).
+
+
+        ## Content Types
+
+
+        Content type differs dependent on the requested `format`.
+
+
+        Content Type | Format
+
+        --- | ---
+
+        application/json | json, jsonl
+
+        text/plain; charset=utf-8 | tab, tab_uq, fw, flat, flat_all, pipe, csv, fw, fwu
+
+        application/octet-stream | cb
+
+        application/zip | spss, spss15, spss16, spss16_oe, spss_data
+
+
+        Available keywords: `all, qualified, terminated, overquota, partials, everything`.'
+      tags:
+      - Data
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      - name: format
+        in: query
+        description: The data format requested.
+        example: flat
+        schema:
+          type: string
+          enum:
+          - tab
+          - tab_uq
+          - fw
+          - flat
+          - flat_all
+          - pipe
+          - csv
+          - fwu
+          - cb
+          - json
+          - jsonl
+          - spss
+          - spss15
+          - spss16
+          - spss16_oe
+          - spss_data
+          default: tab
+      - name: layout
+        in: query
+        description: The layout ID, either hardcoded or retrieved using Layouts API. Standard layout is used by default if no layout ID is specified.
+        example: 123456
+        schema:
+          type: integer
+      - name: fields
+        in: query
+        description: The list of field names to retrieve.
+        schema:
+          type: array
+          items:
+            type: string
+        examples:
+          oneField:
+            value:
+            - q1
+          multipleFields:
+            value:
+            - q1
+            - q2
+            - q3
+      - name: start
+        in: query
+        description: 'Start date.
+
+
+          Setting start will restrict the API results to respondents who were last active in the survey after that "start" parameter. This corresponds to the "date" field in downloads. This date field is not affected by data edits.
+
+          '
+        example: 2020-01-01T00:00Z
+        schema:
+          type: string
+          format: ISO-8601
+      - name: end
+        in: query
+        description: 'End date.
+
+
+          Setting end date will restrict the API results to respondents who were last active in the survey before the "end" parameter. This corresponds to the "date" field in downloads. This date field is not affected by data edits.
+
+          '
+        example: 2020-12-31T00:00Z
+        schema:
+          type: string
+          format: ISO-8601
+      - name: cond
+        in: query
+        description: "The condition required to retrieve the participant. This is a Python\ncondition as if you would enter in survey logic or crosstabs. For\nexample, `qualified and q3.r2` retrieves only participants that were\n`qualified` and answered `q3` as `r2`. \n\nYou can also pass a crosstab id with `xt:<crosstabId>` where the `<crosstabId>`\nis the last part of the crosstab report url. For example if the url is:\n`https://example.decipherinc.com/apps/report/selfserve/545/231002#!/report/nx09qh7uvq455tgg`\nthe `<crosstabId>` would be `nx09qh7uvq455tgg`. This extracts based on those who belong to\nthe first segment of the Crosstabs report. You can extract data for a different segment\nby specifying it this way: `xt:<crosstabId>:2`, 2 being the segment number.\n"
+        example: qualified and q1.r1
+        schema:
+          type: string
+          default: all
+      - name: stacking
+        in: query
+        description: 'Argument to specify stacked data file. Options are `top` which outputs
+
+          all the non-looped variables and `label` which outputs the looped data
+
+          for the specific loop label.
+
+          '
+        example: top
+        schema:
+          type: string
+      - name: language
+        in: query
+        description: Get the datamap in a different language. Supported for spss variants only. Specify the language name as configured in the survey.xml (e.g. french or spanish_mexico).
+        example: french
+        schema:
+          type: string
+      - name: meta
+        in: query
+        description: "Argument to specify miscellaneous options to control the results. The \navailable options are:\n- modified - Makes the API output and filter results by the record's \n`data_updated` field, rather than `last_activity`.\n- date - Include an additional $date field in the output that will show\nthe respondent's completion time in ISO-8601 format.\n"
+        example: modified,date
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/surveyData'
+      x-codeSamples:
+      - lang: Curl
+        source: 'curl -H x-apikey: {api_key} -X GET {server}/api/v1/surveys/{survey}/data?format=json
+
+          '
+      - lang: Cli
+        source: 'beacon get surveys/{survey}/data format=json > myfile.json
+
+          '
+    post:
+      operationId: createSurveyData
+      summary: Download data
+      description: 'This is equivalent to the GET request. However GET requests are limited to
+
+        around 1000-character URLs. We include a POST version that does not generate
+
+        data but allows for any amount of fields to be specified.
+
+
+        Available keywords: `all, qualified, terminated, overquota, partials, everything`.'
+      tags:
+      - Data
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                format:
+                  description: The data format requested.
+                  enum:
+                  - tab
+                  - fw
+                  - flat
+                  - flat_all
+                  - pipe
+                  - csv
+                  - fwu
+                  - cb
+                  - json
+                  - spss
+                  - spss15
+                  - spss16
+                  - spss16_oe
+                  - spss_data
+                  type: string
+                  default: tab
+                  example: json
+                layout:
+                  description: 'The layout ID, either hardcoded or retreived using Layouts API.
+
+                    '
+                  type: integer
+                  example: 123456
+                fields:
+                  description: The list of field names to retrieve.
+                  type: array
+                  items:
+                    type: string
+                  example:
+                  - q1
+                start:
+                  description: 'Start date.
+
+
+                    Setting start will restrict the API results to respondents who were last active in the survey after that "start" parameter. This corresponds to the "date" field in downloads. This date field is not affected by data edits.
+
+                    '
+                  type: string
+                  format: ISO-8601
+                  example: 2020-01-01T00:00Z
+                end:
+                  description: 'End date.
+
+
+                    Setting end date will restrict the API results to respondents who were last active in the survey before the "end" parameter. This corresponds to the "date" field in downloads. This date field is not affected by data edits.
+
+                    '
+                  type: string
+                  format: ISO-8601
+                  example: 2020-12-31T00:00Z
+                cond:
+                  description: 'The condition required to retrieve the participant. This is a
+
+                    Python condition as if you would enter in survey logic or
+
+                    crosstabs. For example, `qualified and q3.r2` retrieves only
+
+                    participants that were `qualified` and answered `q3` as `r2`.
+
+                    '
+                  type: string
+                  default: all
+                  example: qualified and q1.r1
+                stacking:
+                  description: 'Argument to specify stacked data file. Options are `top` which
+
+                    outputs all the non-looped variables and `label` which outputs
+
+                    the looped data for the specific loop label.
+
+                    '
+                  type: string
+                  example: top
+                meta:
+                  description: "Argument to specify miscellaneous options to control the results. The \navailable options are:\n- modified - Makes the API output and filter results by the record's \n`data_updated` field, rather than `last_activity`.\n- date - Include an additional $date field in the output that will show\nthe respondent's completion time in ISO-8601 format.\n"
+                  type: array
+                  items:
+                    type: string
+                  example:
+                  - modified
+                  - date
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/surveyData'
+  /surveys/{survey}/datamap:
+    get:
+      operationId: getSurveyDatamap
+      summary: Retrieve datamap
+      description: 'Survey datamaps are the structured representation of the survey questions and
+
+        configurations. The following formats are supported for datamaps.
+
+
+        ## Formats
+
+
+        Format | Description
+
+        --------------|------------------
+
+        `json` | Standard JSON.
+
+        `json_stacked` | A JSON object where the keys are the loop IDs and the values are the datamap for the stacked configuration.
+
+        `html` | Plain HTML.
+
+        `text` | Plain text.
+
+        `tab` | A tab-delimited format with column headings.
+
+        `xlsx` | Microsoft Excel spreadsheet with column headings
+
+        `fw-html` | A fixed-width format with offsets based on raw bytes (HTML)
+
+        `fw-tab` | A fixed-width format with offsets based on raw bytes (Tab)
+
+        `fw-text` | A fixed-width format with offsets based on raw bytes (Text)
+
+        `cb-html` | An IBM column binary (HTML).
+
+        `cb-tab` | An IBM column binary (Tab).
+
+        `cb-text` | An IBM column binary (Text).
+
+        `uncle` | ?
+
+        `sss` | Triple-S 1.5 XML
+
+        `sas` | ?
+
+        `quantum` | ?
+
+        `spss_fw` | SPSS format with fixed-width start/stop annotations
+
+        `spss_tab` | SPPS format in tab delimited format
+
+        `netmr-tab` | Net MR datamap in fixed-width format
+
+        `netmr-csv` | Net MR datamap in comma-delimited format'
+      tags:
+      - Data
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      - name: format
+        in: query
+        required: true
+        description: The requested response format.
+        example: json
+        schema:
+          type: string
+          enum:
+          - json
+          - json_stacked
+          - html
+          - text
+          - tab
+          - fw
+          - xlsx
+          - fw-html
+          - fw-tab
+          - fw-text
+          - cb-html
+          - cb-tab
+          - cb-text
+          - uncle
+          - sss
+          - sas
+          - quantum
+          - spss_fw
+          - spss_tab
+          - netmr-tab
+      - name: layout
+        in: query
+        description: The layout ID. Standard layout is used by default if no layout ID is specified.
+        example: 12345
+        schema:
+          type: integer
+      - name: qa
+        in: query
+        description: Include QA codes (only available for HTML formats)
+        example: true
+        schema:
+          type: boolean
+      - name: language
+        in: query
+        description: Get the datamap in a different language. Supported for html, text, tab, any fw, json, json_stacked, spss_fw and sss only. Specify the language name as configured in the survey.xml (e.g. french or spanish_mexico).
+        example: french
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/surveyDatamap'
+      x-codeSamples:
+      - lang: Curl
+        source: 'curl -H x-apikey: {api_key} -X GET {server}/api/v1/surveys/{survey}/datamap?format=json
+
+          '
+      - lang: Cli
+        source: 'beacon get surveys/{survey}/datamap format=json > myfile.json
+
+          '
+  /surveys/{survey}/layouts:
+    get:
+      operationId: getSurveyLayouts
+      summary: Retrieve all data layouts
+      description: 'List all layouts configured for survey. Layouts can be configured using the
+
+        Data Layout Manager.'
+      tags:
+      - Data
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/surveyLayout'
+      x-codeSamples:
+      - lang: Curl
+        source: 'curl -H x-apikey: {api_key} -X GET {server}/api/v1/surveys/{survey}/layouts
+
+          '
+      - lang: Cli
+        source: 'beacon get surveys/{survey}/layouts > myfile.json
+
+          '
+  /surveys/{survey}/layouts/{layout_id}:
+    get:
+      operationId: getSurveyLayout
+      summary: Retrieve a single data layout
+      description: Retrieves the data layout for the provided layout ID.
+      tags:
+      - Data
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      - name: layout_id
+        in: path
+        description: The data layout ID.
+        example: 123
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/surveyLayout'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  $error:
+                    type: string
+                    description: error description
+                  $code:
+                    type: integer
+                    description: http error code (404)
+                  extra:
+                    type: string
+              example:
+                $error: Layout not found
+                $code: 404
+                extra: null
+      x-codeSamples:
+      - lang: Curl
+        source: 'curl -H x-apikey: {api_key} -X GET {server}/api/v1/surveys/{survey}/layouts/{layout_id}
+
+          '
+      - lang: Cli
+        source: 'beacon get surveys/{survey}/layouts/{layout_id}
+
+          '
+  /surveys/{survey}/coverage:
+    get:
+      operationId: getSurveyCoverage
+      summary: Execute coverage report
+      description: 'The coverage report shows number of participants shown each question, split by the desired segments. It can be called
+
+        with a Crosstabs dlident produced by crosstabs (looks like ~123.456) or by explicitly specifying Crosstab segment
+
+        conditions (e.g. "q1.r1,q1.r2") and a precondition (like "qualified")'
+      tags:
+      - Data
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      - name: segments
+        in: query
+        required: true
+        description: Comma-separated list of segments to split by
+        example: q1.r1,q1.r2,q1.r3
+        schema:
+          type: string
+      - name: precondition
+        in: query
+        description: Precondition
+        example: qualified
+        schema:
+          type: string
+      - name: config
+        in: query
+        description: Crosstabs dlident. Specify EITHER config or segments and precondition
+        example: ~123.456
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  segments:
+                    description: segments used for the calculations
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        count:
+                          type: integer
+                          description: participants in the segment
+                        cond:
+                          type: string
+                          description: condition for segment membership
+                        title:
+                          type: string
+                          description: human-given title
+                    example:
+                    - count: 10
+                      cond: q1.r1
+                      title: R1 segment
+                  questions:
+                    type: array
+                    description: questions and their answered/shown counts per segment
+                    example:
+                    - label: q1
+                      title: Question 1
+                      shown:
+                      - 5
+                      answered:
+                      - 4
+                    items:
+                      type: object
+                      properties:
+                        shown:
+                          type: array
+                          description: participants who saw this question in each segment
+                          items:
+                            type: integer
+                        answered:
+                          type: array
+                          description: participants who answered this question in each segment
+                          items:
+                            type: integer
+                        label:
+                          type: string
+                          description: question label
+                        title:
+                          type: string
+components:
+  parameters:
+    survey:
+      name: survey
+      in: path
+      required: true
+      description: The survey path.
+      example: selfserve/1a/123456
+      schema:
+        type: string
+        format: uri
+  schemas:
+    surveyLayout:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The resource ID.
+        createdBy:
+          type: string
+          format: email
+          description: Created by user email.
+        createdOn:
+          type: string
+          format: date-time
+          description: Layout creation timestamp.
+        description:
+          type: string
+          description: The layout description.
+        updatedOn:
+          type: string
+          format: date-time
+          description: Last updated timestamp.
+        updatedBy:
+          type: string
+          format: email
+          description: Last updated by user email.
+        variables:
+          description: 'List of survey variables
+
+            '
+          type: array
+          items:
+            type: object
+            properties:
+              altlabel:
+                type: string
+                description: Alternative label for variable.
+              fwidth:
+                type: integer
+                description: The number of characters variable occupies (for fixed-width layouts).
+              label:
+                type: string
+                description: Unique variable label.
+              minStart:
+                type: integer
+                description: The offset the variable should start at.
+              new:
+                type: boolean
+                description: True if variable did NOT exist on previous datamap.
+              qlabel:
+                type: string
+                description: The parent question label.
+              qtype:
+                type: string
+                description: Question type of parent question.
+                example: radio
+              shown:
+                type: boolean
+                description: True if variable is shown in current layout.
+              src:
+                type: string
+                description: 'The variable''s source.
+
+
+                  Value | Description
+
+                  ----- | -----------
+
+                  `g` | Virtual
+
+                  `s` | Survey
+
+                  `y` | System
+
+                  '
+                example: g
+                enum:
+                - g
+                - s
+                - y
+              title:
+                type: string
+    surveyData:
+      type: object
+      properties:
+        status:
+          description: The survey completion status.
+          example: 1
+          type: integer
+        uuid:
+          description: The survey `uuid`.
+          example: jwy3kwppp4yuqg86
+          type: string
+          format: uuid
+        vmobiledevice:
+          description: The respondent's mobile device code.
+          example: 5
+          type: integer
+        url:
+          description: The survey builder url.
+          example: http://release.decipherinc.com/survey/selfserve/1a/123456
+          type: string
+        vbrowser:
+          description: The respondent's browser code.
+          type: integer
+          example: 11
+        qtime:
+          description: The elapsed time (seconds) from survey start to complete.
+          example: 56.235
+          type: number
+          format: float
+        list:
+          example: 0
+          type: integer
+        dcua:
+          example: ..
+          type: string
+        markers:
+          example: qualified,/totalQuota/Total
+          type: string
+        record:
+          example: 1
+          type: integer
+        session:
+          description: Unique user session ID.
+          example: cwsps4gewqc0p175
+          type: string
+          format: uuid
+        vos:
+          description: The respondent's operating system (os).
+          example: 13
+          type: integer
+        date:
+          example: 09/02/2020 14:52
+          type: string
+        vlist:
+          example: 1
+          type: integer
+        Q1r1:
+          description: An example question response
+          example: '8'
+          type: string
+        Q2a:
+          description: An example question response
+          example: I thought it was great.
+          type: string
+        Q2b:
+          description: An example question response
+          example: I thought it was not so great.
+          type: string
+    surveyVariables:
+      type: object
+      properties:
+        vgroup:
+          type: string
+        qtitle:
+          type: string
+        colTitle:
+          type: string
+        title:
+          type: string
+        rowTitle:
+          type: string
+        label:
+          type: string
+        row:
+          type: string
+        type:
+          type: string
+        col:
+          type: string
+        qlabel:
+          type: string
+        values:
+          type: array
+          items:
+            type: object
+            properties:
+              value:
+                type: integer
+              title:
+                type: string
+    surveyDatamap:
+      type: object
+      properties:
+        variables:
+          type: array
+          items:
+            $ref: '#/components/schemas/surveyVariables'
+        questions:
+          type: array
+          items:
+            type: object
+            properties:
+              variables:
+                type: array
+                items:
+                  $ref: '#/components/schemas/surveyVariables'
+              grouping:
+                type: string
+                example: rows
+              type:
+                type: string
+                example: number
+              qtitle:
+                type: string
+                example: How likely are you to recommend our company, product or service to a friend or colleague?
+              qlabel:
+                type: string
+                example: Q1
+  securitySchemes:
+    APIKey:
+      type: apiKey
+      in: header
+      name: x-apikey
+      description: 'In order to access the api, you''ll need to generate an API key. Refer to the
+
+        instructions [here](/docs/decipher/api#section/API-Keys) to generate and
+
+        configure an API key with the appropriate permission sets. You can generate
+
+        as many keys as required.
+
+
+        Configure each request to include your API key in the request header. For example:
+
+
+        ```
+
+        x-apikey: dp48ss3mgsaucyjtybxw728h7s4cgnwzhejtszdwhf4xpe8yhmtdwpk2ntdhtwbs
+
+        ```
+
+        '
+x-tagGroups:
+- name: Autoclose
+  tags:
+  - Autoclose
+- name: Data Input and Output
+  tags:
+  - Data
+  - Data Feed
+  - Response Summary
+  - Modifying Data
+  - Datasources
+  - Datasources Data
+  - Umerge
+- name: Survey Metadata
+  tags:
+  - Simulated Data
+  - Survey State
+  - Survey Evaluate
+  - Survey Quotas
+  - Survey Files
+  - Survey Warnings
+  - Survey Terms
+  - Survey Subscribers
+  - Survey Users
+  - Survey Tasks
+- name: Panels
+  tags:
+  - Panel Data
+  - Panel Datapoints
+  - Survey Panels
+- name: Research Hub
+  tags:
+  - Users
+  - Companies
+  - Categories
+  - Surveys
+  - Panels
+  - Crosstabs
+  - Archives
+  - Archival Reports
+  - API Keys
+  - Usage
+  - Warnings Summary
+- name: Crosstabs
+  tags:
+  - Crosstabs Configuration
+  - Crosstabs Execution
+  - Crosstabs Nets
+  - Saved Crosstabs
+  - Crosstabs Table Settings
+  - Crosstabs Validation
+  - Crosstabs Rim Weighting
+- name: Dashboards
+  tags:
+  - Dashboards
+- name: DQ APIs
+  tags:
+  - DQ-Specific API Calls
+  - MaxDiff API Calls
+  - Discrete Choice Model API Calls
+  - Media Testimonial API Calls
+- name: Response Summary
+  tags:
+  - Share Link
+- name: Sample Management
+  tags:
+  - Bounced Emails
+  - Participant Sources
+- name: Distribution
+  tags:
+  - Email Distribution
+  - SFTP Distribution
+  - Slack Distribution
+- name: Campaign Manager
+  tags:
+  - Campaigns
+  - Campaign Email Invites
+  - Campaign Exports
+  - Campaign Lists
+  - Shared Campaign Lists
+  - Campaign Sends
+  - Campaign Status Lists
+  - Supression Lists
+- name: Question Library
+  tags:
+  - Company Element
+  - Company Elements
+  - Survey Elements
+  - Survey Element Report Settings
+- name: Language Manager
+  tags:
+  - LM Application Data
+  - LM Application Translations
+  - Translation Resources
+  - Translations
+  - Translation Deltas
+  - Translation Reservations
+  - Primary Survey Language
+  - Other Survey Languages
+  - Unused Survey Languages
+- name: Project Parameters
+  tags:
+  - Available Project Parameters
+  - Saved Project Parameters
+  - Project Parameters Configuration
+- name: Multi-User Editing
+  tags:
+  - Available Sections
+  - Check Out Section
+  - Check In Section
+  - Sync Section
+  - Section Editor
+  - Abandon Section
+  - Validate Section
+- name: Video Management
+  tags:
+  - Videos
+  - Watermarked Videos
+- name: Miscellaneous
+  tags:
+  - System Information
+  - Logic Nodes
+  - Logic Events
+  - CATI
+  - Global Search
+  - Miscellaneous

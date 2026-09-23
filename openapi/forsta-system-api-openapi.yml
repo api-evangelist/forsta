@@ -1,0 +1,93 @@
+openapi: 3.2.0
+info:
+  title: Panel Management Community System API
+  version: ''
+servers:
+- url: https://{server}
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: staging.panel.dev.focusvision.com/
+      description: Server domain
+security:
+- ApiKey: []
+tags:
+- name: System
+paths:
+  /api.pro#method=portal.system.carriers:
+    post:
+      operationId: portal.system.carriers
+      summary: Get all the carriers
+      tags:
+      - System
+      security: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.system.carriers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Getting a list of carriers was successful.
+                  carriers:
+                    type: array
+                    description: An array of carrier IDs and names that are valid for this installation. NULL if no carriers are found.
+                    items:
+                      properties:
+                        carrierid:
+                          type: integer
+                          description: Carriers ID.
+                        name:
+                          type: string
+                          description: Carriers name.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    carriers:
+                    - carrierid: 1
+                      name: AT&amp;T
+                    - carrierid: 2
+                      name: Verizon
+                    - carrierid: 3
+                      name: Sprint
+                    - carrierid: 4
+                      name: T-Mobile
+                    - carrierid: 5
+                      name: Cricket
+components:
+  parameters:
+    method:
+      name: method
+      in: query
+      required: true
+      description: Method
+      schema:
+        type: string
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: query
+      name: seskey
+x-tagGroups:
+- name: Data Input and Output
+  tags:
+  - Auth
+  - Email
+  - Panel
+  - Panelist
+  - Points
+  - Quickpoll
+  - Redemption
+  - Reward
+  - Survey
+  - System

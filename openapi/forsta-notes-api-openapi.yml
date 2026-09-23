@@ -1,0 +1,264 @@
+openapi: 3.2.0
+info:
+  title: Integration Notes API
+  version: ''
+servers:
+- url: https://{server}
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: staging.panel.dev.focusvision.com/
+      description: Server domain
+tags:
+- name: Notes
+paths:
+  /api/integration/panels/{panelId}/panelists/{panelistHash}/notes:
+    get:
+      operationId: panelistNoteGetNotes
+      summary: Retrieve Notes for a given panelist
+      description: Results are ordered by id ascending. Newest notes are returned last.
+      tags:
+      - Notes
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: panelId
+        in: path
+        description: A panel Id.
+        schema:
+          type: integer
+        required: true
+      - name: panelistHash
+        in: path
+        description: A panelist hash.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    note:
+                      type: string
+                example:
+                - id: 12
+                  note: note 1
+                - id: 15
+                  note: note 2
+        '404':
+          description: The panel id or panelist identifier was not found. The error message should provide detail about which parameter failed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                example:
+                  error: Panel not found
+    post:
+      operationId: panelistNoteCreateNote
+      summary: Create a note for a given panelist
+      tags:
+      - Notes
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: panelId
+        in: path
+        description: A panel Id.
+        schema:
+          type: integer
+        required: true
+      - name: panelistHash
+        in: path
+        description: A panelist hash.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                note:
+                  type: string
+                  description: Note text
+              required:
+              - note
+            example:
+              note: Text to add
+      responses:
+        '201':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                example:
+                  id: 12
+        '400':
+          description: Invalid note was passed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                example:
+                  error: Invalid note
+        '404':
+          description: The panel id, panelist identifier or note id was not found. The error message should provide detail about which parameter failed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                example:
+                  error: Panel not found
+  /api/integration/panels/{panelId}/panelists/{panelistHash}/notes/{noteId}:
+    put:
+      operationId: panelistNoteModifyNote
+      summary: Change the text for a given panelist note
+      tags:
+      - Notes
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: panelId
+        in: path
+        description: A panel Id.
+        schema:
+          type: integer
+        required: true
+      - name: panelistHash
+        in: path
+        description: A panelist hash.
+        required: true
+        schema:
+          type: string
+      - name: noteId
+        in: path
+        description: Note Id.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                note:
+                  type: string
+                  description: Note text
+              required:
+              - note
+            example:
+              note: Text to update
+      responses:
+        '204':
+          description: No response
+        '400':
+          description: Invalid note was passed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                example:
+                  error: Invalid note
+        '404':
+          description: The panel id, panelist identifier or note id was not found. The error message should provide detail about which parameter failed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                example:
+                  error: Panel not found
+    delete:
+      operationId: panelistNoteDeleteNote
+      summary: Delete a given panelist note
+      tags:
+      - Notes
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: panelId
+        in: path
+        description: A panel Id.
+        schema:
+          type: integer
+        required: true
+      - name: panelistHash
+        in: path
+        description: A panelist hash.
+        required: true
+        schema:
+          type: string
+      - name: noteId
+        in: path
+        description: Note Id.
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: No response.
+        '404':
+          description: The panel id, panelist identifier or note id was not found. The error message should provide detail about which parameter failed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                example:
+                  error: Panel not found
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+    ApiKey:
+      type: apiKey
+      in: query
+      name: sesKey
+x-tagGroups:
+- name: Data Input and Output
+  tags:
+  - Auth
+  - Campaign
+  - Category
+  - Community
+  - Datapoint
+  - Panel
+  - Notes
+  - Panelist
+  - Project
+  - Reminder
+  - Sample
+  - Session
+  - Survey
+  - Token

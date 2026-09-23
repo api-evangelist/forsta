@@ -1,0 +1,494 @@
+openapi: 3.2.0
+info:
+  title: Decipher Rest System Information API
+  version: '1.0'
+  description: The Decipher REST API allows comprehensive automation of your private or shared Decipher instance.
+servers:
+- url: https://{server}/api/v1
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: selfserve.decipherinc.com
+      description: Server domain
+security:
+- APIKey: []
+tags:
+- name: System Information
+paths:
+  /sysinfo:
+    get:
+      operationId: getSysinfo
+      summary: Get system information
+      description: 'Retrieve interesting data about the current version of Beacon software as
+
+        well as the hardware. Requires Staff.'
+      tags:
+      - System Information
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  autoDeploy:
+                    type: boolean
+                    description: flag that informs whether the deployment is automatic
+                  timezone:
+                    type: string
+                    description: server timezone
+                  appliedDefaults:
+                    type: array
+                    description: Values that were set from default system metadata values
+                  production:
+                    type: boolean
+                    description: flag that informs if is production server
+                  lastDeploy:
+                    type: string
+                    description: the date of the last deployment
+                  changeset:
+                    type: string
+                    description: 'internal version control ID describing the exact software
+
+                      version
+
+                      '
+                  clientContact:
+                    type: string
+                    description: who at the client is responsible for the server
+                  client:
+                    type: string
+                    description: 'Name of the client (i.e. company we run this Beacon instance
+
+                      for)
+
+                      '
+                  cloudfront:
+                    type: string
+                    description: URL of the Amazon Cloudfront host used if any
+                  coordinates:
+                    type: array
+                    items:
+                      type: number
+                    description: latitude and longitude for the server's location
+                  cpuCount:
+                    type: integer
+                    description: number of virtual CPUs
+                  cpu:
+                    type: string
+                    description: CPU used in the server
+                  datacenter:
+                    type: string
+                    description: the codename for ISP's datacenter
+                  decipherContact:
+                    type: string
+                    description: 'who at Decipher is responsible for the server (typically
+
+                      account manager)
+
+                      '
+                  development:
+                    type: boolean
+                    description: is this a development instance?
+                  disk:
+                    type: object
+                    description: disk space available on disks used by Beacon.
+                    properties:
+                      bytes:
+                        type: integer
+                      freeInodes:
+                        type: integer
+                      freeBytes:
+                        type: integer
+                  evalErrors:
+                    type: string
+                    description: email address for delivering survey-level errors
+                  geoip:
+                    type: boolean
+                    description: Does this server have a geoIP license?
+                  hostname:
+                    type: string
+                    description: internal host name
+                  hostmap:
+                    type: string
+                    description: "A space-separated list of additional hostnames that support valid \nHTTPS connections to this server.\n"
+                  instance:
+                    type: string
+                    description: 'The instance is the instance you''re currently interacting with,
+
+                      typically always "v2"
+
+                      '
+                  instances:
+                    type: string
+                    description: List of all the instances on the given server
+                  isp:
+                    type: string
+                    description: 'Name of the ISP used to host the server (e.g. "Rackspace")
+
+                      '
+                  MAX_COMPAT:
+                    type: integer
+                    description: maximum compat level for surveys
+                  memoryFree:
+                    type: integer
+                    description: Free memory (unused memory plus buffers and cache)
+                  memoryTotal:
+                    type: integer
+                    description: Total amount of installed memory (in kiloBytes)
+                  oauth2:
+                    type: boolean
+                    description: Is Oauth2 authentication enabled?
+                  protos:
+                    type: boolean
+                    description: is the PRO-T-S system enabled?
+                  release:
+                    type: integer
+                    description: release number (e.g. Beacon 25 is returned as 25)
+                  saml:
+                    type: boolean
+                    description: Is SAML2 authentication enabled?
+                  secure:
+                    type: string
+                    description: base secure URL (normally the https version of url)
+                  systemErrors:
+                    type: string
+                    description: email address for delivering system-level errors
+                  uglify:
+                    type: boolean
+                    description: 'post-process Javascript files using jsuglify to optimize them
+
+                      '
+                  url:
+                    type: string
+                    description: base URL prefixed to any pages such as /survey
+              example:
+                changeset: 20cff65b27677f4268752038f3e638315221845b
+                secure: https://yourserver.example.com
+                evalErrors: hermes-eval-errors@decipherinc.com
+                decipherContact: helpdesk@decipherinc.com
+                MAX_COMPAT: 146
+                instances: main
+                protos: true
+                hostname: yourserver.example.com
+                disk:
+                  /home/hermes/v2:
+                    bytes: 127990572777472
+                    freeInodes: 4882132894
+                    freeBytes: 110302574149632
+                uglify: true
+                saml: false
+                coordinates:
+                - 41.9932891
+                - -87.9577367
+                instance: v2
+                systemErrors: hermes-system-errors@decipherinc.com
+                development: false
+                cloudfront: yourserver.surveyfiles.com
+                hostmap: survey.nocompany.com survey.example.com
+                cpuCount: 8
+                datacenter: ORD
+                oauth2: true
+                url: http://yourserver.example.com
+                geoip: true
+                memoryTotal: 6092576
+                isp: Rackspace
+                client: Your Company
+                memoryFree: 5509596
+                release: 46
+                cpu: Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz
+                clientContact: helpdesk@example.com
+                autoDeploy: false
+                timezone: PDT
+                appliedDefaults: []
+                production: false
+                lastDeploy: Wed Jun 18 09:59:19 2025
+    put:
+      operationId: updateSysinfo
+      summary: Update system information
+      description: 'This can be used to modify the configurable settings such as client name,
+
+        client contact etc.'
+      tags:
+      - System Information
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                values:
+                  description: 'object containing the new values. Values not referenced are left
+
+                    unchanged.
+
+                    '
+                  type: object
+              required:
+              - values
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+  /sysinfo/config:
+    get:
+      operationId: getSysinfoConfig
+      summary: Get system configuration
+      description: Retrieve relevant configuration settings from the server
+      tags:
+      - System Information
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  STRIKES:
+                    type: integer
+                    description: Number of times a client can exceed spam rating for a list before the client is blocked.
+                    example: 3
+                  dateFormat:
+                    type: string
+                    description: Default date format for data downloads.
+                    example: '%m/%d/%Y %H:%M'
+                  enableCachedVersioning:
+                    type: boolean
+                    description: Rewrites static URLs to a subdirectory with no expiry.
+                    example: false
+                  errorTargetEval:
+                    type: string
+                    description: Mailing list for survey errors.
+                    example: eval-errors@mail.com
+                  errorTargetSystem:
+                    type: string
+                    description: Mailing list for survey errors.
+                    example: system-errors@mail.com
+                  maxReportMemory:
+                    type: integer
+                    description: A limit on virtual memory usage per process is imposed.
+                    example: 8000
+                  maxSurveyMemory:
+                    type: integer
+                    description: A limit on virtual memory usage that applies to survey processes only.
+                    example: 4000
+                  rebrandCname:
+                    type: object
+                    description: Maps domains to the directory name containing an nstyles file to use for rebranding.
+                    example: {}
+                  retention.audit.performance:
+                    type: integer
+                    description: Internal performance storage retention.
+                    example: 180
+                  retention.audit.respondent:
+                    type: integer
+                    description: Respondent accounting data retention.
+                    example: 1095
+                  retention.survey.abandoned:
+                    type: integer
+                    description: A survey that has been abandoned in the UI. Its directory is archived after this number of days.
+                    example: 21
+                  retention.survey.archived:
+                    type: integer
+                    description: Files archived are erased after this number of days. Set to None to disable
+                    example: 365
+                  retention.survey.data_mode_only:
+                    type: integer
+                    description: Number of days to retain data mode (no xml) surveys.
+                    example: 1
+                  retention.survey.deleted_data:
+                    type: integer
+                    description: Number of days to retain deleted respondent data in Delphi surveys.
+                    example: 30
+                  retention.survey.main:
+                    type: integer
+                    description: Number of days after which a non-temporary survey CAN be archived.
+                    example: 270
+                  retention.survey.state.complete:
+                    type: integer
+                    description: For Delphi surveys, retain completed data records for this number of days.
+                    example: 21
+                  retention.survey.state.partial:
+                    type: integer
+                    description: For Delphi surveys only, how long to retain non-final state for partial respondents.
+                    example: 90
+                  retention.survey.temp_directories:
+                    type: integer
+                    description: Number of days after which a temporary survey CAN be archived.
+                    example: 21
+                  retention.survey.unsent_lists:
+                    type: integer
+                    description: Number of days to retain unsent bulk email lists.
+                    example: 30
+                  secureHostMap:
+                    type: object
+                    description: Domains with https support.
+                    example: {}
+                  sharedUsersCanWrite:
+                    type: boolean
+                    description: Set to True to enable granting write access to a shared user to a project.
+                    example: false
+                  unsafeQuote:
+                    type: boolean
+                    description: Interpolating extra variables in Python code quotes them by default. Setting this to True allows legacy unsafe behaviour.
+                    example: false
+                  userRetentionDays:
+                    type: integer
+                    description: Users that do not login after this number of days are disabled.
+                    example: 180
+components:
+  securitySchemes:
+    APIKey:
+      type: apiKey
+      in: header
+      name: x-apikey
+      description: 'In order to access the api, you''ll need to generate an API key. Refer to the
+
+        instructions [here](/docs/decipher/api#section/API-Keys) to generate and
+
+        configure an API key with the appropriate permission sets. You can generate
+
+        as many keys as required.
+
+
+        Configure each request to include your API key in the request header. For example:
+
+
+        ```
+
+        x-apikey: dp48ss3mgsaucyjtybxw728h7s4cgnwzhejtszdwhf4xpe8yhmtdwpk2ntdhtwbs
+
+        ```
+
+        '
+x-tagGroups:
+- name: Autoclose
+  tags:
+  - Autoclose
+- name: Data Input and Output
+  tags:
+  - Data
+  - Data Feed
+  - Response Summary
+  - Modifying Data
+  - Datasources
+  - Datasources Data
+  - Umerge
+- name: Survey Metadata
+  tags:
+  - Simulated Data
+  - Survey State
+  - Survey Evaluate
+  - Survey Quotas
+  - Survey Files
+  - Survey Warnings
+  - Survey Terms
+  - Survey Subscribers
+  - Survey Users
+  - Survey Tasks
+- name: Panels
+  tags:
+  - Panel Data
+  - Panel Datapoints
+  - Survey Panels
+- name: Research Hub
+  tags:
+  - Users
+  - Companies
+  - Categories
+  - Surveys
+  - Panels
+  - Crosstabs
+  - Archives
+  - Archival Reports
+  - API Keys
+  - Usage
+  - Warnings Summary
+- name: Crosstabs
+  tags:
+  - Crosstabs Configuration
+  - Crosstabs Execution
+  - Crosstabs Nets
+  - Saved Crosstabs
+  - Crosstabs Table Settings
+  - Crosstabs Validation
+  - Crosstabs Rim Weighting
+- name: Dashboards
+  tags:
+  - Dashboards
+- name: DQ APIs
+  tags:
+  - DQ-Specific API Calls
+  - MaxDiff API Calls
+  - Discrete Choice Model API Calls
+  - Media Testimonial API Calls
+- name: Response Summary
+  tags:
+  - Share Link
+- name: Sample Management
+  tags:
+  - Bounced Emails
+  - Participant Sources
+- name: Distribution
+  tags:
+  - Email Distribution
+  - SFTP Distribution
+  - Slack Distribution
+- name: Campaign Manager
+  tags:
+  - Campaigns
+  - Campaign Email Invites
+  - Campaign Exports
+  - Campaign Lists
+  - Shared Campaign Lists
+  - Campaign Sends
+  - Campaign Status Lists
+  - Supression Lists
+- name: Question Library
+  tags:
+  - Company Element
+  - Company Elements
+  - Survey Elements
+  - Survey Element Report Settings
+- name: Language Manager
+  tags:
+  - LM Application Data
+  - LM Application Translations
+  - Translation Resources
+  - Translations
+  - Translation Deltas
+  - Translation Reservations
+  - Primary Survey Language
+  - Other Survey Languages
+  - Unused Survey Languages
+- name: Project Parameters
+  tags:
+  - Available Project Parameters
+  - Saved Project Parameters
+  - Project Parameters Configuration
+- name: Multi-User Editing
+  tags:
+  - Available Sections
+  - Check Out Section
+  - Check In Section
+  - Sync Section
+  - Section Editor
+  - Abandon Section
+  - Validate Section
+- name: Video Management
+  tags:
+  - Videos
+  - Watermarked Videos
+- name: Miscellaneous
+  tags:
+  - System Information
+  - Logic Nodes
+  - Logic Events
+  - CATI
+  - Global Search
+  - Miscellaneous

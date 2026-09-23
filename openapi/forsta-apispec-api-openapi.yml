@@ -1,0 +1,169 @@
+openapi: 3.2.0
+info:
+  version: 1.0-beta
+  title: Sample Marketplace Partner Setup API Spec API
+  description: '# Summary
+
+
+    This document describes the endpoints used to manage vendor configurations
+
+    within the Sample Marketplace.'
+servers:
+- url: https://eks.us-west-2.fvdev.net/smp-partner-service
+  description: Staging Environment
+- url: https://us-west-2-eks.aws.focusvision.com/smp-partner-service
+  description: Production Environment
+tags:
+- name: APISpec
+paths:
+  /v1.0/app/apispec:
+    get:
+      summary: Get your app's current API Configuration
+      tags:
+      - APISpec
+      description: This returns the current configuration of your app's API used in the marketplace. The API must conform to the specifications laid out in the API contract, including implementing an OAuth2 client credentials flow and endpoints for the required resources.
+      security:
+      - OAuth2: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/API'
+        '401':
+          $ref: '#/components/responses/401'
+        '500':
+          $ref: '#/components/responses/500'
+      operationId: getV10AppApispec
+      x-operation-id-source: derived
+    patch:
+      summary: Merge update a vendor's API Configuration
+      tags:
+      - APISpec
+      description: This performs a JSON Merge Patch on your app's API configuration. Note that when updating this spec, the contract version is required to match the latest version of the API contract.
+      security:
+      - OAuth2: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/API'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/API'
+        '401':
+          $ref: '#/components/responses/401'
+        '500':
+          $ref: '#/components/responses/500'
+      operationId: patchV10AppApispec
+      x-operation-id-source: derived
+components:
+  responses:
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                description: Error code and message
+                properties:
+                  status:
+                    type: string
+                    description: HTTP status Code
+                    enum:
+                    - 500
+                  message:
+                    type: string
+                    description: Status message
+                    enum:
+                    - Internal Server Error
+    '401':
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                description: Error code and message
+                properties:
+                  status:
+                    type: string
+                    description: HTTP status Code
+                    enum:
+                    - 401
+                  message:
+                    type: string
+                    example: Unauthorized
+                    description: Status message
+                    enum:
+                    - Unauthorized
+  schemas:
+    API:
+      type: object
+      properties:
+        contract_version:
+          type: number
+          format: integer
+          description: Version of the API Contract this API implements
+          enum:
+          - 1
+          example: 1
+        authentication:
+          type: object
+          description: OAuth2 client credentials flow
+          properties:
+            client_id:
+              type: string
+              example: l534nhacd9sdc
+              description: Client id to use during authentication
+            client_secret:
+              type: string
+              example: nc79wm2k4jbcus7ql2p4kxbhdh4842k
+              description: Client secret to use during authentication
+            token_link:
+              type: string
+              format: URI
+              example: https://focusvision.com/fvsmp/oauth2/token
+              description: URI used to obtain a token from via client credentials OAuth2 flow
+        resources:
+          type: object
+          description: Endpoints for the different system resources
+          properties:
+            estimates:
+              type: string
+              format: URI
+              example: https://focusvision.com/fvsmp/estimates
+              description: URI used for the estimates resource
+            projects:
+              type: string
+              format: URI
+              example: https://focusvision.com/fvsmp/projects
+              description: URI used for the projects resource
+            samples:
+              type: string
+              format: URI
+              example: https://focusvision.com/fvsmp/samples
+              description: URI used for the samples resource
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      description: See https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html
+      flows:
+        clientCredentials:
+          tokenUrl: /oauth2/token/
+          scopes: {}
+      x-tokenInfoFunc: demo.token_auth
+    BasicAuth:
+      type: http
+      scheme: basic
+      x-basicInfoFunc: demo.basic_auth

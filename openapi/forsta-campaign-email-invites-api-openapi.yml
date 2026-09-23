@@ -1,0 +1,735 @@
+openapi: 3.2.0
+info:
+  title: Decipher Rest Campaign Email Invites API
+  version: '1.0'
+  description: The Decipher REST API allows comprehensive automation of your private or shared Decipher instance.
+servers:
+- url: https://{server}/api/v1
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: selfserve.decipherinc.com
+      description: Server domain
+security:
+- APIKey: []
+tags:
+- name: Campaign Email Invites
+paths:
+  /surveys/{survey}/campaigns/{campaign}/invite:
+    get:
+      operationId: getSurveyCampaignInvite
+      summary: Get Invite
+      description: Retrieve the content body and other attributes of the email invite and of the reminder email.
+      tags:
+      - Campaign Email Invites
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      - name: campaign
+        description: ID of the campaign.
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    description: Content of the email to use for the email campaign.
+                    type: string
+                  reminder:
+                    description: 'Content of the reminder email to use for any reminder email sends.
+
+                      '
+                    type: string
+                  subject:
+                    description: Subject line of the email.
+                    type: string
+                  reminder_subject:
+                    description: Subject line of the reminder email.
+                    type: string
+                  fromName:
+                    description: Sender name to use when sending emails.
+                    type: string
+                  reminder_fromName:
+                    description: Sender name to use when sending reminder emails.
+                    type: string
+                  fromAddress:
+                    description: Sender email address to use when sending emails, must be an email address that the user and project has permission to send emails from.
+                    type: string
+                  reminder_fromAddress:
+                    description: Sender email address to use when sending reminder emails, must be an email address that the user and project has permission to send emails from.
+                    type: string
+                  replyTo:
+                    description: Reply-To email address to use when sending emails, must be a valid email address.
+                    type: string
+                  reminder_replyTo:
+                    description: Reply-To email address to use when sending reminder emails, must be a valid email address.
+                    type: string
+                  styles:
+                    description: Edits email styling.
+                    type: object
+                    properties:
+                      emailBackgroundColor:
+                        description: Changes the color that appears behind the framed body of the email, in the background.
+                        type: string
+                      emailForegroundColor:
+                        description: Changes the color that appears behind the text, in the foreground.
+                        type: string
+                      linkTextColor:
+                        description: Updates the color of the survey and opt-out links in the email.
+                        type: string
+                  reminder_styles:
+                    description: Edits reminder email styling.
+                    type: object
+                    properties:
+                      emailBackgroundColor:
+                        description: Changes the color that appears behind the framed body of the email, in the background.
+                        type: string
+                      emailForegroundColor:
+                        description: Changes the color that appears behind the text, in the foreground.
+                        type: string
+                      linkTextColor:
+                        description: Updates the color of the survey and opt-out links in the email.
+                        type: string
+              example:
+                content: '<div style="margin:0 auto;">
+
+                  <div id="emailBody" style="min-width: 240px; max-width: 780px; display: block; margin: 0 auto; padding: 20px;">
+
+                  <p style="text-align: left;">
+
+                  Dear Sir or Madam,
+
+                  <br /><br />
+
+                  We are conducting research on your usage of our products and services.  This is your chance to make a difference in the way we do business.  Please take a moment to fill out this short survey.   Your answers will only be used in aggregate, and no personal information will be shared independent of the aggregated results.  Please be honest, as we take your answers and suggestions to heart.
+
+                  <br /><br />
+
+                  Click below to get started:
+
+                  </p>
+
+                  <p style="text-align: center;">
+
+                  <a href="[surveyLink]">Take our survey</a><br/>
+
+                  </p>
+
+                  <p style="text-align: center;">
+
+                  Research By Example | 1234 N Main St. | Anytown, CA 22313
+
+                  </p>
+
+                  <p style="text-align: center;">
+
+                  <span style="font-size: 11px;">
+
+                  If you no longer wish to receive these emails, you may unsubscribe by clicking <a
+
+                  href="[optOutLink]">here</a>.
+
+                  </span>
+
+                  </p>
+
+                  </div>
+
+                  </div>
+
+                  &nbsp; <br/>'
+                reminder: '<div style="margin:0 auto;">
+
+                  <div id="emailBody" style="min-width: 240px; max-width: 780px; display: block; margin: 0 auto; padding: 20px;">
+
+                  <p style="text-align: left;">
+
+                  Dear Sir or Madam,
+
+                  <br /><br />
+
+                  We are conducting research on your usage of our products and services.  This is your chance to make a difference in the way we do business.  Please take a moment to fill out this short survey.   Your answers will only be used in aggregate, and no personal information will be shared independent of the aggregated results.  Please be honest, as we take your answers and suggestions to heart.
+
+                  <br /><br />
+
+                  Click below to get started:
+
+                  </p>
+
+                  <p style="text-align: center;">
+
+                  <a href="[surveyLink]">Take our survey</a><br/>
+
+                  </p>
+
+                  <p style="text-align: center;">
+
+                  Research By Example | 1234 N Main St. | Anytown, CA 22313
+
+                  </p>
+
+                  <p style="text-align: center;">
+
+                  <span style="font-size: 11px;">
+
+                  If you no longer wish to receive these emails, you may unsubscribe by clicking <a
+
+                  href="[optOutLink]">here</a>.
+
+                  </span>
+
+                  </p>
+
+                  </div>
+
+                  </div>
+
+                  &nbsp; <br/>'
+                subject: Share your feedback
+                reminder_subject: Reminder -- Share your feedback
+                fromName: Forsta
+                reminder_fromName: Forsta
+                fromAddress: invite@decipherinc.com
+                reminder_fromAddress: invite@decipherinc.com
+                replyTo: invite@decipherinc.com
+                reminder_replyTo: invite@decipherinc.com
+                styles:
+                  emailBackgroundColor: '#002F4D'
+                  emailForegroundColor: red
+                  linkTextColor: blue
+                reminder_styles:
+                  emailBackgroundColor: '#002F4D'
+                  emailForegroundColor: red
+                  linkTextColor: blue
+    put:
+      operationId: editSurveyCampaignInvite
+      summary: Edit Invite
+      description: 'Update the content body and other attributes of the email invite or of the reminder email. Note
+
+        that the invite content that is used for any in-progress sends are not
+
+        editable until the send is either cancelled or completed.'
+      tags:
+      - Campaign Email Invites
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      - name: campaign
+        description: ID of the campaign.
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  description: Content of the email to use for the email campaign.
+                  type: string
+                  example: '<div style="margin:0 auto;">
+
+                    <div id="emailBody" style="min-width: 240px; max-width: 780px; display: block; margin: 0 auto; padding: 20px;">
+
+                    <p style="text-align: left;">
+
+                    Dear Sir or Madam,
+
+                    <br /><br />
+
+                    We are conducting research on your usage of our products and services.  This is your chance to make a difference in the way we do business.  Please take a moment to fill out this short survey.   Your answers will only be used in aggregate, and no personal information will be shared independent of the aggregated results.  Please be honest, as we take your answers and suggestions to heart.
+
+                    <br /><br />
+
+                    Click below to get started:
+
+                    </p>
+
+                    <p style="text-align: center;">
+
+                    <a href="[surveyLink]">Take our survey</a><br/>
+
+                    </p>
+
+                    <p style="text-align: center;">
+
+                    Research By Example | 1234 N Main St. | Anytown, CA 22313
+
+                    </p>
+
+                    <p style="text-align: center;">
+
+                    <span style="font-size: 11px;">
+
+                    If you no longer wish to receive these emails, you may unsubscribe by clicking <a
+
+                    href="[optOutLink]">here</a>.
+
+                    </span>
+
+                    </p>
+
+                    </div>
+
+                    </div>
+
+                    &nbsp; <br/>'
+                reminder:
+                  description: Content of the reminder email to use for any reminder email sends.
+                  type: string
+                  example: '<div style="margin:0 auto;">
+
+                    <div id="emailBody" style="min-width: 240px; max-width: 780px; display: block; margin: 0 auto; padding: 20px;">
+
+                    <p style="text-align: left;">
+
+                    Dear Sir or Madam,
+
+                    <br /><br />
+
+                    We are conducting research on your usage of our products and services.  This is your chance to make a difference in the way we do business.  Please take a moment to fill out this short survey.   Your answers will only be used in aggregate, and no personal information will be shared independent of the aggregated results.  Please be honest, as we take your answers and suggestions to heart.
+
+                    <br /><br />
+
+                    Click below to get started:
+
+                    </p>
+
+                    <p style="text-align: center;">
+
+                    <a href="[surveyLink]">Take our survey</a><br/>
+
+                    </p>
+
+                    <p style="text-align: center;">
+
+                    Research By Example | 1234 N Main St. | Anytown, CA 22313
+
+                    </p>
+
+                    <p style="text-align: center;">
+
+                    <span style="font-size: 11px;">
+
+                    If you no longer wish to receive these emails, you may unsubscribe by clicking <a
+
+                    href="[optOutLink]">here</a>.
+
+                    </span>
+
+                    </p>
+
+                    </div>
+
+                    </div>
+
+                    &nbsp; <br/>'
+                subject:
+                  description: Subject line of the email.
+                  type: string
+                  example: Share your feedback
+                reminder_subject:
+                  description: Subject line of the reminder email.
+                  type: string
+                  example: Reminder -- Share your feedback
+                fromName:
+                  description: Sender name to use when sending emails.
+                  type: string
+                  example: Forsta
+                reminder_fromName:
+                  description: Sender name to use when sending reminder emails.
+                  type: string
+                  example: Forsta
+                fromAddress:
+                  description: Sender email address to use when sending emails, must be an email address that the user and project has permission to send emails from.
+                  type: string
+                  example: invite@decipherinc.com
+                reminder_fromAddress:
+                  description: Sender email address to use when sending reminder emails, must be an email address that the user and project has permission to send emails from.
+                  type: string
+                  example: invite@decipherinc.com
+                replyTo:
+                  description: Reply-To email address to use when sending emails, must be a valid email address.
+                  type: string
+                  example: invite@decipherinc.com
+                reminder_replyTo:
+                  description: Reply-To email address to use when sending reminder emails, must be a valid email address.
+                  type: string
+                  example: invite@decipherinc.com
+                styles:
+                  description: Edits email styling.
+                  type: object
+                  properties:
+                    emailBackgroundColor:
+                      description: Changes the color that appears behind the framed body of the email, in the background.
+                      type: string
+                      example: '#002F4D'
+                    emailForegroundColor:
+                      description: Changes the color that appears behind the text, in the foreground.
+                      type: string
+                      example: red
+                    linkTextColor:
+                      description: Updates the color of the survey and opt-out links in the email.
+                      type: string
+                      example: blue
+                reminder_styles:
+                  description: Edits reminder email styling.
+                  type: object
+                  properties:
+                    emailBackgroundColor:
+                      description: Changes the color that appears behind the framed body of the email, in the background.
+                      type: string
+                      example: '#002F4D'
+                    emailForegroundColor:
+                      description: Changes the color that appears behind the text, in the foreground.
+                      type: string
+                      example: red
+                    linkTextColor:
+                      description: Updates the color of the survey and opt-out links in the email.
+                      type: string
+                      example: blue
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    description: Content of the email to use for the email campaign.
+                    type: string
+                  reminder:
+                    description: 'Content of the reminder email to use for any reminder email sends.
+
+                      '
+                    type: string
+                  subject:
+                    description: Subject line of the email.
+                    type: string
+                  reminder_subject:
+                    description: Subject line of the reminder email.
+                    type: string
+                  fromName:
+                    description: Sender name to use when sending emails.
+                    type: string
+                  reminder_fromName:
+                    description: Sender name to use when sending reminder emails.
+                    type: string
+                  fromAddress:
+                    description: Sender email address to use when sending emails, must be an email address that the user and project has permission to send emails from.
+                    type: string
+                  reminder_fromAddress:
+                    description: Sender email address to use when sending reminder emails, must be an email address that the user and project has permission to send emails from.
+                    type: string
+                  replyTo:
+                    description: Reply-To email address to use when sending emails, must be a valid email address.
+                    type: string
+                  reminder_replyTo:
+                    description: Reply-To email address to use when sending reminder emails, must be a valid email address.
+                    type: string
+                  styles:
+                    description: Edits email styling.
+                    type: object
+                    properties:
+                      emailBackgroundColor:
+                        description: Changes the color that appears behind the framed body of the email, in the background.
+                        type: string
+                      emailForegroundColor:
+                        description: Changes the color that appears behind the text, in the foreground.
+                        type: string
+                      linkTextColor:
+                        description: Updates the color of the survey and opt-out links in the email.
+                        type: string
+                  reminder_styles:
+                    description: Edits reminder email styling.
+                    type: object
+                    properties:
+                      emailBackgroundColor:
+                        description: Changes the color that appears behind the framed body of the email, in the background.
+                        type: string
+                      emailForegroundColor:
+                        description: Changes the color that appears behind the text, in the foreground.
+                        type: string
+                      linkTextColor:
+                        description: Updates the color of the survey and opt-out links in the email.
+                        type: string
+              example:
+                content: '<div style="margin:0 auto;">
+
+                  <div id="emailBody" style="min-width: 240px; max-width: 780px; display: block; margin: 0 auto; padding: 20px;">
+
+                  <p style="text-align: left;">
+
+                  Dear Sir or Madam,
+
+                  <br /><br />
+
+                  We are conducting research on your usage of our products and services.  This is your chance to make a difference in the way we do business.  Please take a moment to fill out this short survey.   Your answers will only be used in aggregate, and no personal information will be shared independent of the aggregated results.  Please be honest, as we take your answers and suggestions to heart.
+
+                  <br /><br />
+
+                  Click below to get started:
+
+                  </p>
+
+                  <p style="text-align: center;">
+
+                  <a href="[surveyLink]">Take our survey</a><br/>
+
+                  </p>
+
+                  <p style="text-align: center;">
+
+                  Research By Example | 1234 N Main St. | Anytown, CA 22313
+
+                  </p>
+
+                  <p style="text-align: center;">
+
+                  <span style="font-size: 11px;">
+
+                  If you no longer wish to receive these emails, you may unsubscribe by clicking <a
+
+                  href="[optOutLink]">here</a>.
+
+                  </span>
+
+                  </p>
+
+                  </div>
+
+                  </div>
+
+                  &nbsp; <br/>'
+                reminder: '<div style="margin:0 auto;">
+
+                  <div id="emailBody" style="min-width: 240px; max-width: 780px; display: block; margin: 0 auto; padding: 20px;">
+
+                  <p style="text-align: left;">
+
+                  Dear Sir or Madam,
+
+                  <br /><br />
+
+                  We are conducting research on your usage of our products and services.  This is your chance to make a difference in the way we do business.  Please take a moment to fill out this short survey.   Your answers will only be used in aggregate, and no personal information will be shared independent of the aggregated results.  Please be honest, as we take your answers and suggestions to heart.
+
+                  <br /><br />
+
+                  Click below to get started:
+
+                  </p>
+
+                  <p style="text-align: center;">
+
+                  <a href="[surveyLink]">Take our survey</a><br/>
+
+                  </p>
+
+                  <p style="text-align: center;">
+
+                  Research By Example | 1234 N Main St. | Anytown, CA 22313
+
+                  </p>
+
+                  <p style="text-align: center;">
+
+                  <span style="font-size: 11px;">
+
+                  If you no longer wish to receive these emails, you may unsubscribe by clicking <a
+
+                  href="[optOutLink]">here</a>.
+
+                  </span>
+
+                  </p>
+
+                  </div>
+
+                  </div>
+
+                  &nbsp; <br/>'
+                subject: Share your feedback
+                reminder_subject: Reminder -- Share your feedback
+                fromName: Forsta
+                reminder_fromName: Forsta
+                fromAddress: invite@decipherinc.com
+                reminder_fromAddress: invite@decipherinc.com
+                replyTo: invite@decipherinc.com
+                reminder_replyTo: invite@decipherinc.com
+                styles:
+                  emailBackgroundColor: '#002F4D'
+                  emailForegroundColor: red
+                  linkTextColor: blue
+                reminder_styles:
+                  emailBackgroundColor: '#002F4D'
+                  emailForegroundColor: red
+                  linkTextColor: blue
+components:
+  parameters:
+    survey:
+      name: survey
+      in: path
+      required: true
+      description: The survey path.
+      example: selfserve/1a/123456
+      schema:
+        type: string
+        format: uri
+  securitySchemes:
+    APIKey:
+      type: apiKey
+      in: header
+      name: x-apikey
+      description: 'In order to access the api, you''ll need to generate an API key. Refer to the
+
+        instructions [here](/docs/decipher/api#section/API-Keys) to generate and
+
+        configure an API key with the appropriate permission sets. You can generate
+
+        as many keys as required.
+
+
+        Configure each request to include your API key in the request header. For example:
+
+
+        ```
+
+        x-apikey: dp48ss3mgsaucyjtybxw728h7s4cgnwzhejtszdwhf4xpe8yhmtdwpk2ntdhtwbs
+
+        ```
+
+        '
+x-tagGroups:
+- name: Autoclose
+  tags:
+  - Autoclose
+- name: Data Input and Output
+  tags:
+  - Data
+  - Data Feed
+  - Response Summary
+  - Modifying Data
+  - Datasources
+  - Datasources Data
+  - Umerge
+- name: Survey Metadata
+  tags:
+  - Simulated Data
+  - Survey State
+  - Survey Evaluate
+  - Survey Quotas
+  - Survey Files
+  - Survey Warnings
+  - Survey Terms
+  - Survey Subscribers
+  - Survey Users
+  - Survey Tasks
+- name: Panels
+  tags:
+  - Panel Data
+  - Panel Datapoints
+  - Survey Panels
+- name: Research Hub
+  tags:
+  - Users
+  - Companies
+  - Categories
+  - Surveys
+  - Panels
+  - Crosstabs
+  - Archives
+  - Archival Reports
+  - API Keys
+  - Usage
+  - Warnings Summary
+- name: Crosstabs
+  tags:
+  - Crosstabs Configuration
+  - Crosstabs Execution
+  - Crosstabs Nets
+  - Saved Crosstabs
+  - Crosstabs Table Settings
+  - Crosstabs Validation
+  - Crosstabs Rim Weighting
+- name: Dashboards
+  tags:
+  - Dashboards
+- name: DQ APIs
+  tags:
+  - DQ-Specific API Calls
+  - MaxDiff API Calls
+  - Discrete Choice Model API Calls
+  - Media Testimonial API Calls
+- name: Response Summary
+  tags:
+  - Share Link
+- name: Sample Management
+  tags:
+  - Bounced Emails
+  - Participant Sources
+- name: Distribution
+  tags:
+  - Email Distribution
+  - SFTP Distribution
+  - Slack Distribution
+- name: Campaign Manager
+  tags:
+  - Campaigns
+  - Campaign Email Invites
+  - Campaign Exports
+  - Campaign Lists
+  - Shared Campaign Lists
+  - Campaign Sends
+  - Campaign Status Lists
+  - Supression Lists
+- name: Question Library
+  tags:
+  - Company Element
+  - Company Elements
+  - Survey Elements
+  - Survey Element Report Settings
+- name: Language Manager
+  tags:
+  - LM Application Data
+  - LM Application Translations
+  - Translation Resources
+  - Translations
+  - Translation Deltas
+  - Translation Reservations
+  - Primary Survey Language
+  - Other Survey Languages
+  - Unused Survey Languages
+- name: Project Parameters
+  tags:
+  - Available Project Parameters
+  - Saved Project Parameters
+  - Project Parameters Configuration
+- name: Multi-User Editing
+  tags:
+  - Available Sections
+  - Check Out Section
+  - Check In Section
+  - Sync Section
+  - Section Editor
+  - Abandon Section
+  - Validate Section
+- name: Video Management
+  tags:
+  - Videos
+  - Watermarked Videos
+- name: Miscellaneous
+  tags:
+  - System Information
+  - Logic Nodes
+  - Logic Events
+  - CATI
+  - Global Search
+  - Miscellaneous

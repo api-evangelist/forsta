@@ -1,0 +1,478 @@
+openapi: 3.2.0
+info:
+  title: Decipher Rest Datasources API
+  version: '1.0'
+  description: The Decipher REST API allows comprehensive automation of your private or shared Decipher instance.
+servers:
+- url: https://{server}/api/v1
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: selfserve.decipherinc.com
+      description: Server domain
+security:
+- APIKey: []
+tags:
+- name: Data Sources
+  description: 'Create new questions in a survey (reporting or survey time).
+
+    This corresponds to Import Data Element.'
+paths:
+  /surveys/{survey}/datasources:
+    get:
+      operationId: getSurveyDatasources
+      summary: List datasources
+      description: Returns a list of current datasources and their data.
+      tags:
+      - Data Sources
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    ourKey:
+                      type: string
+                      example: source
+                    questions:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          label:
+                            type: string
+                            example: vq6
+                          type:
+                            type: string
+                            example: text
+                          title:
+                            type: string
+                            example: vq1
+                    reporting:
+                      type: boolean
+                    label:
+                      type: string
+                      example: ds5
+                    key:
+                      type: string
+                      example: source
+                    filename:
+                      type: string
+                      example: data_datasource_ds5.dat
+      x-codeSamples:
+      - lang: Curl
+        source: 'curl -H x-apikey: {api_key} -X GET {server}/api/v1/surveys/{survey}/datasources
+
+          '
+      - lang: Cli
+        source: 'beacon get surveys/{survey}/datasources > myfile.json
+
+          '
+  /surveys/{survey}/datasources/{datasource}:
+    get:
+      operationId: getSurveyDatasource
+      summary: Get datasource
+      description: 'Operates on one specific datasource. Datasources are identified
+
+        by an alphanumeric label which must not overlap with any labels
+
+        in the survey. First use `PUT` `surveys/.../datasources/label` to create
+
+        the datasource; then add data by targetting
+
+        `surveys/.../datasources/label/data`.'
+      tags:
+      - Data Sources
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      - $ref: '#/components/parameters/datasource'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ourKey:
+                    type: string
+                    example: source
+                  questions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        label:
+                          type: string
+                          example: vq6
+                        type:
+                          type: string
+                          example: text
+                        title:
+                          type: string
+                          example: vq1
+                  reporting:
+                    type: boolean
+                  label:
+                    type: string
+                    example: ds5
+                  key:
+                    type: string
+                    example: source
+      x-codeSamples:
+      - lang: Curl
+        source: 'curl -H x-apikey: {api_key} -X GET {server}/api/v1/surveys/{survey}/datasources/datasource
+
+          '
+      - lang: Cli
+        source: 'beacon get surveys/{survey}/datasources/datasource > myfile.json
+
+          '
+    put:
+      operationId: updateSurveyDatasource
+      summary: Create or update a datasource
+      description: 'When creating you decide what questions you have and whether they are virtual
+
+        or not and what the matching key is. You can modify existing sets converting
+
+        from real to virtual or vice versa, and deleting questions.
+
+
+        If you call PUT on an existing datasource, any attribute you specify
+
+        will be replaced with its new version. Any attribute not mention will
+
+        remain as is. Thus to add new questions, retrieve the original question
+
+        configuration with GET , append your new questions and PUT the new one.
+
+
+        Changes to questions for a datasource with reporting set to False,
+
+        or changes that set or clear reporting will require a live remerge.'
+      tags:
+      - Data Sources
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      - $ref: '#/components/parameters/datasource'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reporting:
+                  type: boolean
+                  description: If true, the data is merged as virtual questions. This minimize setup time in live surveys. If false, data is created as real question.  This requires a live merge.
+                elementOnly:
+                  type: boolean
+                  description: If true, new elements will be created but will not be populated with data from a datasource. Attributes key and ourKey may be omitted when this is true. Only valid when reporting=false.
+                  default: false
+                key:
+                  type: string
+                  description: The column in the data files uploaded that will be matched against our key.
+                ourKey:
+                  type: string
+                  description: The extraVariable or condition in the participant data that will be matched to the key.
+                questions:
+                  type: array
+                  description: An array of the questions that will belong to this datasource.
+                  items:
+                    type: object
+                    properties:
+                      label:
+                        type: string
+                        description: Required for new questions. When creating a new question this label will be the label of the new question.
+                      column:
+                        type: string
+                        description: The column in the data file to be used to read the data. It defaults to the question label, if not specified. This allows you differentiate between how the data file is labelled versus how the question in the survey is labelled. Note that if you use variables the column assign happens per variable.
+                      title:
+                        type: string
+                        description: Required for new questions. The title to appear in reports for this question.
+                      type:
+                        type: string
+                        description: 'Required for new questions.
+
+                          **single**
+
+                          - generates a “radio” question - single ordinal answer - you must declare one or more values
+
+                          **multiple**
+
+                          - generates a “checkbox” - multiple answers possible - you must declare one or more variables
+
+                          **number**
+
+                          - generates a “float” question - any number allowed
+
+                          **text**
+
+                          - generate a “text” question - any textual content allowed'
+                        enum:
+                        - single
+                        - multiple
+                        - number
+                        - text
+                      values:
+                        type: array
+                        description: Required for “single”.
+                        items:
+                          type: object
+                          properties:
+                            title:
+                              type: string
+                              description: Human readable title for this variable.
+                            value:
+                              oneOf:
+                              - type: string
+                              - type: integer
+                              description: 'The text that will be in uploaded data files that should
+
+                                match this answer. This can be a number (“1”) or any text
+
+                                (e.g. “male”). It is matched case insensitively, thus
+
+                                “MALE” in the input file will match a value of “male”.
+
+                                '
+                            statValue:
+                              type: integer
+                              description: 'This converts to our value attribute and is used for
+
+                                averages in reporting or the value shown when downloading
+
+                                data. Optional.
+
+                                '
+                      variables:
+                        type: array
+                        description: Required for “multiple”, optional for others. This allows creating multiple variables for this question rather than just a single one.
+                        items:
+                          type: object
+                          properties:
+                            title:
+                              type: string
+                              description: Human readable title for this variable.
+                            column:
+                              type: string
+                              description: The label containing the variable in the data file. Rather than pulling data from the question’s column/label, this variable will be read from this column. A separate question object should not be provided for the specified column.
+              required:
+              - reporting
+              - key
+              - ourKey
+              - questions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+      x-codeSamples:
+      - lang: Curl
+        source: 'curl -H x-apikey: {api_key} -X PUT {server}/api/v1/surveys/{survey}/datasources/datasource
+
+          '
+      - lang: Cli
+        source: 'beacon put surveys/{survey}/datasources/datasource
+
+          '
+    delete:
+      operationId: deleteSurveyDatasource
+      summary: Delete a datasource
+      description: Remove the datasource definition and blank out any uploaded data files.
+      tags:
+      - Data Sources
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      - $ref: '#/components/parameters/datasource'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+      x-codeSamples:
+      - lang: Curl
+        source: 'curl -H x-apikey: {api_key} -X DELETE {server}/api/v1/surveys/{survey}/datasources/datasource
+
+          '
+      - lang: Cli
+        source: 'beacon delete surveys/{survey}/datasources/datasource
+
+          '
+components:
+  parameters:
+    survey:
+      name: survey
+      in: path
+      required: true
+      description: The survey path.
+      example: selfserve/1a/123456
+      schema:
+        type: string
+        format: uri
+    datasource:
+      name: datasource
+      in: path
+      required: true
+      description: Datasource label, must be composed of a-zA-Z_ characters only
+      schema:
+        type: string
+  securitySchemes:
+    APIKey:
+      type: apiKey
+      in: header
+      name: x-apikey
+      description: 'In order to access the api, you''ll need to generate an API key. Refer to the
+
+        instructions [here](/docs/decipher/api#section/API-Keys) to generate and
+
+        configure an API key with the appropriate permission sets. You can generate
+
+        as many keys as required.
+
+
+        Configure each request to include your API key in the request header. For example:
+
+
+        ```
+
+        x-apikey: dp48ss3mgsaucyjtybxw728h7s4cgnwzhejtszdwhf4xpe8yhmtdwpk2ntdhtwbs
+
+        ```
+
+        '
+x-tagGroups:
+- name: Autoclose
+  tags:
+  - Autoclose
+- name: Data Input and Output
+  tags:
+  - Data
+  - Data Feed
+  - Response Summary
+  - Modifying Data
+  - Datasources
+  - Datasources Data
+  - Umerge
+- name: Survey Metadata
+  tags:
+  - Simulated Data
+  - Survey State
+  - Survey Evaluate
+  - Survey Quotas
+  - Survey Files
+  - Survey Warnings
+  - Survey Terms
+  - Survey Subscribers
+  - Survey Users
+  - Survey Tasks
+- name: Panels
+  tags:
+  - Panel Data
+  - Panel Datapoints
+  - Survey Panels
+- name: Research Hub
+  tags:
+  - Users
+  - Companies
+  - Categories
+  - Surveys
+  - Panels
+  - Crosstabs
+  - Archives
+  - Archival Reports
+  - API Keys
+  - Usage
+  - Warnings Summary
+- name: Crosstabs
+  tags:
+  - Crosstabs Configuration
+  - Crosstabs Execution
+  - Crosstabs Nets
+  - Saved Crosstabs
+  - Crosstabs Table Settings
+  - Crosstabs Validation
+  - Crosstabs Rim Weighting
+- name: Dashboards
+  tags:
+  - Dashboards
+- name: DQ APIs
+  tags:
+  - DQ-Specific API Calls
+  - MaxDiff API Calls
+  - Discrete Choice Model API Calls
+  - Media Testimonial API Calls
+- name: Response Summary
+  tags:
+  - Share Link
+- name: Sample Management
+  tags:
+  - Bounced Emails
+  - Participant Sources
+- name: Distribution
+  tags:
+  - Email Distribution
+  - SFTP Distribution
+  - Slack Distribution
+- name: Campaign Manager
+  tags:
+  - Campaigns
+  - Campaign Email Invites
+  - Campaign Exports
+  - Campaign Lists
+  - Shared Campaign Lists
+  - Campaign Sends
+  - Campaign Status Lists
+  - Supression Lists
+- name: Question Library
+  tags:
+  - Company Element
+  - Company Elements
+  - Survey Elements
+  - Survey Element Report Settings
+- name: Language Manager
+  tags:
+  - LM Application Data
+  - LM Application Translations
+  - Translation Resources
+  - Translations
+  - Translation Deltas
+  - Translation Reservations
+  - Primary Survey Language
+  - Other Survey Languages
+  - Unused Survey Languages
+- name: Project Parameters
+  tags:
+  - Available Project Parameters
+  - Saved Project Parameters
+  - Project Parameters Configuration
+- name: Multi-User Editing
+  tags:
+  - Available Sections
+  - Check Out Section
+  - Check In Section
+  - Sync Section
+  - Section Editor
+  - Abandon Section
+  - Validate Section
+- name: Video Management
+  tags:
+  - Videos
+  - Watermarked Videos
+- name: Miscellaneous
+  tags:
+  - System Information
+  - Logic Nodes
+  - Logic Events
+  - CATI
+  - Global Search
+  - Miscellaneous

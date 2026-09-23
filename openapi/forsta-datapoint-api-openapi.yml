@@ -1,0 +1,444 @@
+openapi: 3.2.0
+info:
+  title: Integration Datapoint API
+  version: ''
+servers:
+- url: https://{server}
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: staging.panel.dev.focusvision.com/
+      description: Server domain
+tags:
+- name: Datapoint
+paths:
+  /api.pro#method=integration.datapoint.create:
+    post:
+      operationId: datapointCreate
+      summary: Create datapoints
+      description: This function is used to add new datapoints to the panel. All datapoint types are supported.
+      tags:
+      - Datapoint
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.datapoint.create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - sesKey
+              - settings
+              properties:
+                sesKey:
+                  description: A valid login hash.
+                  type: string
+                  example: 5a15852c564933807bbd36da58071063
+                settings:
+                  type: object
+                  description: 'An associative array that differs based on the datapoint type.
+
+                    '
+                  required:
+                  - label
+                  - qtext
+                  - type
+                  properties:
+                    label:
+                      description: The label of the datapoint.
+                      type: string
+                    qtext:
+                      description: The question text of the datapoint.
+                      type: string
+                    type:
+                      description: The datapoint type.
+                      type: string
+                      enum:
+                      - radio
+                      - checkbox
+                      - date
+                      - openend
+                      - number
+                      - float
+                    choices:
+                      description: RADIO/CHECKBOX only! A zero based array of associative arrays, with the size equal to the number of choices.
+                      type: array
+                      items:
+                        type: object
+                        required:
+                        - choiceid
+                        - name
+                        properties:
+                          choiceid:
+                            type: integer
+                            description: The Choice ID (1 - ...)
+                          name:
+                            type: string
+                            description: The Choice Name
+            examples:
+              Openend datapoint:
+                value:
+                  sesKey: 5a15852c564933807bbd36da58071063
+                  settings:
+                    label: Q3
+                    qtext: This is datapoint three
+                    type: openend
+              Checkbox datapoint:
+                value:
+                  sesKey: 5a15852c564933807bbd36da58071063
+                  settings:
+                    label: Q4
+                    qtext: This is datapoint four
+                    type: checkbox
+                    choices:
+                    - choiceid: 1
+                      name: Choice one
+                    - choiceid: 2
+                      name: Choice two
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                    data:
+                      properties:
+                        datapointid:
+                          description: The id of the new datapoint.
+                          type: integer
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    data:
+                      datapointid: 3
+                error-0:
+                  description: The supplied settings label is used for the selected panel.
+                  summary: Settings label invalid
+                  value:
+                    success: false
+                    error: Datapoint label (datapoint label) is already being used!
+                    errno: '0'
+                error-1:
+                  description: 'The supplied settings type is not one of the predefined types: "openend", "checkbox", "date", "radio", "number", "float".'
+                  summary: Settings type invalid
+                  value:
+                    success: false
+                    error: Datapoint type (datapoint type) is invalid!
+                    errno: '0'
+                error-2:
+                  description: The supplied settings choices are empty.
+                  summary: Empty settings choices
+                  value:
+                    success: false
+                    error: Choice is missing 'choiceid'!"
+                    errno: '0'
+                error-3:
+                  description: The supplied settings choices was empty or not provided. The question type requires choices to be created.
+                  summary: Settings choices not found
+                  value:
+                    success: false
+                    error: 'The question type: (datapoint type) cannot be added without choices!'
+                    errno: '0'
+                error-4:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session has expired. You must start a new session.
+                    errno: '30100'
+                error-5:
+                  description: Session is not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: sessionkey not found
+                    errno: '30200'
+                error-6:
+                  description: User ID not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: userid for sessionkey not found
+                    errno: '30200'
+                error-7:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: sessionkey is invalid
+                    errno: '30300'
+                error-8:
+                  description: A panel needs to be selected before calling this method.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: You must select a panel before you can use this method.
+                    errno: '40001'
+  /api.pro#method=integration.datapoint.delete:
+    post:
+      operationId: datapointDelete
+      summary: Delete existing datapoint
+      description: 'Delete existing datapoint by using its unique datapoint ID.
+
+
+        # WARNING
+
+        This will also delete stored data for the datapoint'
+      tags:
+      - Datapoint
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.datapoint.delete
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - sesKey
+              - datapointid
+              properties:
+                sesKey:
+                  description: A valid login hash.
+                  type: string
+                  example: 5a15852c564933807bbd36da58071063
+                datapointid:
+                  description: Datapoint ID.
+                  type: integer
+                  example: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      example: true
+                      type: boolean
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                error-0:
+                  description: The supplied datapoint ID is not numeric.
+                  summary: Datapoint ID invalid
+                  value:
+                    success: false
+                    error: Invalid data ID
+                    errno: '0'
+                error-1:
+                  description: Datapoint with supplied datapoint ID is not found.
+                  summary: Datapoint ID not found
+                  value:
+                    success: false
+                    error: Datapoint object doesn't contain dataid!
+                    errno: '0'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session has expired. You must start a new session.
+                    errno: '30100'
+                error-3:
+                  description: Session is not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: sessionkey not found
+                    errno: '30200'
+                error-4:
+                  description: User ID not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: userid for sessionkey not found
+                    errno: '30200'
+                error-5:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: sessionkey is invalid
+                    errno: '30300'
+                error-6:
+                  description: A panel needs to be selected before calling this method.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: You must select a panel before you can use this method.
+                    errno: '40001'
+  /api.pro#method=integration.datapoint.idFromLabel:
+    post:
+      operationId: datapointIdFromLabel
+      summary: Get datapoint by label
+      description: This utility function allows retrieval of datapoint ID by using the label for the datapoint i.e. QAGE -> 22
+      tags:
+      - Datapoint
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.datapoint.idFromLabel
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - sesKey
+              - label
+              properties:
+                sesKey:
+                  description: A valid login hash.
+                  type: string
+                  example: 5a15852c564933807bbd36da58071063
+                label:
+                  description: The label of the datapoint.
+                  type: string
+                  example: Q1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      example: true
+                      type: boolean
+                    data:
+                      type: object
+                      properties:
+                        datapointid:
+                          description: Unique id for the given datapoint label
+                          example: 1
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    data:
+                      datapointid: 1
+                error-0:
+                  description: The supplied label is empty or contains invalid characters.
+                  summary: Label invalid
+                  value:
+                    success: false
+                    error: 'Supplied datapoint label: (datapoint label) contains invalid characters!'
+                    errno: '0'
+                error-1:
+                  description: Datapoint with supplied label is not found.
+                  summary: Datapoint not found
+                  value:
+                    success: false
+                    error: 'The supplied datapoint label: (datapoint label) is unknown.'
+                    errno: '0'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session has expired. You must start a new session.
+                    errno: '30100'
+                error-3:
+                  description: Session is not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: sessionkey not found
+                    errno: '30200'
+                error-4:
+                  description: User ID not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: userid for sessionkey not found
+                    errno: '30200'
+                error-5:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: sessionkey is invalid
+                    errno: '30300'
+                error-6:
+                  description: A panel needs to be selected before calling this method.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: You must select a panel before you can use this method.
+                    errno: '40001'
+components:
+  parameters:
+    method:
+      name: method
+      in: query
+      required: true
+      description: Method
+      schema:
+        type: string
+  schemas:
+    error:
+      type: object
+      properties:
+        success:
+          type: boolean
+        error:
+          description: The error message.
+          type: string
+        errno:
+          description: The error code.
+          type: string
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+    ApiKey:
+      type: apiKey
+      in: query
+      name: sesKey
+x-tagGroups:
+- name: Data Input and Output
+  tags:
+  - Auth
+  - Campaign
+  - Category
+  - Community
+  - Datapoint
+  - Panel
+  - Notes
+  - Panelist
+  - Project
+  - Reminder
+  - Sample
+  - Session
+  - Survey
+  - Token

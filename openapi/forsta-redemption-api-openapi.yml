@@ -1,0 +1,336 @@
+openapi: 3.2.0
+info:
+  title: Panel Management Community Redemption API
+  version: ''
+servers:
+- url: https://{server}
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: staging.panel.dev.focusvision.com/
+      description: Server domain
+security:
+- ApiKey: []
+tags:
+- name: Redemption
+paths:
+  /api.pro#method=portal.redemption.create:
+    post:
+      operationId: portal.redemption.create
+      summary: Create a Redemption request
+      tags:
+      - Redemption
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.redemption.create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  description: The redemption typeid or type.
+                value:
+                  type: integer
+                  description: Value of the requested reward. Required for Tremendous, TangoCard and Virtual Incentives
+                sku:
+                  type: string
+                  description: SKU of the requested reward.
+                currency:
+                  type: string
+                  description: Currency code required for Tremendous
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+              - type
+            example:
+              seskey: ce512c91
+              type: '2'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: The creation was successful.
+                    transactionId:
+                      type: integer
+                      description: The transaction ID resulting from this request.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    transactionId: 42
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Redemption with supplied redemption type is not found.
+                  summary: Type not found
+                  value:
+                    success: false
+                    error: The redemption type you are trying to use does not exist.
+                    errno: '20102'
+                error-2:
+                  description: The redemption type supplied does not exist or is disabled for community.
+                  summary: Type disabled
+                  value:
+                    success: false
+                    error: The redemption type you are trying to use is not available for this community.
+                    errno: '20102'
+                error-3:
+                  description: The redemption type supplied is disabled for panel.
+                  summary: Type disabled
+                  value:
+                    success: false
+                    error: The redemption type you are trying to use has been disabled.
+                    errno: '20102'
+                error-4:
+                  description: Redemption with supplied redemption type has an error.
+                  summary: Type Error
+                  value:
+                    success: false
+                    error: The redemption type you are trying to use has been disabled because of a previous error.
+                    errno: '20102'
+                error-5:
+                  description: The redemption type supplied is not available through the API.
+                  summary: Type invalid
+                  value:
+                    success: false
+                    error: The redemption type you are trying to use can not be used via API.
+                    errno: '20102'
+                error-6:
+                  description: Panelist does not have enough points to claim redemption.
+                  summary: Insufficient points
+                  value:
+                    success: false
+                    error: The number of points to redeem exceeds the total points available. Remember that any points currently pending approval are not available for redemption.
+                    errno: '20402'
+                error-7:
+                  description: Due to an internal error, processing the redemption failed.
+                  summary: Internal error
+                  value:
+                    success: false
+                    error: There was a problem processing the redemption request.
+                    errno: '20402'
+                error-8:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-9:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+                error-10:
+                  description: Maximum daily redemption exceeded. Wait 24 hours and try again.
+                  summary: Maximum daily redemption exceeded
+                  value:
+                    success: false
+                    error: Maximum daily redemption exceeded
+                    errno: '40001'
+  /api.pro#method=portal.redemption.read:
+    post:
+      operationId: portal.redemption.read
+      summary: Returns redemption requests made by the active panelist
+      tags:
+      - Redemption
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.redemption.read
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                limit:
+                  type:
+                  - integer
+                  - 'null'
+                  description: Limit the output (i.e. 20, 100 OR 100).
+                  default: null
+                offset:
+                  type:
+                  - integer
+                  - 'null'
+                  description: Offset the output for pagination.
+                  default: false
+                filter:
+                  type: string
+                  enum:
+                  - pending
+                  - approved
+                  - denied
+                  description: 'Filter redemptions by status (default: no filter)'
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+            example:
+              seskey: ce512c91
+              limit: 100
+              filter: approved
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: Retrieving the redemption request was successful.
+                    limit:
+                      type:
+                      - integer
+                      - 'null'
+                      description: The limit supplied in the call
+                    offset:
+                      type:
+                      - integer
+                      - 'null'
+                      description: The offset supplied in the call
+                    count:
+                      type: string
+                      description: The total count of items available (regardless of limit and offset)
+                    requests:
+                      type: array
+                      description: Array of redemption requests made by the active panelist.
+                      items:
+                        properties:
+                          name:
+                            type: string
+                            description: Localized vendor name that was configured in the Redemption Manager
+                          points:
+                            type: string
+                            description: The number of points redeemed.
+                          status:
+                            type: string
+                            enum:
+                            - pending
+                            - approved
+                            - denied
+                            description: 'Current status: pending, approved or denied.'
+                          dateModified:
+                            type: string
+                            description: Date and time of last status change in yyyy-mm-dd hh:mm:ss format.
+                          dateCreated:
+                            type: string
+                            description: Date and time panelist requested the redemption in yyyy-mm-dd hh:mm:ss format.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    limit: null
+                    offset: null
+                    count: '2'
+                    requests:
+                    - name: 10% Off Store Coupon
+                      points: '-100'
+                      status: pending
+                      dateModified: '2011-11-01 08:32:12'
+                      dateCreated: '2011-11-01 08:32:12'
+                    - name: $10 PayPal Gift
+                      points: '-200'
+                      status: approved
+                      dateModified: '2011-10-31 20:12:43'
+                      dateCreated: '2011-10-28 16:24:49'
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: The supplied filter is invalid. Filter can only be set to "pending", "approved" or "denied".
+                  summary: Filter invalid
+                  value:
+                    success: false
+                    error: The supplied redemption status is invalid
+                    errno: '20104'
+                error-2:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-3:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+components:
+  parameters:
+    method:
+      name: method
+      in: query
+      required: true
+      description: Method
+      schema:
+        type: string
+  schemas:
+    error:
+      type: object
+      properties:
+        success:
+          type: boolean
+        error:
+          description: The error message.
+          type: string
+        errno:
+          description: The error code.
+          type: string
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: query
+      name: seskey
+x-tagGroups:
+- name: Data Input and Output
+  tags:
+  - Auth
+  - Email
+  - Panel
+  - Panelist
+  - Points
+  - Quickpoll
+  - Redemption
+  - Reward
+  - Survey
+  - System

@@ -1,0 +1,741 @@
+openapi: 3.2.0
+info:
+  title: Panel Management Community Quickpoll API
+  version: ''
+servers:
+- url: https://{server}
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: staging.panel.dev.focusvision.com/
+      description: Server domain
+security:
+- ApiKey: []
+tags:
+- name: Quickpoll
+paths:
+  /api.pro#method=portal.quickpoll.available:
+    post:
+      operationId: portal.quickpoll.available
+      summary: Available quick polls for the user session
+      description: This method returns available quick polls for the user session. It is possible to return just a single random poll and fetch all available polls in the order created or optionally in random order. It is also possible to return quick polls using programmed pagination that utilizes limit and offset parameters. The count value always equals to the total number of items available regardless if the limit and the offset parameters are used.
+      tags:
+      - Quickpoll
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.quickpoll.available
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                randomize:
+                  type: boolean
+                  description: Randomize the returned quick polls.
+                  default: false
+                limit:
+                  type:
+                  - integer
+                  - 'null'
+                  description: Max number of items to return.
+                  default: null
+                offset:
+                  type:
+                  - integer
+                  - 'null'
+                  description: Offset the output for pagination.
+                  default: null
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+            example:
+              seskey: ce512c91
+              limit: 10
+              offset: 20
+              randomize: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: The call was successful.
+                    count:
+                      type: string
+                      description: The total count of items available (regardless of limit and offset)
+                    limit:
+                      type:
+                      - integer
+                      - 'null'
+                      description: The limit supplied in the call
+                    offset:
+                      type:
+                      - integer
+                      - 'null'
+                      description: The offset supplied in the call
+                    quickpolls:
+                      type: array
+                      description: An array of quickpolls
+                      items:
+                        properties:
+                          quickpollid:
+                            type: string
+                            description: The quick poll ID
+                          startdate:
+                            type: string
+                            description: Start date of the quick poll
+                          enddate:
+                            type: string
+                            description: End date of the quick poll
+                          questiontype:
+                            type: string
+                            enum:
+                            - radio
+                            - checkbox
+                            description: The question type of the quick poll (radio/checkbox)
+                          qtext:
+                            type: string
+                            description: The (localized) question text
+                          options:
+                            type: array
+                            description: An array of options
+                            items:
+                              properties:
+                                optionid:
+                                  type: string
+                                  description: The option ID of the choice
+                                optiontext:
+                                  type: string
+                                  description: The (localized) choice text
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    count: '1'
+                    limit: null
+                    offset: null
+                    quickpolls:
+                    - quickpollid: '4'
+                      startdate: '2013-07-28 12:00:00'
+                      enddate: '2013-08-21 12:00:00'
+                      questiontype: radio
+                      qtext: Another random quickpoll
+                      options:
+                      - optionid: '9'
+                        optiontext: Choice 1
+                      - optionid: '10'
+                        optiontext: Choice 2
+                      - optionid: '11'
+                        optiontext: Choice 3
+                      - optionid: '12'
+                        optiontext: Choice 4
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.quickpoll.availableCount:
+    post:
+      operationId: portal.quickpoll.availableCount
+      summary: This method returns available quick poll count for the panelist
+      tags:
+      - Quickpoll
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.quickpoll.availableCount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+            example:
+              seskey: ce512c91
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: The call was successful.
+                    count:
+                      type: string
+                      description: The number of items available
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    count: '1'
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.quickpoll.completed:
+    post:
+      operationId: portal.quickpoll.completed
+      summary: Get completed quick polls for the user session
+      description: This method returns completed quick polls for the user session. It is also possible to return quick polls using programmed pagination that utilizes limit and offset parameters. The count value always equals to the total number of items available regardless if the limit and the offset parameters are used.
+      tags:
+      - Quickpoll
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.quickpoll.completed
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                limit:
+                  type:
+                  - integer
+                  - 'null'
+                  description: Max number of items to return.
+                  default: null
+                offset:
+                  type:
+                  - integer
+                  - 'null'
+                  description: Offset the output for pagination.
+                  default: null
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+            example:
+              seskey: ce512c91
+              limit: 10
+              offset: 20
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: The call was successful.
+                    count:
+                      type: string
+                      description: The total count of items (regardless of limit and offset)
+                    limit:
+                      type:
+                      - integer
+                      - 'null'
+                      description: The limit supplied in the call
+                    offset:
+                      type:
+                      - integer
+                      - 'null'
+                      description: The offset supplied in the call
+                    quickpolls:
+                      type: array
+                      description: An array of quickpolls
+                      items:
+                        properties:
+                          quickpollid:
+                            type: string
+                            description: The quick poll ID
+                          startdate:
+                            type: string
+                            description: Start date of the quick poll
+                          enddate:
+                            type: string
+                            description: End date of the quick poll
+                          questiontype:
+                            type: string
+                            enum:
+                            - radio
+                            - checkbox
+                            description: The question type of the quick poll (radio/checkbox)
+                          qtext:
+                            type: string
+                            description: The (localized) question text
+                          options:
+                            type: array
+                            description: An array of options
+                            items:
+                              properties:
+                                optionid:
+                                  type: string
+                                  description: The option ID of the choice
+                                optiontext:
+                                  type: string
+                                  description: The (localized) choice text
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    count: '1'
+                    limit: null
+                    offset: null
+                    quickpolls:
+                    - quickpollid: '5'
+                      startdate: '2013-07-28 12:00:00'
+                      enddate: '2013-08-21 12:00:00'
+                      questiontype: radio
+                      qtext: Another random quickpoll
+                      options:
+                      - optionid: '13'
+                        optiontext: Choice 1
+                      - optionid: '14'
+                        optiontext: Choice 2
+                      - optionid: '15'
+                        optiontext: Choice 3
+                      - optionid: '16'
+                        optiontext: Choice 4
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.quickpoll.completedCount:
+    post:
+      operationId: portal.quickpoll.completedCount
+      summary: Returns completed quick poll count for the panelist
+      tags:
+      - Quickpoll
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.quickpoll.completedCount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+            example:
+              seskey: ce512c91
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: The call was successful.
+                    count:
+                      type: string
+                      description: The number of items available
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    count: '1'
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.quickpoll.saveResponse:
+    post:
+      operationId: portal.quickpoll.saveResponse
+      summary: Save the response from the panelist
+      description: This method is used to save the response received from the panelist.
+      tags:
+      - Quickpoll
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.quickpoll.saveResponse
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quickpollid:
+                  type: integer
+                  description: A valid quick poll ID
+                response:
+                  type: array
+                  description: Panelists response; Array of optionids (must be one for radio questions)
+                  items:
+                    type: integer
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+              - quickpollid
+              - response
+            example:
+              seskey: ce512c91
+              quickpollid: 42
+              response:
+              - 259
+              - 260
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: The call was successful.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: The supplied quick poll ID is not numeric.
+                  summary: Quick poll ID invalid
+                  value:
+                    success: false
+                    error: Supplied quick poll id is invalid.
+                    errno: '20102'
+                error-2:
+                  description: Quick poll with the supplied quick poll ID is not found.
+                  summary: Quick poll not found
+                  value:
+                    success: false
+                    error: Supplied quick poll id is invalid.
+                    errno: '20102'
+                error-3:
+                  description: Quick poll with the supplied quick poll ID has a response recorded for panelist. Additional responses cannot be saved.
+                  summary: Quick poll already answered
+                  value:
+                    success: false
+                    error: Answers for supplied quick poll id already received.
+                    errno: '20102'
+                error-4:
+                  description: The quick poll with the supplied quick poll ID is closed and responses can no longer be saved.
+                  summary: Quick poll expired
+                  value:
+                    success: false
+                    error: Quick poll is closed.
+                    errno: '20102'
+                error-5:
+                  description: The response supplied is empty.
+                  summary: Empty response
+                  value:
+                    success: false
+                    error: Quick poll response can not be empty.
+                    errno: '20103'
+                error-6:
+                  description: Quick poll with the supplied quick poll ID can only have one choice for a response.
+                  summary: Response invalid
+                  value:
+                    success: false
+                    error: Supplied quick poll response is invalid. There can only be one selected choice for radio questions.
+                    errno: '20103'
+                error-7:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-8:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.quickpoll.stats:
+    post:
+      operationId: portal.quickpoll.stats
+      summary: Get the result for a quick polls by ID
+      description: This method returns the result for a single quick polls using ID. The result set is calculated among all the panelist who participated. If a quick poll ID is supplied then results for this poll are returned. If omitted, results of a random past quick poll that the panelist has participated in are returned. If quick poll ID is omitted and the panelist has no history of participating in any quick polls, an error is returned.
+      tags:
+      - Quickpoll
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.quickpoll.stats
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quickpollid:
+                  type: integer
+                  description: A valid quick poll ID (If omitted, a random quick poll is returned)
+                  default: null
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+            example:
+              seskey: ce512c91
+              quickpollid: 42
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: The call was successful.
+                    quickpollid:
+                      type: string
+                      description: The ID of the quick poll that was selected (randomly or not)
+                    startdate:
+                      type: string
+                      description: Start date of the quick poll
+                    enddate:
+                      type: string
+                      description: End date of the quick poll
+                    questiontype:
+                      type: string
+                      enum:
+                      - radio
+                      - checkbox
+                      description: The question type of the quick poll (radio/checkbox)
+                    qtext:
+                      type: string
+                      description: The (localized) question text
+                    answercount:
+                      type: string
+                      description: Total number of panelists who have answered the quick poll
+                    options:
+                      type: array
+                      description: An array of options
+                      items:
+                        properties:
+                          optionid:
+                            type: string
+                            description: The option ID of the choice
+                          optiontext:
+                            type: string
+                            description: The (localized) choice text
+                          frequency:
+                            type: string
+                            description: Total number of times that this answer was selected
+                          percentage:
+                            type: string
+                            description: Percentage of how often this answer was selected
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    quickpollid: '5'
+                    startdate: '2013-07-28 12:00:00'
+                    enddate: '2013-08-21 12:00:00'
+                    questiontype: radio
+                    qtext: Another random quickpoll
+                    options:
+                    - optionid: '22'
+                      optiontext: Choice 1
+                      frequency: '25'
+                      percentage: '43'
+                    - optionid: '23'
+                      optiontext: Choice 2
+                      frequency: '33'
+                      percentage: '57'
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: The panelist does not have any responses recored for any quick polls.
+                  summary: Empty quick poll history
+                  value:
+                    success: false
+                    error: Panelist has no history of participating in quick polls.
+                    errno: '20102'
+                error-2:
+                  description: The supplied quick poll ID is not numeric.
+                  summary: Quick poll ID invalid
+                  value:
+                    success: false
+                    error: Supplied quick poll id is invalid.
+                    errno: '20102'
+                error-3:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-4:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+components:
+  parameters:
+    method:
+      name: method
+      in: query
+      required: true
+      description: Method
+      schema:
+        type: string
+  schemas:
+    error:
+      type: object
+      properties:
+        success:
+          type: boolean
+        error:
+          description: The error message.
+          type: string
+        errno:
+          description: The error code.
+          type: string
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: query
+      name: seskey
+x-tagGroups:
+- name: Data Input and Output
+  tags:
+  - Auth
+  - Email
+  - Panel
+  - Panelist
+  - Points
+  - Quickpoll
+  - Redemption
+  - Reward
+  - Survey
+  - System

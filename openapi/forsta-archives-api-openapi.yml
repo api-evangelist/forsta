@@ -1,0 +1,411 @@
+openapi: 3.2.0
+info:
+  title: Decipher Rest Archives API
+  version: '1.0'
+  description: The Decipher REST API allows comprehensive automation of your private or shared Decipher instance.
+servers:
+- url: https://{server}/api/v1
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: selfserve.decipherinc.com
+      description: Server domain
+security:
+- APIKey: []
+tags:
+- name: Archives
+paths:
+  /surveys/{survey}/can-archive:
+    get:
+      operationId: getSurveyCanArchive
+      summary: Check if survey can be archived
+      description: ''
+      tags:
+      - Archives
+      parameters:
+      - name: survey
+        description: 'survey path to be checked. You must have survey edit permissions.
+
+          '
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  can_archive:
+                    type: boolean
+                    description: Whether the survey can be archived
+                  message:
+                    type: string
+                    description: Exception reason if the survey cannot be archived
+  /surveys/{survey}/archive:
+    post:
+      operationId: createSurveyArchive
+      summary: Archive project
+      description: ''
+      tags:
+      - Archives
+      parameters:
+      - name: survey
+        description: 'survey path to be archived. You must have survey edit permissions.
+
+          '
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                force:
+                  description: 'Allows archiving projects when the required time before archival
+
+                    has not been met. Live projects or project directories with
+
+                    `keep` flag will not be archived.
+
+                    '
+                  default: false
+                  type: boolean
+                subdirectories:
+                  description: 'Allows archival of project folder and all its sub-directories
+
+                    (surveys).  Ensure these sub-directories are not being accessed
+
+                    by other projects (dashboards or reports) before using this
+
+                    parameter.
+
+                    '
+                  default: false
+                  type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+  /surveys/{survey}/unarchive:
+    post:
+      operationId: createSurveyUnarchive
+      summary: Un-archive project
+      description: Un-archives project to `{survey}` directory.
+      tags:
+      - Archives
+      parameters:
+      - name: survey
+        description: 'survey path to be un-archived. You must have survey edit permissions.
+
+          '
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+  /hibernation/status:
+    get:
+      operationId: getHibernationStatus
+      summary: Get hibernation status
+      description: 'Returns the hibernation status of a survey. The status can be one of:
+
+        - `hibernated`: The survey is currently hibernated
+
+        - `restoring`: The survey is being restored from hibernation
+
+        - `restored`: The survey is not hibernated (active)'
+      tags:
+      - Archives
+      parameters:
+      - name: survey
+        description: 'Survey path to check hibernation status. You must have any permission on the survey.
+
+          '
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - hibernated
+                    - restoring
+                    - restored
+                    description: The current hibernation status of the survey
+  /archives/planned:
+    get:
+      operationId: getArchivesPlanned
+      summary: Get planned activities
+      description: 'Returns an array of objects describing what surveys will be automatically
+
+        archived (if enabled) and what archived surveys will have their collected
+
+        data cleared (if enabled). Only projects that would be visible in the portal
+
+        are returned.
+
+
+        The list is sorted chronologically, with surveys set to be kept forever
+
+        (`date` column blank) last. The `days` attribute is the retention for
+
+        clearing or archiving which can come from server or company configuration.
+
+        `action` is either `archive` for surveys in the system that will move to the
+
+        archive, or `clear` for surveys already archived which will have any
+
+        respondent data stripped at that time.'
+      tags:
+      - Archives
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    date:
+                      type: string
+                      format: ISO 8601 timestamp with timezone
+                      description: date and time when the action will occur
+                    action:
+                      type: string
+                      description: planned action type
+                      enum:
+                      - archive
+                      - clear
+                    path:
+                      type: string
+                      description: the survey path
+                    retention:
+                      type: integer
+                      description: retention days configured for the given action
+                    title:
+                      type: string
+                      description: title of the survey
+              example:
+              - date: '2021-03-19T23:16:53Z'
+                action: clear
+                path: selfserve/93a/200412
+                retention: 90
+                title: COVID-19 Study
+              - date: null
+                action: archive
+                path: selfserve/1fbc/sfc16004
+                retention: 30
+                title: Product Preferences
+      x-codeSamples:
+      - lang: beacon
+        source: 'beacon get archives/planned
+
+          '
+      - lang: curl
+        source: "curl --location \\\n  --request GET '{server}/api/v1/archives/planned' \\\n  --header 'x-apikey: {api_key}'\n"
+  /archives:
+    delete:
+      operationId: deleteArchive
+      summary: Purge collected data in archive
+      description: 'Modifies an already archived survey, removing all collected data from
+
+        the archive and re-archiving it. This cannot be undone. Requires staff
+
+        access.'
+      tags:
+      - Archives
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                archived_path:
+                  type: string
+                  description: path to archived survey
+              required:
+              - archived_path
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+components:
+  securitySchemes:
+    APIKey:
+      type: apiKey
+      in: header
+      name: x-apikey
+      description: 'In order to access the api, you''ll need to generate an API key. Refer to the
+
+        instructions [here](/docs/decipher/api#section/API-Keys) to generate and
+
+        configure an API key with the appropriate permission sets. You can generate
+
+        as many keys as required.
+
+
+        Configure each request to include your API key in the request header. For example:
+
+
+        ```
+
+        x-apikey: dp48ss3mgsaucyjtybxw728h7s4cgnwzhejtszdwhf4xpe8yhmtdwpk2ntdhtwbs
+
+        ```
+
+        '
+x-tagGroups:
+- name: Autoclose
+  tags:
+  - Autoclose
+- name: Data Input and Output
+  tags:
+  - Data
+  - Data Feed
+  - Response Summary
+  - Modifying Data
+  - Datasources
+  - Datasources Data
+  - Umerge
+- name: Survey Metadata
+  tags:
+  - Simulated Data
+  - Survey State
+  - Survey Evaluate
+  - Survey Quotas
+  - Survey Files
+  - Survey Warnings
+  - Survey Terms
+  - Survey Subscribers
+  - Survey Users
+  - Survey Tasks
+- name: Panels
+  tags:
+  - Panel Data
+  - Panel Datapoints
+  - Survey Panels
+- name: Research Hub
+  tags:
+  - Users
+  - Companies
+  - Categories
+  - Surveys
+  - Panels
+  - Crosstabs
+  - Archives
+  - Archival Reports
+  - API Keys
+  - Usage
+  - Warnings Summary
+- name: Crosstabs
+  tags:
+  - Crosstabs Configuration
+  - Crosstabs Execution
+  - Crosstabs Nets
+  - Saved Crosstabs
+  - Crosstabs Table Settings
+  - Crosstabs Validation
+  - Crosstabs Rim Weighting
+- name: Dashboards
+  tags:
+  - Dashboards
+- name: DQ APIs
+  tags:
+  - DQ-Specific API Calls
+  - MaxDiff API Calls
+  - Discrete Choice Model API Calls
+  - Media Testimonial API Calls
+- name: Response Summary
+  tags:
+  - Share Link
+- name: Sample Management
+  tags:
+  - Bounced Emails
+  - Participant Sources
+- name: Distribution
+  tags:
+  - Email Distribution
+  - SFTP Distribution
+  - Slack Distribution
+- name: Campaign Manager
+  tags:
+  - Campaigns
+  - Campaign Email Invites
+  - Campaign Exports
+  - Campaign Lists
+  - Shared Campaign Lists
+  - Campaign Sends
+  - Campaign Status Lists
+  - Supression Lists
+- name: Question Library
+  tags:
+  - Company Element
+  - Company Elements
+  - Survey Elements
+  - Survey Element Report Settings
+- name: Language Manager
+  tags:
+  - LM Application Data
+  - LM Application Translations
+  - Translation Resources
+  - Translations
+  - Translation Deltas
+  - Translation Reservations
+  - Primary Survey Language
+  - Other Survey Languages
+  - Unused Survey Languages
+- name: Project Parameters
+  tags:
+  - Available Project Parameters
+  - Saved Project Parameters
+  - Project Parameters Configuration
+- name: Multi-User Editing
+  tags:
+  - Available Sections
+  - Check Out Section
+  - Check In Section
+  - Sync Section
+  - Section Editor
+  - Abandon Section
+  - Validate Section
+- name: Video Management
+  tags:
+  - Videos
+  - Watermarked Videos
+- name: Miscellaneous
+  tags:
+  - System Information
+  - Logic Nodes
+  - Logic Events
+  - CATI
+  - Global Search
+  - Miscellaneous

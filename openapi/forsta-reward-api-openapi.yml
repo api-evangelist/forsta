@@ -1,0 +1,434 @@
+openapi: 3.2.0
+info:
+  title: Panel Management Community Reward API
+  version: ''
+servers:
+- url: https://{server}
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: staging.panel.dev.focusvision.com/
+      description: Server domain
+security:
+- ApiKey: []
+tags:
+- name: Reward
+paths:
+  /api.pro#method=portal.reward.types:
+    post:
+      operationId: portal.reward.types
+      summary: Returns the reward types available
+      tags:
+      - Reward
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.reward.types
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+            example:
+              seskey: ce512c91
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: Retrieving the reward types was successful.
+                    types:
+                      type:
+                      - array
+                      - 'null'
+                      description: Array of reward types available.
+                      items:
+                        properties:
+                          type:
+                            type: string
+                            description: Redemption reward type.
+                          name:
+                            type: string
+                            description: Type display name.
+                          rewardImage:
+                            type: string
+                            description: The reward image.
+                          available:
+                            type: boolean
+                            description: Whether or not this redemption type is available to the current panelist.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    types:
+                    - type: '1'
+                      name: $1 VISA Gift Card
+                      rewardImage: rewardimage_a68bb50a4dafff037703aecaf8e615e2.png
+                      available: true
+                    - type: '2'
+                      name: $5 VISA Gift Card
+                      rewardImage: rewardimage_9f8a915a6d0a8cf6dcc83affecdd12b2.png
+                      available: true
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.reward.skus:
+    post:
+      operationId: portal.reward.skus
+      summary: Get list of available SKUs request
+      tags:
+      - Reward
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.reward.skus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                typeId:
+                  type: integer
+                  description: The redemption typeid.
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+              - typeId
+            example:
+              seskey: ce512c91
+              typeId: '2'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: Reward name
+                    image:
+                      type: string
+                      description: URL for the reward image
+                    currency:
+                      type: string
+                      description: Currency code
+                    denominations:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          points:
+                            type: integer
+                            description: Required points to redeem the reward
+                          value:
+                            type: integer
+                            description: Value of the reward
+                          sku:
+                            type: string
+                            descriotion: SKU of the reward
+              example:
+              - name: Amazon giftcard
+                image: https://test.fake-inventory.com/sku.gif
+                currency: USD
+                denominations:
+                - points: 100
+                  value: 100
+                  sku: TEST-SKU
+  /api.pro#method=portal.reward.history:
+    post:
+      operationId: portal.reward.history
+      summary: Returns the reward history of the panelist
+      tags:
+      - Reward
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.reward.history
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+                limit:
+                  type:
+                  - integer
+                  - 'null'
+                  description: Max number of surveys to return.
+                  default: null
+                offset:
+                  type:
+                  - integer
+                  - 'null'
+                  description: Offset the output for pagination.
+                  default: null
+              required:
+              - seskey
+            example:
+              seskey: ce512c91
+              limit: 10
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: Retrieving the reward history was successful.
+                    limit:
+                      type:
+                      - integer
+                      - 'null'
+                      description: The limit supplied in the call
+                    offset:
+                      type:
+                      - integer
+                      - 'null'
+                      description: The offset supplied in the call
+                    count:
+                      type: string
+                      description: The total count of items available (regardless of limit and offset)
+                    records:
+                      type: array
+                      description: An array of rewards the panelist has received.
+                      items:
+                        properties:
+                          points:
+                            type: string
+                            description: The number of points awarded for a completed survey.
+                          time:
+                            type: string
+                            description: The ISO 8601 time the survey was finished.
+                          project:
+                            type:
+                            - string
+                            - 'null'
+                            description: Name of the project, as defined in  Panel Management, or NULL.
+                          note:
+                            type: string
+                            description: Reason for points.
+                          name:
+                            type: string
+                            deprecated: true
+                            description: This will contain whichever of the project or note fields is not NULL. You can use it, but it's not recommended.
+                          portalDisplayName:
+                            type: string
+                            description: Multilingual survey name from campaign properties
+                          projectid:
+                            type: integer
+                            description: The project ID.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    limit: null
+                    offset: null
+                    count: '2'
+                    records:
+                    - points: '200'
+                      time: '2011-10-15 18:34:29'
+                      project: Sample project
+                      note: Successful referral
+                      portalDisplayName: Sample portal
+                      projectid: 2
+                    - points: '200'
+                      time: '2011-10-02 13:56:28'
+                      project: Sample project
+                      note: Successful referral
+                      portalDisplayName: Sample portal
+                      projectid: 2
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: The limit supplied is not numeric.
+                  summary: Limit invalid
+                  value:
+                    success: false
+                    error: The supplied limit is invalid
+                    errno: '20102'
+                error-2:
+                  description: The offset supplied in not numeric.
+                  summary: Offset invalid
+                  value:
+                    success: false
+                    error: The supplied offset is invalid
+                    errno: '20103'
+                error-3:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-4:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.reward.historyCount:
+    post:
+      operationId: portal.reward.historyCount
+      summary: Returns the number of reward history items of the panelist
+      tags:
+      - Reward
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.reward.historyCount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+            example:
+              seskey: ce512c91
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: Retrieving the reward history was successful.
+                    count:
+                      type: string
+                      description: The total count of items available
+              examples:
+                success:
+                  value:
+                    success: true
+                    count: '2'
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+components:
+  parameters:
+    method:
+      name: method
+      in: query
+      required: true
+      description: Method
+      schema:
+        type: string
+  schemas:
+    error:
+      type: object
+      properties:
+        success:
+          type: boolean
+        error:
+          description: The error message.
+          type: string
+        errno:
+          description: The error code.
+          type: string
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: query
+      name: seskey
+x-tagGroups:
+- name: Data Input and Output
+  tags:
+  - Auth
+  - Email
+  - Panel
+  - Panelist
+  - Points
+  - Quickpoll
+  - Redemption
+  - Reward
+  - Survey
+  - System

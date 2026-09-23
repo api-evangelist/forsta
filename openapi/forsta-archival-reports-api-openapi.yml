@@ -1,0 +1,592 @@
+openapi: 3.2.0
+info:
+  title: Decipher Rest Archival Reports API
+  version: '1.0'
+  description: The Decipher REST API allows comprehensive automation of your private or shared Decipher instance.
+servers:
+- url: https://{server}/api/v1
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: selfserve.decipherinc.com
+      description: Server domain
+security:
+- APIKey: []
+tags:
+- name: Archival Reports
+paths:
+  /archives/{company}/deletion:
+    get:
+      operationId: getArchivesDeletion
+      summary: Get archives deletion report
+      description: 'Returns an array of objects describing what archived surveys are in risk to
+
+        be automatically deleted in the next 90 days by default.
+
+        The list is sorted chronologically.'
+      tags:
+      - Archival Reports
+      parameters:
+      - name: company
+        in: path
+        description: company ID or `all` to grab all available reports
+        example: 123
+        required: true
+        schema:
+          oneOf:
+          - type: string
+          - type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                limit:
+                  description: 'Number of days to consider until the deletion of the archived
+
+                    survey.
+
+                    '
+                  type: integer
+                  default: 90
+                  example: 100
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    date_of_deletion:
+                      type: string
+                      format: ISO 8601 timestamp with timezone
+                      description: Date and time when the action will occur.
+                    risk_level:
+                      type: string
+                      description: Level of risk to be deleted, it might be `HIGH`, `MEDIUM`, `LOW` or `NO RISK`.
+                    title:
+                      type: string
+                      description: Title of the survey.
+                    created_by:
+                      type: string
+                      description: Email of the person who created the survey.
+                    created_on:
+                      type: string
+                      format: ISO 8601 timestamp with timezone
+                      description: Date and time when the action will occur.
+                    company_group:
+                      type: string
+                      description: Supercompany to which the company belongs
+                    company_name:
+                      type: string
+                      description: Company to which the survey belongs.
+                    path:
+                      type: string
+                      description: Path where the survey was before being archived.
+                    days_until_deletion:
+                      type: integer
+                      description: Days until the archived survey is deleted.
+                    last_access:
+                      type: string
+                      format: ISO 8601 timestamp with timezone
+                      description: Date and time when the last access to the survey occurred before archiving.
+              example:
+              - date_of_deletion: '2022-01-03T15:40:36Z'
+                risk_level: HIGH
+                title: Survey 1
+                created_by: developer@decipherinc.com
+                created_on: '2021-11-08T21:52:55Z'
+                company_group: Latam
+                company_name: Company_1
+                path: selfserve/53b/211104
+                days_until_deletion: 30
+                last_access": '2021-01-03T15:40:36Z'
+              - date_of_deletion: '2022-11-19T20:13:35Z'
+                risk_level: NO RISK
+                title: Survey 2
+                created_by: developer@decipherinc.com
+                created_on: '2021-11-19T19:42:44Z'
+                company_group: null
+                company_name: Company_2
+                path: selfserve/53c/211101
+                days_until_deletion: 350
+                last_access: '2021-11-19T19:58:17Z'
+      x-codeSamples:
+      - lang: beacon
+        source: 'beacon get archives/{company}/deletion limit={days_until_deletion}
+
+          '
+  /archives/{company}/deletion/data:
+    get:
+      operationId: getArchivesDataDeletion
+      summary: Get participant data deletion report
+      description: 'Returns an array of objects describing what participant data in archived surveys is at risk
+
+        to be automatically deleted in the next 90 days (default).'
+      tags:
+      - Archival Reports
+      parameters:
+      - name: company
+        in: path
+        description: company ID or `all` to grab archives from all available companies.
+        example: 123
+        required: true
+        schema:
+          oneOf:
+          - type: string
+          - type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                limit:
+                  description: 'Number of days to consider until the deletion of particpant data
+
+                    from the archived surveys.
+
+                    '
+                  type: integer
+                  default: 90
+                  example: 100
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    company_group:
+                      description: Name of the supercompany to which the original survey's company belongs.
+                      example: Region Company
+                      type: string
+                    company_name:
+                      description: Name of the company to which the original survey belongs.
+                      example: Company 1
+                      type: string
+                    created_by:
+                      description: Email of the user who created the original survey.
+                      example: developer@decipherinc.com
+                      type: string
+                    created_on:
+                      description: Date and time when the original survey was created.
+                      example: '2022-01-21T00:08:59Z'
+                      format: ISO 8601 timestamp with timezone
+                      type: string
+                    date_of_deletion:
+                      description: Date and time when the participant data will be deleted.
+                      example: '2022-01-21T00:08:59Z'
+                      format: ISO 8601 timestamp with timezone
+                      type: string
+                    days_until_deletion:
+                      description: Days until the participant data is deleted from the archive.
+                      example: 11
+                      type: integer
+                    last_access:
+                      description: Date and time when the last access to the original survey occurred before archiving.
+                      example: '2021-09-20T16:44:50Z'
+                      type: string
+                    path:
+                      description: Path where the original survey was located before being archived.
+                      example: selfserve/53x/123456
+                      type: string
+                    title:
+                      description: Title of the original survey.
+                      example: Archived Survey 1
+                      type: string
+                    risk_level:
+                      description: Level of risk of data being deleted. `HIGH` for less than 30 days remaining, `MEDIUM` for less than 60 days remaining, `LOW` for less than 90 days remaining, or `NO RISK` for more than 90 days remaining.
+                      example: MEDIUM
+                      type: string
+  /archives/{company}/deleted:
+    get:
+      operationId: getArchivesDeleted
+      summary: Get archives deleted report
+      description: 'Returns an array of objects describing what archived surveys have been deleted
+
+        in the previous 90 days (default). The list is sorted chronologically.'
+      tags:
+      - Archival Reports
+      parameters:
+      - name: company
+        in: path
+        description: Company ID or `all` to grab archives from all available companies.
+        example: 123
+        required: true
+        schema:
+          oneOf:
+          - type: string
+          - type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                limit:
+                  description: Number of days to consider since the deletion of the archives.
+                  type: integer
+                  default: 90
+                  example: 120
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    archival_date:
+                      description: Date and time in which the original survey was archived.
+                      format: ISO 8601 timestamp with timezone
+                      example: '2021-12-27T00:10:20Z'
+                      type: string
+                    company_group:
+                      description: Name of the supercompany to which the original survey's company belongs.
+                      example: Region Company
+                      type: string
+                    company_name:
+                      description: Name of the company to which the original survey belongs.
+                      example: Company 1
+                      type: string
+                    created_by:
+                      description: Name of the user who created the original survey.
+                      example: developer
+                      type: string
+                    created_on:
+                      description: Date and time when the original survey was created.
+                      example: '2022-01-21T00:08:59Z'
+                      format: ISO 8601 timestamp with timezone
+                      type: string
+                    data_clear_date:
+                      description: Date and time when the participant data was removed from the archive.
+                      format: ISO 8601 timestamp with timezone
+                      example: '2022-01-21T00:44:00Z'
+                      type: string
+                    days_since_archival:
+                      description: Number of days passed since the original survey was archived.
+                      example: 30
+                      type: integer
+                    days_since_data_clear:
+                      description: Number of days passed since the participant data was removed from the archive.
+                      example: 20
+                      type: integer
+                    days_since_deletion:
+                      description: Number of days passed since the archive was deleted.
+                      example: 10
+                      type: integer
+                    deletion_date:
+                      description: Date and time when the archive was deleted.
+                      format: ISO 8601 timestamp with timezone
+                      example: '2022-01-21T00:48:18Z'
+                      type: string
+                    last_access:
+                      description: Date and time of the last access to the original survey.
+                      format: ISO 8601 timestamp with timezone
+                      example: '2022-01-21T00:48:18Z'
+                      type: string
+                    path:
+                      description: Path where the original survey was located before being archived.
+                      example: selfserve/53x/123456
+                      type: string
+                    title:
+                      description: Title of the original survey.
+                      example: Deleted Survey 1
+                      type: string
+  /archives/{company}/scheduled:
+    get:
+      operationId: getArchivesScheduled
+      summary: Get surveys scheduled to be archived
+      description: 'Returns a list of surveys that are scheduled to be archived within the next
+
+        `limit` days.'
+      tags:
+      - Archival Reports
+      parameters:
+      - name: company
+        in: path
+        description: 'Company name or ID to return surveys scheduled to be archived for the
+
+          given company, or "all" to return all surveys scheduled to be archived.
+
+          '
+        example: all
+        required: true
+        schema:
+          type: string
+      - name: limit
+        in: query
+        description: 'Return only surveys that will be archived within this number of days.
+
+          '
+        example: 75
+        required: false
+        schema:
+          type: integer
+          default: 90
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    company_group:
+                      description: 'The name of the supercompany to which the survey''s company belongs.
+
+                        '
+                      example: Amazing Widgets North America
+                      type: string
+                    company_name:
+                      description: 'The name of the company to which the survey belongs.
+
+                        '
+                      example: Amazing Widgets Canada
+                      type: string
+                    created_by:
+                      description: 'The email address of the user who created the survey.
+
+                        '
+                      example: creator@example.com
+                      type: string
+                    created_on:
+                      description: The date and time when the survey was created.
+                      example: '2023-08-31T17:20:03Z'
+                      type: string
+                      format: ISO 8601 timestamp with timezone
+                    date_of_archival:
+                      description: 'The date and time when the survey is scheduled to be archived.
+
+                        '
+                      example: '2023-11-29T20:39:03Z'
+                      type: string
+                      format: ISO 8601 timestamp with timezone
+                    days_until_archival:
+                      description: 'The number of days until the survey is scheduled to be archived.
+
+                        '
+                      example: 33
+                      type: integer
+                    last_access:
+                      description: The date and time when the survey was last accessed.
+                      example: '2023-10-25T20:39:03Z'
+                      type: string
+                      format: ISO 8601 timestamp with timezone
+                    path:
+                      description: The survey path.
+                      example: selfserve/60e/230800
+                      type: string
+                    risk_level:
+                      description: 'A categorization of the risk level based on days_until_archival.
+
+                        '
+                      example: MEDIUM
+                      type: string
+                      enum:
+                      - LOW
+                      - MEDIUM
+                      - HIGH
+                      - NO RISK
+                    title:
+                      description: The survey title.
+                      example: How Great are these Widgets
+                      type: string
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  $error:
+                    description: A description of the error.
+                    type: string
+                    example: You cannot manage this company (1)
+                  $code:
+                    description: The HTTP error code.
+                    type: integer
+                    example: 403
+                  extra:
+                    description: Extra information about the error.
+                    type: string
+                    example: null
+        '404':
+          description: Company not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  $error:
+                    description: A description of the error.
+                    type: string
+                    example: Cannot find company specified by argument company
+                  $code:
+                    description: The HTTP error code.
+                    type: integer
+                    example: 404
+                  extra:
+                    description: Extra information about the error.
+                    type: string
+                    example: null
+components:
+  securitySchemes:
+    APIKey:
+      type: apiKey
+      in: header
+      name: x-apikey
+      description: 'In order to access the api, you''ll need to generate an API key. Refer to the
+
+        instructions [here](/docs/decipher/api#section/API-Keys) to generate and
+
+        configure an API key with the appropriate permission sets. You can generate
+
+        as many keys as required.
+
+
+        Configure each request to include your API key in the request header. For example:
+
+
+        ```
+
+        x-apikey: dp48ss3mgsaucyjtybxw728h7s4cgnwzhejtszdwhf4xpe8yhmtdwpk2ntdhtwbs
+
+        ```
+
+        '
+x-tagGroups:
+- name: Autoclose
+  tags:
+  - Autoclose
+- name: Data Input and Output
+  tags:
+  - Data
+  - Data Feed
+  - Response Summary
+  - Modifying Data
+  - Datasources
+  - Datasources Data
+  - Umerge
+- name: Survey Metadata
+  tags:
+  - Simulated Data
+  - Survey State
+  - Survey Evaluate
+  - Survey Quotas
+  - Survey Files
+  - Survey Warnings
+  - Survey Terms
+  - Survey Subscribers
+  - Survey Users
+  - Survey Tasks
+- name: Panels
+  tags:
+  - Panel Data
+  - Panel Datapoints
+  - Survey Panels
+- name: Research Hub
+  tags:
+  - Users
+  - Companies
+  - Categories
+  - Surveys
+  - Panels
+  - Crosstabs
+  - Archives
+  - Archival Reports
+  - API Keys
+  - Usage
+  - Warnings Summary
+- name: Crosstabs
+  tags:
+  - Crosstabs Configuration
+  - Crosstabs Execution
+  - Crosstabs Nets
+  - Saved Crosstabs
+  - Crosstabs Table Settings
+  - Crosstabs Validation
+  - Crosstabs Rim Weighting
+- name: Dashboards
+  tags:
+  - Dashboards
+- name: DQ APIs
+  tags:
+  - DQ-Specific API Calls
+  - MaxDiff API Calls
+  - Discrete Choice Model API Calls
+  - Media Testimonial API Calls
+- name: Response Summary
+  tags:
+  - Share Link
+- name: Sample Management
+  tags:
+  - Bounced Emails
+  - Participant Sources
+- name: Distribution
+  tags:
+  - Email Distribution
+  - SFTP Distribution
+  - Slack Distribution
+- name: Campaign Manager
+  tags:
+  - Campaigns
+  - Campaign Email Invites
+  - Campaign Exports
+  - Campaign Lists
+  - Shared Campaign Lists
+  - Campaign Sends
+  - Campaign Status Lists
+  - Supression Lists
+- name: Question Library
+  tags:
+  - Company Element
+  - Company Elements
+  - Survey Elements
+  - Survey Element Report Settings
+- name: Language Manager
+  tags:
+  - LM Application Data
+  - LM Application Translations
+  - Translation Resources
+  - Translations
+  - Translation Deltas
+  - Translation Reservations
+  - Primary Survey Language
+  - Other Survey Languages
+  - Unused Survey Languages
+- name: Project Parameters
+  tags:
+  - Available Project Parameters
+  - Saved Project Parameters
+  - Project Parameters Configuration
+- name: Multi-User Editing
+  tags:
+  - Available Sections
+  - Check Out Section
+  - Check In Section
+  - Sync Section
+  - Section Editor
+  - Abandon Section
+  - Validate Section
+- name: Video Management
+  tags:
+  - Videos
+  - Watermarked Videos
+- name: Miscellaneous
+  tags:
+  - System Information
+  - Logic Nodes
+  - Logic Events
+  - CATI
+  - Global Search
+  - Miscellaneous

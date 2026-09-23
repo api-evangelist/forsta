@@ -1,0 +1,403 @@
+openapi: 3.2.0
+info:
+  title: Decipher Rest Videos API
+  version: '1.0'
+  description: The Decipher REST API allows comprehensive automation of your private or shared Decipher instance.
+servers:
+- url: https://{server}/api/v1
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: selfserve.decipherinc.com
+      description: Server domain
+security:
+- APIKey: []
+tags:
+- name: Videos
+paths:
+  /surveys/{survey}/videos:
+    get:
+      operationId: getSurveyVideos
+      summary: Get videos
+      description: Get the list of all video files.
+      tags:
+      - Videos
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    description:
+                      type: string
+                    filename:
+                      type: string
+                    keep:
+                      type: boolean
+                    privacy:
+                      type: string
+                    status:
+                      type: string
+                    video_id:
+                      type: string
+                    watermarked:
+                      type: boolean
+                    watermarked_quantity:
+                      type: integer
+              example:
+              - description: Video Description
+                filename: filename.mp4
+                keep: true
+                privacy: company
+                status: processing
+                video_id: '93472979349'
+                watermarked: false
+                watermarked_quantity: 0
+              - description: Video Description
+                filename: filename.mp4
+                keep: false
+                privacy: project
+                status: processing
+                video_id: '43597293'
+                watermarked: true
+                watermarked_quantity: 50
+    post:
+      operationId: createSurveyVideo
+      summary: Upload video file
+      description: ''
+      tags:
+      - Videos
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                source:
+                  description: 'This is the URL (must include filename and extension) to upload.
+
+                    '
+                  type: string
+                description:
+                  description: 'The video description that will be displayed in file manager.
+
+                    Defaults to the filename if not supplied.
+
+                    '
+                  type: string
+                privacy:
+                  description: 'Where the videos will be displayed in file manager.
+
+
+                    + `project`: shows only to the project it was uploaded to.
+
+                    + `company`: shows to all projects in the user''s company.
+
+                    '
+                  default: project
+                  type: string
+                  enum:
+                  - project
+                  - company
+                unique_watermarks:
+                  description: 'should the video be processed with burned-in watermarking?
+
+                    '
+                  default: false
+                  type: boolean
+                quantity:
+                  description: 'If `unique_watermarks` is true, this sets the number of unique
+
+                    videos that will be created. Must be between 1 and 10,000.
+
+                    '
+                  type: integer
+                unique_watermark_options:
+                  description: Customizations to the watermark.
+                  type: object
+                  properties:
+                    position:
+                      description: Position of the watermark on the video.
+                      default: middle center
+                      type: string
+                      enum:
+                      - top left
+                      - top center
+                      - top right
+                      - middle left
+                      - middle center
+                      - middle right
+                      - bottom right
+                      - bottom center
+                      - bottom left
+                    color:
+                      description: 'Color of the watermarked text
+
+
+                        Acceptable Formats:
+
+
+                        + HEX `#FFFFFF`
+
+                        + RGB/A `rgb(0, 0, 0) rgba(255, 255, 255, 128)`
+
+                        + HSL `hsl(0, 100%, 50%)`
+
+                        + Common HTML colors `red`, `yellow`, `green`, etc.
+
+                        '
+                      default: rgba(255, 255, 255, 64)
+                      type: string
+                    size:
+                      description: 'Size of the watermark as a percentage of the video width
+
+                        in increments of 10.
+
+                        '
+                      default: 70%
+                      type: string
+                      enum:
+                      - 10%
+                      - 20%
+                      - 30%
+                      - 40%
+                      - 50%
+                      - 60%
+                      - 70%
+                      - 80%
+                      - 90%
+                      - 100%
+              required:
+              - source
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  video_id:
+                    type: string
+              example:
+                video_id: '93472979349'
+  /surveys/{survey}/videos/{video_id}:
+    get:
+      operationId: getSurveyVideo
+      summary: Get video
+      description: Get an individual video.
+      tags:
+      - Videos
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      - name: video_id
+        description: ID of the video to retrieve.
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  description:
+                    type: string
+                  filename:
+                    type: string
+                  keep:
+                    type: boolean
+                  privacy:
+                    type: string
+                  quantity:
+                    type: integer
+                  ready:
+                    type: integer
+                  status:
+                    type: string
+                  video_id:
+                    type: string
+                  watermarked:
+                    type: boolean
+              example:
+                description: Video Description
+                filename: filename.mp4
+                keep: false
+                privacy: company
+                quantity: 100
+                ready: 75
+                status: processing
+                video_id: '93472979349'
+                watermarked: true
+components:
+  parameters:
+    survey:
+      name: survey
+      in: path
+      required: true
+      description: The survey path.
+      example: selfserve/1a/123456
+      schema:
+        type: string
+        format: uri
+  securitySchemes:
+    APIKey:
+      type: apiKey
+      in: header
+      name: x-apikey
+      description: 'In order to access the api, you''ll need to generate an API key. Refer to the
+
+        instructions [here](/docs/decipher/api#section/API-Keys) to generate and
+
+        configure an API key with the appropriate permission sets. You can generate
+
+        as many keys as required.
+
+
+        Configure each request to include your API key in the request header. For example:
+
+
+        ```
+
+        x-apikey: dp48ss3mgsaucyjtybxw728h7s4cgnwzhejtszdwhf4xpe8yhmtdwpk2ntdhtwbs
+
+        ```
+
+        '
+x-tagGroups:
+- name: Autoclose
+  tags:
+  - Autoclose
+- name: Data Input and Output
+  tags:
+  - Data
+  - Data Feed
+  - Response Summary
+  - Modifying Data
+  - Datasources
+  - Datasources Data
+  - Umerge
+- name: Survey Metadata
+  tags:
+  - Simulated Data
+  - Survey State
+  - Survey Evaluate
+  - Survey Quotas
+  - Survey Files
+  - Survey Warnings
+  - Survey Terms
+  - Survey Subscribers
+  - Survey Users
+  - Survey Tasks
+- name: Panels
+  tags:
+  - Panel Data
+  - Panel Datapoints
+  - Survey Panels
+- name: Research Hub
+  tags:
+  - Users
+  - Companies
+  - Categories
+  - Surveys
+  - Panels
+  - Crosstabs
+  - Archives
+  - Archival Reports
+  - API Keys
+  - Usage
+  - Warnings Summary
+- name: Crosstabs
+  tags:
+  - Crosstabs Configuration
+  - Crosstabs Execution
+  - Crosstabs Nets
+  - Saved Crosstabs
+  - Crosstabs Table Settings
+  - Crosstabs Validation
+  - Crosstabs Rim Weighting
+- name: Dashboards
+  tags:
+  - Dashboards
+- name: DQ APIs
+  tags:
+  - DQ-Specific API Calls
+  - MaxDiff API Calls
+  - Discrete Choice Model API Calls
+  - Media Testimonial API Calls
+- name: Response Summary
+  tags:
+  - Share Link
+- name: Sample Management
+  tags:
+  - Bounced Emails
+  - Participant Sources
+- name: Distribution
+  tags:
+  - Email Distribution
+  - SFTP Distribution
+  - Slack Distribution
+- name: Campaign Manager
+  tags:
+  - Campaigns
+  - Campaign Email Invites
+  - Campaign Exports
+  - Campaign Lists
+  - Shared Campaign Lists
+  - Campaign Sends
+  - Campaign Status Lists
+  - Supression Lists
+- name: Question Library
+  tags:
+  - Company Element
+  - Company Elements
+  - Survey Elements
+  - Survey Element Report Settings
+- name: Language Manager
+  tags:
+  - LM Application Data
+  - LM Application Translations
+  - Translation Resources
+  - Translations
+  - Translation Deltas
+  - Translation Reservations
+  - Primary Survey Language
+  - Other Survey Languages
+  - Unused Survey Languages
+- name: Project Parameters
+  tags:
+  - Available Project Parameters
+  - Saved Project Parameters
+  - Project Parameters Configuration
+- name: Multi-User Editing
+  tags:
+  - Available Sections
+  - Check Out Section
+  - Check In Section
+  - Sync Section
+  - Section Editor
+  - Abandon Section
+  - Validate Section
+- name: Video Management
+  tags:
+  - Videos
+  - Watermarked Videos
+- name: Miscellaneous
+  tags:
+  - System Information
+  - Logic Nodes
+  - Logic Events
+  - CATI
+  - Global Search
+  - Miscellaneous

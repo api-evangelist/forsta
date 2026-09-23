@@ -1,0 +1,1275 @@
+openapi: 3.2.0
+info:
+  title: Decipher Rest Surveys API
+  version: '1.0'
+  description: The Decipher REST API allows comprehensive automation of your private or shared Decipher instance.
+servers:
+- url: https://{server}/api/v1
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: selfserve.decipherinc.com
+      description: Server domain
+security:
+- APIKey: []
+tags:
+- name: Surveys
+paths:
+  /rh/companies/{company}/surveys:
+    get:
+      operationId: getRHCompanySurveys
+      summary: Get surveys
+      description: 'This call retrieves Research Hub''s information about surveys available
+
+        for companies. Generally you should specify "all" as company parameter:
+
+        the survey accessible to you may not all be owned by your company. To select
+
+        multiple companies, keep the "company" variable to "all" and set a
+
+        "companies" variable to a list of company IDs.
+
+
+        A search query can be what you would normally specify in the portal.
+
+        Review the Advanced Syntax listed Search
+
+        Capabilities
+
+        -- for example, pass the `query` variable set to `#sometag`
+
+        or `user:joe@example.com` for special queries, or `kittens` for a normal
+
+        text search.
+
+
+        The returned array contains these properties. Remember that you can pass
+
+        `select` to any query to get just a subset of them.
+
+
+        **Note:** This endpoint does not return the `keep` attribute.To get the `keep`
+
+        attribute for a specific survey, use `GET /rh/surveys/{survey}` instead.'
+      tags:
+      - Surveys
+      parameters:
+      - name: company
+        description: the company ID or name of the company whose surveys you want to see. Specify `self` for your own company, or `all` for all companies (recommended)
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: query
+        description: a search query
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: companies
+        description: show only companies with these IDs (used with `company=all`)
+        in: query
+        required: false
+        schema:
+          type: array
+      - name: permission
+        description: require a minimum permission level (e.g. `survey.edit`)
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: select
+        description: list of attributes to return
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/survey'
+    post:
+      operationId: createRHCompanySurvey
+      summary: Create survey
+      description: Create a new survey.
+      tags:
+      - Surveys
+      parameters:
+      - name: company
+        description: 'the company ID or name of the company where you want the survey to
+
+          be created. Specify `self` for your own company.
+
+          '
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  description: Name of survey shown in Research Hub
+                  type: string
+                ptype:
+                  description: Project type
+                  type: string
+                  enum:
+                  - beacon
+                  - email
+                  - spss
+                category:
+                  description: 'Survey category (Query `GET /api/v1/rh/surveys/categories` for
+
+                    valid options.)
+
+                    '
+                  type: string
+                subdirectory:
+                  description: Subdirectory ID number
+                  type: string
+                description:
+                  type: string
+                  description: Description of survey
+                tags:
+                  description: List of tags
+                  type: array
+                prefPath:
+                  description: 'Path of the survey (e.g. abc20001). Only lowercase letters,
+
+                    numbers, and underscores are allowed.
+
+                    '
+                  type: string
+                lang:
+                  description: Language of the survey
+                  type: string
+              required:
+              - name
+              - ptype
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+  /rh/surveys/current:
+    get:
+      operationId: getRHSurveysCurrent
+      summary: Get current surveys
+      description: Return a list of current valid survey paths matching a specific permission. This is much faster than a full portal search (e.g. `/rh/companies/abc/surveys`) but returns far less data. This should be preferred when only survey paths are necessary.
+      tags:
+      - Surveys
+      parameters:
+      - name: permission
+        in: query
+        description: Require a minimum permission level.
+        example: data.view
+        schema:
+          type: string
+          default: any
+      - name: states
+        in: query
+        description: List of survey states to accept data from.
+        schema:
+          type: array
+          default:
+          - live
+          items:
+            type: string
+            enum:
+            - live
+            - closed
+            - testing
+            - dev
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+              example:
+              - selfserve/abc/123456
+              - selfserve/abc/234567
+              - selfserve/abc/345678
+              - selfserve/abc/456789
+  /rh/surveys/historical:
+    get:
+      operationId: getRHSurveysHistorical
+      summary: Get historical list
+      description: 'Returns a list of survey paths the current user can access for any
+
+        existing as well as historical and archived survey.
+
+
+        Unlike the normal portal survey list, this returns all surveys
+
+        regardless of current company selection for staff.'
+      tags:
+      - Surveys
+      parameters:
+      - name: permission
+        description: if provided, the endpoint will only return surveys for which the user has this permission
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+              example:
+              - selfserve/53c/160615
+              - selfserve/53c/181216
+              - selfserve/53c/1611272
+              - selfserve/53c/160616
+  /rh/surveys/archived:
+    get:
+      operationId: getRHSurveysArchived
+      summary: Get a list of archived surveys
+      description: 'Returns a list of archived surveys to which the calling user has historically
+
+        had access.'
+      tags:
+      - Surveys
+      parameters:
+      - name: company
+        in: query
+        description: 'Specify a company id to return only archived surveys from that company.
+
+          '
+        schema:
+          type: string
+          default: all
+      - name: only_unarchivable
+        in: query
+        description: 'If true, return only archives that are unarchivable, meaning only archives
+
+          for which there is no existing survey at its survey path, and only the
+
+          latest archive for that survey if there is more than one.
+
+          '
+        schema:
+          type: boolean
+          default: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    survey_path:
+                      type: string
+                      description: full survey path, e.g. `selfserve/123/4567`
+                    name:
+                      type: string
+                      description: name of the survey
+                    archived_at:
+                      type: string
+                      format: ISO 8601 timestamp with timezone
+                      description: time at which the survey was archived
+                    clear_data_at:
+                      type: string
+                      format: ISO 8601 timestamp with timezone or null
+                      description: time at which the survey respondent data will be cleared (survey structure is not cleared at this time)
+                    delete_at:
+                      type: string
+                      format: ISO 8601 timestamp with timezone or null
+                      description: time at which the survey will be deleted
+              example:
+              - survey_path: selfserve/53a/230301
+                name: Survey 1
+                archived_at: '2023-03-14T18:43:52Z'
+                clear_data_at: '2023-09-14T18:43:52Z'
+                delete_at: null
+              - survey_path: selfserve/53a/230302
+                name: Survey 2
+                archived_at: '2023-03-16T21:22:12Z'
+                clear_data_at: null
+                delete_at: '2024-03-14T18:43:52Z'
+  /rh/surveys/templates/{template}/copy:
+    post:
+      operationId: createRhSurveysTemplateCopy
+      summary: Create survey from template
+      description: Create a new survey from a template.
+      tags:
+      - Surveys
+      parameters:
+      - name: template
+        in: path
+        description: The id of the template to use.
+        example: netpromoterscore
+        required: true
+        schema:
+          type: string
+          enum:
+          - adtest
+          - brandawareness
+          - brandperception
+          - copytestvideoad
+          - csat
+          - demographic
+          - employeesatisfaction
+          - exploratorypricing
+          - 30dayonboarding
+          - 60dayonboarding
+          - 90dayonboarding
+          - candidateevaluation
+          - exitsurvey
+          - pulse
+          - supervisorevaluation
+          - netpromoterscore
+          - priceladdering
+          - productconcept
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  description: Name of the new survey.
+                  type: string
+                company:
+                  description: 'Name or ID of the company in which to create the survey.
+
+                    '
+                  type: string
+                category:
+                  description: Category to assign to the new survey.
+                  type: string
+                  enum:
+                  - ''
+                  - auto
+                  - beauty
+                  - beverage_alcohol
+                  - beverage_non_alcohol
+                  - business
+                  - parenting
+                  - loyalty
+                  - credit_cards
+                  - tourism
+                  - education
+                  - computer
+                  - entertainment
+                  - explicit
+                  - clothing_dept_store
+                  - clothing_other
+                  - finance
+                  - food
+                  - gambling
+                  - politics
+                  - healthcare
+                  - home_appliances
+                  - home_entertainment
+                  - home_improvement
+                  - information_tech
+                  - media
+                  - personal_care
+                  - pets
+                  - restaurants
+                  - sensitive
+                  - smoking
+                  - social
+                  - fitness
+                  - telecom
+                  - toys
+                  - transportation
+                  - travel_airlines
+                  - travel_hotels
+                  - travel_services
+                  - video_games
+                  - internet
+                description:
+                  description: A description of the survey.
+                  type: string
+                lang:
+                  description: Language for the survey.
+                  type: string
+                preferred_path:
+                  description: 'Custom path for the new survey. If omitted the path will be
+
+                    auto-generated.
+
+                    '
+                  type: string
+                subdirectory:
+                  description: ID of the subdirectory to use.
+                  type: integer
+                tags:
+                  description: List of tags to add to the survey.
+                  type: array
+                  items:
+                    type: string
+              required:
+              - name
+              - company
+              example:
+                name: New NPS Survey
+                company: Decipher
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/surveyWithKeep'
+  /rh/surveys/{survey}/copy:
+    post:
+      operationId: createRhSurveyCopy
+      summary: Copy survey
+      description: Create a new survey by copying an existing one.
+      tags:
+      - Surveys
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  description: The name of the new survey.
+                  type: string
+                copy_data:
+                  description: Copy project data.
+                  default: false
+                  type: boolean
+                copy_permissions:
+                  description: Copy project users and groups.
+                  default: false
+                  type: boolean
+                copy_subscribers:
+                  description: Copy project subscribers.
+                  default: false
+                  type: boolean
+                preferred_path:
+                  description: 'Optional custom survey path. If not supplied, the path will be
+
+                    auto-generated.
+
+                    '
+                  type: string
+              required:
+              - name
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/surveyWithKeep'
+  /rh/surveys/{survey}:
+    get:
+      operationId: getRHSurvey
+      summary: Get survey information
+      description: This will get the information shown in the Research Hub for an individual survey.
+      tags:
+      - Surveys
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/surveyWithKeep'
+    put:
+      operationId: updateRHSurvey
+      summary: Update survey information
+      description: 'This call is used to update information in the Research Hub tied to a
+
+        survey, and requires either `survey.edit` or `data.edit` permission
+
+        on the survey. Omitted parameters are left unchanged. Returns back the
+
+        new state of the resource.
+
+
+        Valid categories:
+
+
+        + empty string (No Selection)
+
+        + `auto` (Automotive)
+
+        + `beauty` (Beauty/Cosmetics)
+
+        + `beverage_alcohol` (Beverages - Alcoholic)
+
+        + `beverage_non_alcohol` (Beverages - Non-alcoholic)
+
+        + `business` (Business)
+
+        + `parenting` (Children & Parenting)
+
+        + `loyalty` (Coalition/Loyalty Programs)
+
+        + `credit_cards` (Credit Cards)
+
+        + `tourism` (Destinations & Tourism)
+
+        + `education` (Education)
+
+        + `computer` (Electronics/Computer/Software)
+
+        + `entertainment` (Entertainment & Leisure)
+
+        + `explicit` (Explicit Content)
+
+        + `clothing_dept_store` (Fashion & Clothing - Department Store)
+
+        + `clothing_other` (Fashion & Clothing - Other )
+
+        + `finance` (Finance, Banking Investing & Insurance)
+
+        + `food` (Food/Snacks)
+
+        + `gambling` (Gambling/Lottery)
+
+        + `politics` (Government & Politics)
+
+        + `healthcare` (Healthcare/Pharmaceuticals)
+
+        + `home_appliances` (Home (Utilities, Appliances))
+
+        + `home_entertainment` (Home Entertainment (DVD, VHS))
+
+        + `home_improvement` (Home Improvement/Real Estate/Construction)
+
+        + `information_tech` (IT (Servers, Databases, etc))
+
+        + `media` (Media & Publishing)
+
+        + `personal_care` (Personal Care/Toiletries)
+
+        + `pets` (Pets)
+
+        + `restaurants` (Restaurants)
+
+        + `sensitive` (Sensitive Content)
+
+        + `smoking` (Smoking/Tobacco)
+
+        + `social` (Social Research)
+
+        + `fitness` (Sports, Recreation, Fitness)
+
+        + `telecom` (Telecommunications (phone, cell phone, cable))
+
+        + `toys` (Toys)
+
+        + `transportation` (Transportation)
+
+        + `travel_airlines` (Travel - Airlines)
+
+        + `travel_hotels` (Travel - Hotels)
+
+        + `travel_services` (Travel Services/Agency/Booking)
+
+        + `video_games` (Video Games)
+
+        + `internet` (Websites/Internet/E-Commerce)'
+      tags:
+      - Surveys
+      parameters:
+      - name: survey
+        description: Path of the survey. `survey.edit` or `data.edit` permission required.
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                description:
+                  description: A description for the survey.
+                  type: string
+                category:
+                  description: 'A category key. Query `GET /api/v1/rh/surveys/categories` to see
+
+                    all possible options. Empty string is passed to return to the
+
+                    default state of "No Selection".
+
+                    '
+                  type: string
+                keep:
+                  description: 'if set to `true`, suppress any automated archival of this suvey.
+
+                    Equivalent of issuing the command `touch keep` in the shell.
+
+                    '
+                  type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                category: food
+                description: <p>This survey is about food!</p>
+                keep: false
+                path: survey/path
+  /rh/surveys/{survey}/audit-log:
+    get:
+      operationId: getRHSurveyAuditLog
+      summary: Retrieve a survey's audit log
+      description: Retrieve a survey's audit log in batches of 1000 entries per page. To see this log you need at least `admin.partial` permission.
+      tags:
+      - Surveys
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        user_id:
+                          description: ID of the user that triggered the event
+                          type: integer
+                          example: 1
+                        ip:
+                          description: IP that triggered the event.
+                          type: string
+                          example: 172.0.0.0
+                        event:
+                          description: 'Name of the event.
+
+                            '
+                          type: string
+                          example: 'Crosstabs: viewed ''Total Qualified'' report'
+                        created_on:
+                          description: When the event was triggered.
+                          type: string
+                          format: ISO 8601 timestamp with timezone
+                          example: '2022-12-15T19:53:47Z'
+                        type:
+                          description: Event type.
+                          type: string
+                          example: audit.entry
+                        id:
+                          description: ID of the event.
+                          type: integer
+                          example: 9999
+                        user_email:
+                          description: Who triggered the event.
+                          type: string
+                          example: usermail@forsta.com
+                        survey_path:
+                          description: Survey related to the event.
+                          type: string
+                          example: selfserve/53a/220000
+                  links:
+                    type: object
+                    description: 'Link to next batch of entries (page).
+
+                      '
+                    properties:
+                      next:
+                        description: An object with information about how to get the next page of results.
+                        type: object
+                        properties:
+                          href:
+                            description: Request this URL to get the next page of results
+                            type: string
+                            example: '{server}/api/v1/rh/users/{id}/audit-log?page[size]=2&page[after]=9999'
+                          meta:
+                            description: Details about the next link
+                            type: object
+                            properties:
+                              page[size]:
+                                description: 'If manually constructing the URL for the next page,
+
+                                  this is the parameter that would need to be changed to the
+
+                                  number of entries per page.
+
+                                  '
+                                type: string
+                                example: '9999'
+                              page[after]:
+                                description: 'If manually constructing the URL for the next page,
+
+                                  this is the parameter that would need to be changed to the ID after
+
+                                  which you want to start.
+
+                                  '
+                                type: string
+                                example: '9999'
+components:
+  schemas:
+    survey:
+      type: object
+      properties:
+        accessed:
+          example: true
+          type: boolean
+          description: 'Has the survey been accessed in the past 3 days? This is a subset of
+
+            `active`.
+
+            '
+        active:
+          example: true
+          type: boolean
+          description: "`true` if the survey has been accessed, edited, or completed by a \nparticipant in the past 3 days.\n"
+        archived:
+          example: false
+          type: boolean
+          description: "`true` if the survey is hidden for your account via the 'Hide Survey' \noption.\n"
+        averageQtime:
+          example: null
+          type: integer
+          description: 'Mean completion time (in seconds) for qualified participants. Not
+
+            available (and always `null`) for Delphi surveys; use the response summary
+
+            API instead.
+
+            '
+        category:
+          example: Business
+          type: string
+          description: Category of the survey.
+        clickthrough:
+          example: 0
+          type: integer
+          description: Number of clickthroughs.
+        closedDate:
+          example: null
+          type: string
+          format: ISO 8601 timestamp with timezone
+          description: Date and time the survey was last closed, or `null`.
+        compat:
+          example: 153
+          type: integer
+          description: Compatibility level (`compat` attribute in `survey.xml`).
+        createdBy:
+          example:
+            email: developer@decipherinc.com
+            name: Developer
+            id: 1
+          type: object
+          properties:
+            email:
+              type: string
+            name:
+              type: string
+            id:
+              type: integer
+          description: 'An object with user info about the user who created the survey, or `null`.
+
+            '
+        createdOn:
+          example: '2025-03-07T23:45:45Z'
+          type: string
+          format: ISO 8601 timestamp with timezone
+          description: Date and time the survey was created.
+        dateLaunched:
+          example: null
+          type: string
+          format: ISO 8601 timestamp with timezone
+          description: Date and time the survey was last set live.
+        description:
+          example: ''
+          type: string
+          description: 'Additional description entered in the portal or project overview page.
+
+            '
+        directory:
+          example: Decipher
+          type: string
+          description: Combination of company name, subdirectory, and a client tag.
+        favorite:
+          example: false
+          type: boolean
+          description: '`true` if you marked the survey as favorite.
+
+            '
+        finishTime:
+          example: null
+          type: string
+          format: ISO 8601 timestamp with timezone
+          description: Date and time of the last complete.
+        groups:
+          example:
+          - - 2
+            - admin cm dash dashboard data offline report survey themeEditor
+          type: array
+          items:
+            type: array
+            items:
+            - type: integer
+            - type: string
+          description: User group ID and permissions.
+        hasDashboard:
+          example: true
+          type: boolean
+          description: '`true` if the survey has a dashboard.
+
+            '
+        hasProjectParameters:
+          example: false
+          type: boolean
+          description: '`true` if the survey has project parameters enabled.
+
+            '
+        hasSavedReport:
+          example: true
+          type: boolean
+          description: '`true` if the survey has a saved report.
+
+            '
+        isCATI:
+          example: false
+          type: boolean
+          description: '`true` if the survey has CATI enabled.
+
+            '
+        isDeprecated:
+          example: true
+          type: boolean
+          description: '`true` if the survey has a compat level that is scheduled to be retired.
+
+            '
+        isRetired:
+          example: false
+          type: boolean
+          description: '`true` if the survey has a compat level at or below the retired compat
+
+            level.
+
+            '
+        lang:
+          example:
+          - english
+          - English (USA)
+          type: array
+          items:
+            type: string
+          description: 'Primary language, generated as a pair of [language ID, language
+
+            description].
+
+            '
+        lastAccess:
+          example: '2025-03-07T23:45:45Z'
+          type: string
+          format: ISO 8601 timestamp with timezone
+          description: Date and time someone last accessed the survey.
+        lastAccessBy:
+          example:
+            email: developer@decipherinc.com
+            name: Developer
+            id: 1
+          type: object
+          properties:
+            email:
+              type: string
+            name:
+              type: string
+            id:
+              type: integer
+          description: "An object with info about the user who last accessed the survey, or \n`null`.\n"
+        lastEdit:
+          example: '2025-03-07T23:45:45Z'
+          type: string
+          format: ISO 8601 timestamp with timezone
+          description: Date and time someone last edited the survey, or `null`.
+        lastEditBy:
+          example:
+            email: developer@decipherinc.com
+            name: Developer
+            id: 1
+          type: object
+          properties:
+            email:
+              type: string
+            name:
+              type: string
+            id:
+              type: integer
+          description: 'An object with info about the user who last edited the survey, or `null`.
+
+            '
+        lastQuotaEdit:
+          example: null
+          type: string
+          format: ISO 8601 timestamp with timezone
+          description: Date and time `quota.xls` was last modified, or `null`.
+        lastSurveyEdit:
+          example: '2025-03-18T21:38:25Z'
+          type: string
+          format: ISO 8601 timestamp with timezone
+          description: Date and time `survey.xml` was last modified.
+        matched:
+          example: {}
+          type: object
+          description: 'If `query` was passed, object containing the field matched and the
+
+            content of that field with match highlighted.
+
+            '
+        medianQtime:
+          example: null
+          type: integer
+          description: 'Median completion time (in seconds) for qualified participants. Not
+
+            available (and always `null`) for Delphi surveys; use the response
+
+            summary endpoint instead.
+
+            '
+        myAccess:
+          example: '2025-03-18T22:14:22Z'
+          type: string
+          format: ISO 8601 timestamp with timezone
+          description: Date and time you last accessed the survey, or `null`.
+        myEdit:
+          example: '2025-03-18T22:14:22Z'
+          type: string
+          format: ISO 8601 timestamp with timezone
+          description: Date and time you last edited the survey, or `null`.
+        otherLanguages:
+          example:
+          - - arabic
+            - Arabic
+          - - dutch
+            - Dutch
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+          description: Other languages for the survey.
+        owner:
+          example: 1
+          type: integer
+          description: The ID of the company that owns the survey.
+        path:
+          example: selfserve/123/456789
+          type: string
+          description: Full survey path.
+        qualified:
+          example: 0
+          type: integer
+          description: Qualified completes.
+        questions:
+          example: 10
+          type: integer
+          description: Number of questions in the survey visible to the participant.
+        retention:
+          example:
+            archive_days: null
+            clear_data_days: null
+            server_delete_days: 365
+            server_archive_days: null
+            server_clear_data_days: null
+          type: object
+          properties:
+            archive_days:
+              type: integer
+              description: '`null`, or how many days must pass after the survey closes, before it
+
+                becomes archived.
+
+                '
+            clear_data_days:
+              type: integer
+              description: '`null`, or the number of days after the survey is archived before its
+
+                data is cleared from the archive.
+
+                '
+            server_delete_days:
+              type: integer
+              description: '`null` or the number of days an archive will remain before being
+
+                deleted.
+
+                '
+            server_archive_days:
+              type: integer
+              description: '`null` or the number of days after the survey is archived before the
+
+                data is cleared from the archive. Server default value.
+
+                '
+            server_clear_data_days:
+              type: integer
+              description: '`null` or the number of days an archive will remain before being
+
+                deleted. Server default value.
+
+                '
+          description: 'An object that contains the number of days until a data retention event
+
+            can occur.
+
+            '
+        sampleSources:
+          example:
+          - '0'
+          - '101'
+          type: array
+          items:
+            type: string
+          description: 'Participant sources used. Each item in the array is a `list=""` value.
+
+            '
+        startTime:
+          example: null
+          type: string
+          format: ISO 8601 timestamp with timezone
+          description: Date and time of the first complete.
+        state:
+          example: testing
+          type: string
+          enum:
+          - dev
+          - testing
+          - live
+          - closed
+          description: Current state of the survey.
+        tags:
+          example:
+          - Decipher
+          type: array
+          items:
+            type: string
+          description: Array of tags applied to the survey.
+        title:
+          example: New NPS Survey
+          type: string
+          description: Title of the survey.
+        today:
+          example: 0
+          type: integer
+          description: 'Completes today * `averageQtime` — mean completion time (in seconds) for
+
+            qualified participants. Not available (and always `null`) for Delphi
+
+            surveys; use the response summary endpoint instead.
+
+            '
+        total:
+          example: 0
+          type: integer
+          description: Total participants (overquota + terminated + qualified).
+        type:
+          example: 1
+          type: integer
+          description: Beacon = 1, email = 2, SPSS = 4.
+    surveyWithKeep:
+      allOf:
+      - $ref: '#/components/schemas/survey'
+      - type: object
+        properties:
+          keep:
+            example: false
+            type: boolean
+            description: '`true` if the survey has been marked to prevent archival.
+
+              '
+  parameters:
+    survey:
+      name: survey
+      in: path
+      required: true
+      description: The survey path.
+      example: selfserve/1a/123456
+      schema:
+        type: string
+        format: uri
+  securitySchemes:
+    APIKey:
+      type: apiKey
+      in: header
+      name: x-apikey
+      description: 'In order to access the api, you''ll need to generate an API key. Refer to the
+
+        instructions [here](/docs/decipher/api#section/API-Keys) to generate and
+
+        configure an API key with the appropriate permission sets. You can generate
+
+        as many keys as required.
+
+
+        Configure each request to include your API key in the request header. For example:
+
+
+        ```
+
+        x-apikey: dp48ss3mgsaucyjtybxw728h7s4cgnwzhejtszdwhf4xpe8yhmtdwpk2ntdhtwbs
+
+        ```
+
+        '
+x-tagGroups:
+- name: Autoclose
+  tags:
+  - Autoclose
+- name: Data Input and Output
+  tags:
+  - Data
+  - Data Feed
+  - Response Summary
+  - Modifying Data
+  - Datasources
+  - Datasources Data
+  - Umerge
+- name: Survey Metadata
+  tags:
+  - Simulated Data
+  - Survey State
+  - Survey Evaluate
+  - Survey Quotas
+  - Survey Files
+  - Survey Warnings
+  - Survey Terms
+  - Survey Subscribers
+  - Survey Users
+  - Survey Tasks
+- name: Panels
+  tags:
+  - Panel Data
+  - Panel Datapoints
+  - Survey Panels
+- name: Research Hub
+  tags:
+  - Users
+  - Companies
+  - Categories
+  - Surveys
+  - Panels
+  - Crosstabs
+  - Archives
+  - Archival Reports
+  - API Keys
+  - Usage
+  - Warnings Summary
+- name: Crosstabs
+  tags:
+  - Crosstabs Configuration
+  - Crosstabs Execution
+  - Crosstabs Nets
+  - Saved Crosstabs
+  - Crosstabs Table Settings
+  - Crosstabs Validation
+  - Crosstabs Rim Weighting
+- name: Dashboards
+  tags:
+  - Dashboards
+- name: DQ APIs
+  tags:
+  - DQ-Specific API Calls
+  - MaxDiff API Calls
+  - Discrete Choice Model API Calls
+  - Media Testimonial API Calls
+- name: Response Summary
+  tags:
+  - Share Link
+- name: Sample Management
+  tags:
+  - Bounced Emails
+  - Participant Sources
+- name: Distribution
+  tags:
+  - Email Distribution
+  - SFTP Distribution
+  - Slack Distribution
+- name: Campaign Manager
+  tags:
+  - Campaigns
+  - Campaign Email Invites
+  - Campaign Exports
+  - Campaign Lists
+  - Shared Campaign Lists
+  - Campaign Sends
+  - Campaign Status Lists
+  - Supression Lists
+- name: Question Library
+  tags:
+  - Company Element
+  - Company Elements
+  - Survey Elements
+  - Survey Element Report Settings
+- name: Language Manager
+  tags:
+  - LM Application Data
+  - LM Application Translations
+  - Translation Resources
+  - Translations
+  - Translation Deltas
+  - Translation Reservations
+  - Primary Survey Language
+  - Other Survey Languages
+  - Unused Survey Languages
+- name: Project Parameters
+  tags:
+  - Available Project Parameters
+  - Saved Project Parameters
+  - Project Parameters Configuration
+- name: Multi-User Editing
+  tags:
+  - Available Sections
+  - Check Out Section
+  - Check In Section
+  - Sync Section
+  - Section Editor
+  - Abandon Section
+  - Validate Section
+- name: Video Management
+  tags:
+  - Videos
+  - Watermarked Videos
+- name: Miscellaneous
+  tags:
+  - System Information
+  - Logic Nodes
+  - Logic Events
+  - CATI
+  - Global Search
+  - Miscellaneous

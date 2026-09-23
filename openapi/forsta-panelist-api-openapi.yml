@@ -1,0 +1,3951 @@
+openapi: 3.2.0
+info:
+  title: Forsta Panelist API
+  version: ''
+  description: 'Operations tagged Panelist across 2 of this provider''s published API definitions: forsta-panel-management-community-openapi.yml, forsta-panel-management-integration-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://{server}
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: staging.panel.dev.focusvision.com/
+      description: Server domain
+tags:
+- name: Panelist
+paths:
+  /api.pro#method=portal.panelist.create:
+    post:
+      operationId: portal.panelist.create
+      summary: Create a new panelist
+      description: 'NOTE:
+
+        In most cases, portal.email.sendOptInConfirmation will need to be called after panelist is created successfully.'
+      tags:
+      - Panelist
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.panelist.create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                panelid:
+                  type: integer
+                  description: The panelid in which the new panelist should be assigned.
+                datapoints:
+                  type: array
+                  description: Array of data points and values to assign to the new panelist.
+                  items:
+                    required:
+                    - label
+                    - answer
+                    properties:
+                      label:
+                        type: string
+                        description: The datapoint label, may also be one of the reserved labels (email, password, identifier, sourceid, etc.). Email is the only required field.<br> Please note, that data point labels are <strong>case sensitive</strong>!
+                      answer:
+                        oneOf:
+                        - type:
+                          - string
+                          - 'null'
+                        - type:
+                          - number
+                          - 'null'
+                        description: The panelist's data point or system field value. Checkboxes should be passed-in as a comma-separated list. Password can be plain text or a bcrypt hash.
+                referral:
+                  type:
+                  - string
+                  - 'null'
+                  description: A referral hash, as returned by <code>portal.panelist.referralHash</code>, or NULL if this isn't a referral.
+                points:
+                  type: string
+                  description: Initial number of points awarded for joining
+              required:
+              - panelid
+              - datapoints
+            example:
+              panelid: 1
+              datapoints:
+              - label: email
+                answer: demo@example.com
+              - label: password
+                answer: demopassword
+              - label: QGENDER
+                answer: Female
+              referral: 4a2642645e73235ee9daafb0b2df287b
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: The panelist creation was successful.
+                    panelistid:
+                      type: integer
+                      description: The panelistid of the newly created panelist.
+                    verification:
+                      type: string
+                      description: The confirmation hash - needed for <code>portal.panelist.confirm</code>.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    panelistid: 2
+                    verification: c50dea019651460501d2b9dcc0a8aafa
+                error-0:
+                  description: Panel with supplied panel ID is not found.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: Panel ID does not exist, or is currently inaccessible.
+                    errno: '10000'
+                error-1:
+                  description: At least one of the supplied datapoints does not contain a label.
+                  summary: Datapoints invalid
+                  value:
+                    success: false
+                    error: Answer data did not contain dataid or label!
+                    errno: '20000'
+                error-2:
+                  description: The supplied datapoints do not contain a answer.
+                  summary: Datapoints invalid
+                  value:
+                    success: false
+                    error: No answer data supplied!
+                    errno: '20000'
+                error-3:
+                  description: At least one of the supplied datapoints is not defined in this panel.
+                  summary: Datapoint unknown
+                  value:
+                    success: false
+                    error: The following labels for which you tried to store data are not defined for this panel…
+                    errno: '20000'
+                error-4:
+                  description: The supplied panel ID is not numeric.
+                  summary: Panel ID invalid
+                  value:
+                    success: false
+                    error: Panel ID is invalid
+                    errno: '20101'
+                error-5:
+                  description: The supplied referral hash was not valid.
+                  summary: Referral hash invalid
+                  value:
+                    success: false
+                    error: The supplied referral hash is invalid
+                    errno: '20103'
+                error-6:
+                  description: The supplied points is not numeric.
+                  summary: Points invalid
+                  value:
+                    success: false
+                    error: The supplied initial points value is invalid
+                    errno: '20104'
+                error-7:
+                  description: The supplied email is not a valid email address.
+                  summary: Email invalid
+                  value:
+                    success: false
+                    error: The supplied email address is invalid
+                    errno: '40006'
+      security:
+      - ApiKey: []
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api.pro#method=portal.panelist.update:
+    post:
+      operationId: portal.panelist.update
+      summary: Update the current panelist's information
+      tags:
+      - Panelist
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.panelist.update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                datapoints:
+                  type: array
+                  description: Array of data points and values to assign to the panelist.
+                  items:
+                    required:
+                    - label
+                    - answer
+                    properties:
+                      label:
+                        type: string
+                        description: The datapoint label, may also be one of the reserved labels (email, password, identifier, sourceid, etc.). Email is the only required field.<br> Please note, that data point labels are <strong>case sensitive</strong>!
+                      answer:
+                        oneOf:
+                        - type:
+                          - string
+                          - 'null'
+                        - type:
+                          - number
+                          - 'null'
+                        description: The panelist's data point or system field value. Checkboxes should be passed-in as a comma-separated list. Password can be plain text or a bcrypt hash.
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+              - datapoints
+            example:
+              seskey: ce512c91
+              datapoints:
+              - label: QGENDER
+                answer: Female
+              - label: QCHECKBOX
+                answer: 2,4,5,8
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: The update was successful.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                error-0:
+                  description: At least one of the supplied datapoints does not contain a label.
+                  summary: Datapoints invalid
+                  value:
+                    success: false
+                    error: Answer data did not contain dataid or label!
+                    errno: '20000'
+                error-1:
+                  description: The subscribed is invalid. Subscribed can only be set to "yes" or "no".
+                  summary: Subscribed invalid
+                  value:
+                    success: false
+                    error: The supplied value for label 'subscribed' is invalid
+                    errno: '20000'
+                error-2:
+                  description: At least one of the supplied datapoints is not defined in this panel.
+                  summary: Datapoint unknown
+                  value:
+                    success: false
+                    error: The following labels for which you tried to store data are not defined for this panel…
+                    errno: '20000'
+                error-3:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-4:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-5:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+                error-6:
+                  description: The supplied email is not a valid email address.
+                  summary: Email invalid
+                  value:
+                    success: false
+                    error: The supplied email address is invalid
+                    errno: '40003'
+      security:
+      - ApiKey: []
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api.pro#method=portal.panelist.optOut:
+    post:
+      operationId: portal.panelist.optOut
+      summary: Unsubscribes a panelist
+      description: This method unsubscribes a panelist. The panelist is not deleted, only marked as unsubscribed.
+      tags:
+      - Panelist
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.panelist.optOut
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+            example:
+              seskey: ce512c91
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: The opt out was successful.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+      security:
+      - ApiKey: []
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api.pro#method=portal.panelist.read:
+    post:
+      operationId: portal.panelist.read
+      summary: Panelist information
+      description: This method returns a panelist information for a specific datapoint.
+      tags:
+      - Panelist
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.panelist.read
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                datapoints:
+                  type: array
+                  description: An array of datapoint Labels
+                  items:
+                    type: string
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+              - datapoints
+            example:
+              seskey: ce512c91
+              datapoints:
+              - QGENDER
+              - IDENTIFIER
+              - QCHECKBOX
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: Retrieving panelist information was successful.
+                    values:
+                      type: array
+                      description: Array of datapoint values requested.
+                      items:
+                        properties:
+                          label:
+                            type: string
+                            description: The datapoint label, may also be one of the reserved labels (email, password, identifier, sourceid, etc.).
+                          answer:
+                            oneOf:
+                            - type:
+                              - string
+                              - 'null'
+                            - type:
+                              - number
+                              - 'null'
+                            description: The panelist's data point value. Checkboxes are a comma-separated list.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    values:
+                    - label: QGENDER
+                      answer: Female
+                    - label: IDENTIFIER
+                      answer: Demo1
+                    - label: QCHECKBOX
+                      answer: 2,4,5
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+      security:
+      - ApiKey: []
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api.pro#method=portal.panelist.confirm:
+    post:
+      operationId: portal.panelist.confirm
+      summary: Confirms panelist join to the panel
+      description: Confirms that a panelist wished to join the panel, and that the email address used to sign-up is valid.
+      tags:
+      - Panelist
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.panelist.confirm
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                panelid:
+                  type: integer
+                  description: The panelid of the panel the panelist wishes to join.
+                panelistid:
+                  type: integer
+                  description: The id of the panelist that wishes to join.
+                verification:
+                  type: string
+                  description: The verification hash returned by the <code>portal.panelist.create</code> function.
+              required:
+              - panelid
+              - panelistid
+              - verification
+            example:
+              panelid: 1
+              panelistid: 15
+              verification: c50dea019651460501d2b9dcc0a8aafa
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: Confirming the panelist was successful.
+                    panelistid:
+                      type: integer
+                      description: The panelistid of the confirmed panelist.
+                    seskey:
+                      type: string
+                      description: The sessionKey of the confirmed panelist.
+                    fullname:
+                      type: string
+                      description: The full name of the confirmed panelist.
+                    email:
+                      type: string
+                      description: The email address of the confirmed panelist.
+                    firstname:
+                      type: string
+                      description: The first name of the panelist who has logged in.
+                    lastname:
+                      type: string
+                      description: The last name of the panelist who has logged in.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    panelistid: 15
+                    seskey: ce512c91
+                    fullname: Demo Panelist
+                    email: demo@example.com
+                    firstname: Demo
+                    lastname: Panelist
+                error-0:
+                  description: Panel with supplied panel ID is not found.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: Panel ID does not exist, or is currently inaccessible.
+                    errno: '10000'
+                error-1:
+                  description: The supplied panel ID is not numeric.
+                  summary: Panel ID invalid
+                  value:
+                    success: false
+                    error: Panel ID is invalid
+                    errno: '20101'
+                error-2:
+                  description: The supplied panelist ID is not numeric.
+                  summary: Panelist ID invalid
+                  value:
+                    success: false
+                    error: The supplied panelist ID is invalid
+                    errno: '20102'
+                error-3:
+                  description: The supplied verification is not valid.
+                  summary: Verification invalid
+                  value:
+                    success: false
+                    error: The registration confirmation code is invalid
+                    errno: '20103'
+                error-4:
+                  description: Panelist with supplied panelist ID is not found.
+                  summary: Panelist not found
+                  value:
+                    success: false
+                    error: The supplied panelist ID could not be found
+                    errno: '20302'
+      security:
+      - ApiKey: []
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api.pro#method=portal.panelist.referralHash:
+    post:
+      operationId: portal.panelist.referralHash
+      summary: Returns the referral hash
+      tags:
+      - Panelist
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.panelist.referralHash
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: The email address of the referrer.
+                points:
+                  type: integer
+                  description: The number of points awarded.
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+              - email
+              - points
+            example:
+              seskey: ce512c91
+              email: person@example.com
+              points: 25
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: Retrieving the referral hash was unsuccessful.
+                    referralHash:
+                      type: string
+                      description: A hash used in <code>portal.panelist.create</code> in order for a referrer to get their points.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    referralHash: 4a2642645e73235ee9daafb0b2df287b
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: The supplied email is not a valid email address.
+                  summary: Email invalid
+                  value:
+                    success: false
+                    error: The supplied email address is invalid
+                    errno: '20102'
+                error-2:
+                  description: The supplied points value is not numeric.
+                  summary: Points invalid
+                  value:
+                    success: false
+                    error: The supplied points value is invalid
+                    errno: '20103'
+                error-3:
+                  description: The supplied email address is a member or has been sent a referral by the current panelist. Additional referrals cannot be sent to this email address.
+                  summary: Email member already referred
+                  value:
+                    success: false
+                    error: The person you were trying to refer is already a member or has already been referred by you
+                    errno: '20202'
+                error-4:
+                  description: The supplied email address is opted-out of referrals and cannot be sent additional referrals.
+                  summary: Email referral opt-out
+                  value:
+                    success: false
+                    error: The person you were trying to refer does not wish to be referred again
+                    errno: '20302'
+                error-5:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-6:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+      security:
+      - ApiKey: []
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api.pro#method=portal.panelist.contactFrequenciesGet:
+    post:
+      operationId: portal.panelist.contactFrequenciesGet
+      summary: Gets the currently set panelist contact frequencies
+      description: 'Notice:
+
+        Panelists don''t have a contact frequencies record by default.'
+      tags:
+      - Panelist
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.panelist.contactFrequenciesGet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+            example:
+              seskey: ce512c91
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: Retrieving the contact frequencies was successful.
+                    maxMessages:
+                      type: integer
+                      description: The number of messages the panelist wants to receive in the specified time frame.
+                    nextMessage:
+                      type: string
+                      description: Date string of the projected time, when panelist is ready to receive the next email invitation (YYYY-MM-DD HH:MM:SS).
+                    timeFrame:
+                      type: string
+                      description: The time frame (week or day).
+                    SMSFrom:
+                      type: string
+                      description: The time when it is acceptable to start sending SMS to the panelist.
+                    SMSTo:
+                      type: string
+                      description: The time after which the panelist does not wish to receive SMS.
+              examples:
+                success-1:
+                  summary: Success
+                  value:
+                    success: true
+                    maxMessages: 5
+                    nextMessage: '2014-12-08 11:34:00'
+                    timeFrame: week
+                    SMSFrom: 09:00:00
+                    SMSTo: '21:00:00'
+                success-2:
+                  summary: Success - no record
+                  value:
+                    success: true
+                error-0:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-1:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+      security:
+      - ApiKey: []
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api.pro#method=portal.panelist.contactFrequenciesSet:
+    post:
+      operationId: portal.panelist.contactFrequenciesSet
+      summary: Set the contact frequencies for the current panelist
+      description: 'Notice:
+
+
+        TheSMSFrom and SMSTo settings are only of importance, if you''re sending SMS invitations from your panel.'
+      tags:
+      - Panelist
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.panelist.contactFrequenciesSet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                maxMessages:
+                  type:
+                  - integer
+                  - 'null'
+                  description: Set the number of messages a panelist wants to receive per time frame. A value of NULL means unlimited.
+                timeFrame:
+                  type: string
+                  enum:
+                  - week
+                  - day
+                  description: The time frame (week or day) in which we apply the maxMessages limit.
+                SMSFrom:
+                  type: string
+                  description: The time when it is acceptable to start sending SMS to the panelist. The time format is expected in 24 hour HH:MM:SS. If omitted, it will default to 09:00:00.
+                SMSTo:
+                  type: string
+                  description: The time after which the panelist does not wish to receive SMS. The time format is expected in 24 hour HH:MM:SS. If omitted, it will default to 21:00:00.
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+              - maxMessages
+              - timeFrame
+            examples:
+              Example 1:
+                description: Set limit of 5 invitations by email/sms per week.
+                value:
+                  seskey: ce512c91
+                  maxMessages: 5
+                  timeFrame: week
+              Example 2:
+                description: Set limit of 1 invitations by email/sms per day. No SMS between 8pm and 5pm.
+                value:
+                  seskey: ce512c91
+                  maxMessages: 1
+                  timeFrame: day
+                  SMSFrom: '17:00:00'
+                  SMSTo: '20:00:00'
+              Example 3:
+                description: Set unlimited number of invitations by email/sms per day.
+                value:
+                  seskey: ce512c91
+                  maxMessages: null
+                  timeFrame: day
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: Setting the contact frequencies was successful.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                error-0:
+                  description: 'Missing a time constraint: SMSFrom or SMSTo.'
+                  summary: SMSFrom and SMSTo invalid
+                  value:
+                    success: false
+                    error: Both time constraints must be supplied or none.
+                    errno: '0'
+                error-1:
+                  description: The supplied SMSFrom needs to be a valid time.
+                  summary: SMSFrom invalid
+                  value:
+                    success: false
+                    error: Invalid time stamp received
+                    errno: '0'
+                error-2:
+                  description: The supplied SMSTo needs to be a valid time.
+                  summary: SMSTo invalid
+                  value:
+                    success: false
+                    error: Invalid time stamp received
+                    errno: '0'
+                error-3:
+                  description: The time frame is invalid. The time frame can only be set to "day" or "week".
+                  summary: Time frame invalid
+                  value:
+                    success: false
+                    error: Time frame out of range, allowed values are 'day' and 'week'
+                    errno: '0'
+                error-4:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-5:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-6:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+      security:
+      - ApiKey: []
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api.pro#method=integration.panelist.create:
+    post:
+      operationId: panelistCreate
+      summary: Create a panelist
+      description: 'Create a panelist with accompanying data.
+
+
+        ## NOTE:
+
+        In most cases, `portal.email.sendOptInConfirmation` will need to be called after panelist is created
+
+        successfully.'
+      tags:
+      - Panelist
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.panelist.create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - sesKey
+              - settings
+              properties:
+                sesKey:
+                  description: A valid login hash.
+                  type: string
+                  example: 5a15852c564933807bbd36da58071063
+                settings:
+                  description: Which type of statistics to pull..
+                  type: array
+                  items:
+                    type: object
+                    required:
+                    - label
+                    - answer
+                    properties:
+                      label:
+                        description: A valid datapoint label or panelist field.
+                        type: string
+                        example: 5a15852c564933807bbd36da58071063
+                      answer:
+                        description: The answer to set for the label.
+                        type: string
+                        example: 5a15852c564933807bbd36da58071063
+                  example:
+                  - name: email
+                    url: test@kinesissurvey.com
+                  - name: sourceid
+                    answer: 335
+                  - name: identifier
+                    answer: KS_234234
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                    data:
+                      type: object
+                      properties:
+                        pid:
+                          type: number
+                        sourceid:
+                          type:
+                          - string
+                          - 'null'
+                        localid:
+                          type: string
+                        portalid:
+                          type: string
+                        subscribed:
+                          type: string
+                        identifier:
+                          type: string
+                          description: Unique panelist identifier created by Panel Management
+                        email:
+                          type: string
+                        password:
+                          type: string
+                        emailok:
+                          type: string
+                        phoneok:
+                          type: string
+                        blacklisted:
+                          type: string
+                        timezone:
+                          type: string
+                        dateformat:
+                          type: string
+                        timeformat:
+                          type: string
+                        modified:
+                          type: string
+                        created:
+                          type: string
+                        joined:
+                          type: string
+                        first_participation:
+                          type:
+                          - string
+                          - 'null'
+                        last_participation:
+                          type:
+                          - string
+                          - 'null'
+                        first_invitation:
+                          type:
+                          - string
+                          - 'null'
+                        last_invitation:
+                          type:
+                          - string
+                          - 'null'
+                        unsubscribed:
+                          type:
+                          - string
+                          - 'null'
+                        timeblacklisted:
+                          type:
+                          - string
+                          - 'null'
+                        timeunblacklisted:
+                          type:
+                          - string
+                          - 'null'
+                        timereferred:
+                          type:
+                          - string
+                          - 'null'
+                        first_completed:
+                          type:
+                          - string
+                          - 'null'
+                        last_completed:
+                          type:
+                          - string
+                          - 'null'
+                        last_pointsearned:
+                          type:
+                          - string
+                          - 'null'
+                        last_surveyscreened:
+                          type:
+                          - string
+                          - 'null'
+                        responserate:
+                          type:
+                          - string
+                          - 'null'
+                        completionrate:
+                          type:
+                          - string
+                          - 'null'
+                        invited:
+                          type: string
+                        responded:
+                          type: string
+                        completed:
+                          type: string
+                        md_invited:
+                          type: string
+                        md_started:
+                          type: string
+                        md_completed:
+                          type: string
+                        md_screened:
+                          type: string
+                        md_finished:
+                          type: string
+                        md_referredpanelists:
+                          type: string
+                        points_earned:
+                          type: string
+                        points_available:
+                          type: string
+                        points_redeemed:
+                          type: string
+                        points_survey:
+                          type: string
+                        points_referral:
+                          type: string
+                        points_other:
+                          type: string
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    data:
+                      pid: 1
+                      sourceid: null
+                      localid: '1'
+                      portalid: '1'
+                      subscribed: 'yes'
+                      identifier: test
+                      email: test@kinesissurvey.com
+                      password: c393160294275737d9c5cb047242342b
+                      emailok: 'yes'
+                      phoneok: 'no'
+                      blacklisted: 'no'
+                      modified: '2011-12-01 14:02:15'
+                      created: '2011-10-14 11:09:56'
+                      joined: '2011-01-01'
+                      first_participation: null
+                      last_participation: null
+                      first_invitation: null
+                      last_invitation: null
+                      unsubscribed: null
+                      timeblacklisted: null
+                      timeunblacklisted: null
+                      timereferred: null
+                      first_completed: null
+                      last_completed: null
+                      last_pointsearned: null
+                      last_surveyscreened: null
+                      responserate: null
+                      completionrate: null
+                      invited: '0'
+                      responded: '0'
+                      completed: '0'
+                      md_invited: '0'
+                      md_started: '0'
+                      md_completed: '0'
+                      md_screened: '0'
+                      md_finished: '0'
+                      md_referredpanelists: '1'
+                      points_earned: '0'
+                      points_available: '0'
+                      points_redeemed: '0'
+                      points_survey: '0'
+                      points_referral: '0'
+                      points_other: '0'
+                error-0:
+                  description: The supplied checkbox answer is not a numeric or string integers separated by commas ("1,2,3").
+                  summary: Settings checkbox answer invalid
+                  value:
+                    success: false
+                    error: Supplied choice is invalid
+                    errno: '0'
+                error-1:
+                  description: The supplied settings radio answer is not numeric.
+                  summary: Settings radio answer invalid
+                  value:
+                    success: false
+                    error: Supplied choice(answer) is invalid for data point (datapoint label). The value must be an unsigned integer or NULL.
+                    errno: '0'
+                error-2:
+                  description: The supplied radio or checkbox answer is not in choice range.
+                  summary: Settings radio/checkbox answer invalid
+                  value:
+                    success: false
+                    error: Invalid choice(answer) for data point (datapoint label). The value must be either NULL or an unsigned integer between (datapoint choice min) and (datapoint choice max).
+                    errno: '0'
+                error-3:
+                  description: One of the supplied settings labels is not found for any datapoints.
+                  summary: Settings label not found
+                  value:
+                    success: false
+                    error: Unknown datapoint label (label).
+                    errno: '20000'
+                error-4:
+                  description: The supplied email address is used by another panelist in the panel.
+                  summary: Settings email duplicate
+                  value:
+                    success: false
+                    error: The email address you supplied is already in use. You may be registered for this panel under a different login name.
+                    errno: '20000'
+                error-5:
+                  description: The supplied identifier is used by another panelist in the panel.
+                  summary: Settings identifier duplicate
+                  value:
+                    success: false
+                    error: The identifier you supplied is already in use.
+                    errno: '20000'
+                error-6:
+                  description: The supplied settings is empty.
+                  summary: Settings invalid
+                  value:
+                    success: false
+                    error: No answer data supplied!
+                    errno: '20000'
+                error-7:
+                  description: The subscribed is invalid. Subscribed can only be set to "yes" or "no".
+                  summary: Settings subscribed invalid
+                  value:
+                    success: false
+                    error: The supplied value for label 'subscribed' is invalid
+                    errno: '20000'
+                error-8:
+                  description: The supplied date answer was not in valid date format (YYYY-MM-DD).
+                  summary: Settings date answer invalid
+                  value:
+                    success: false
+                    error: The supplied date (answer) was invalid for (datapoint label) (date)
+                    errno: '20000'
+                error-9:
+                  description: The supplied openend answer is not a string.
+                  summary: Settings openend answer invalid
+                  value:
+                    success: false
+                    error: The data type (answer type) is not valid for (datapoint label) (openend)
+                    errno: '20000'
+                error-10:
+                  description: The supplied timezone is not valid timezone.
+                  summary: Settings timezone invalid
+                  value:
+                    success: false
+                    error: Unknown or bad timezone
+                    errno: '20000'
+                error-11:
+                  description: The supplied settings is not in valid format. Each datapiont within settings needs to contain a "label" and an "answer".
+                  summary: Settings invalid
+                  value:
+                    success: false
+                    error: Malformed answer data received
+                    errno: '20102'
+                error-12:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session has expired. You must start a new session.
+                    errno: '30100'
+                error-13:
+                  description: Session is not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: sessionkey not found
+                    errno: '30200'
+                error-14:
+                  description: User ID not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: userid for sessionkey not found
+                    errno: '30200'
+                error-15:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: sessionkey is invalid
+                    errno: '30300'
+                error-16:
+                  description: A panel needs to be selected before calling this method.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: You must select a panel before you can use this method.
+                    errno: '40001'
+                error-17:
+                  description: The supplied email is not a valid email address.
+                  summary: Settings email invalid
+                  value:
+                    success: false
+                    error: The supplied email address is invalid
+                    errno: '40006'
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api.pro#method=integration.panelist.read:
+    post:
+      operationId: panelistRead
+      summary: Read data
+      deprecated: true
+      description: 'Read panelist data from the Panel Management database. By default, this call will return all panelist system
+
+        fields (see example below), unless the optional datapoints parameter is supplied. If the optional datapoints
+
+        parameter is supplied, the call will return only the requested values (if found). Please note that question labels
+
+        and system field names are case-sensitive.
+
+
+        # NOTE:
+
+        It is ALWAYS recommended to specify "indexType" when making this call. If "IndexType" is not specified and
+
+        the panel allows numeric identifiers for panelists, this call could not find the panelist or find an incorrect
+
+        panelist.'
+      tags:
+      - Panelist
+      security:
+      - ApiKey: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sesKey:
+                  type: string
+                  description: A valid login hash.
+                index:
+                  type: string
+                  description: The pid or identifier to lookup the panelist by
+                datapoints:
+                  type: array
+                  description: Array of datapoint labels or panelist fields to return
+                  items:
+                    type: string
+                indexType:
+                  type: string
+                  enum:
+                  - identifier
+                  - pid
+                  description: The type of index being used
+              required:
+              - sesKey
+              - index
+            examples:
+              With datapoint labels:
+                value:
+                  sesKey: 5a15852c564933807bbd36da58071063
+                  index: '34359'
+                  datapoints:
+                  - Q1
+                  - Q2
+                  - Q3
+                  indexType: identifier
+              Without datapoint labels:
+                value:
+                  sesKey: 5a15852c564933807bbd36da58071063
+                  index: '34359'
+                  indexType: identifier
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      pid:
+                        type: integer
+                        description: The id of the panelist.
+                      sourceid:
+                        type: integer
+                        description: The id of the source.
+                      localid:
+                        type: integer
+                        description: The localizationid, or language code of the panelist.
+                      subscribed:
+                        type: string
+                        description: Whether the panelist is subscribed or not.
+                      identifier:
+                        type: string
+                        description: The panelist identifier.
+                      email:
+                        type: string
+                        description: The email address of the panelist.
+                      password:
+                        type: string
+                        description: The password of the panelist.
+                      emailok:
+                        type: string
+                        description: Whether the email is valid.
+                      phoneok:
+                        type: string
+                        description: Whether the phone is valid.
+                      blacklisted:
+                        type: string
+                        description: Whether the panelist is blacklisted or not.
+                      timezone:
+                        type: string
+                        description: The timezone of the panelist.
+                      dateformat:
+                        type: string
+                        description: The format of the date.
+                      timeformat:
+                        type: string
+                        description: The format of the time.
+                      modified:
+                        type: string
+                        description: The most recent date/time the panelist was updated.
+                      created:
+                        type: string
+                        description: The date/time the panelist was created.
+                      joined:
+                        type: string
+                        description: The date/time the panelist joined.
+                      first_participation:
+                        type: string
+                        description: The date/time of the panelist's first participation.
+                      last_participation:
+                        type: string
+                        description: The date/time of the panelist's last participation.
+                      first_invitation:
+                        type: string
+                        description: The date/time of the panelist's first invitation.
+                      last_invitation:
+                        type: string
+                        description: The date/time of the panelist's last invitation.
+                      unsubscribed:
+                        type: string
+                        description: The date/time that the panelist was unsubscribed.
+                      timeblacklisted:
+                        type: string
+                        description: The date/time that the panelist was blacklisted.
+                      timeunblacklisted:
+                        type: string
+                        description: The date/time that the panelist was unblacklisteed.
+                      timereferred:
+                        type: string
+                        description: The date/time that the panelist was referred.
+                      first_completed:
+                        type: string
+                        description: The date/time that the panelist first completed a survey.
+                      last_completed:
+                        type: string
+                        description: The date/time that the panelist last completed a survey.
+                      last_pointsearned:
+                        type: string
+                        description: The date/time that the panelist last earned points.
+                      last_surveyscreened:
+                        type: string
+                        description: last date/time that the panelist profiled or quota termed
+                      responserate:
+                        type: integer
+                        description: The number of responses out of the number of invites in a certain period of time (usually 90 days).
+                      completionrate:
+                        type: integer
+                        description: The number of completes out of the number of invites in a certain period of time (usually 90 days).
+                      invited:
+                        type: integer
+                        description: The number of surveys the panelist has been invited to in a certain period of time (usually 90 days).
+                      responded:
+                        type: integer
+                        description: The number of surveys the panelist has responded to in a certain period of time (usually 90 days).
+                      completed:
+                        type: integer
+                        description: The number of surveys the panelist has completed in a certain period of time (usually 90 days).
+                      md_invited:
+                        type: integer
+                        description: The number of surveys the panelist has been invited to.
+                      md_started:
+                        type: integer
+                        description: The number of surveys the panelist has responded to.
+                      md_completed:
+                        type: integer
+                        description: The number of surveys the panelist has completed.
+                      md_screened:
+                        type: integer
+                        description: The number of surveys the panelist has profiled or quota termed.
+                      md_finished:
+                        type: integer
+                        description: The number of surveys the panelist has finished.
+                      md_referredpanelists:
+                        type: integer
+                        description: The number of panelists this panelist has referred.
+                      points_earned:
+                        type: integer
+                        description: The number of points the panelist has earned.
+                      points_available:
+                        type: integer
+                        description: The number of points the panelist has available for redemption.
+                      points_redeemed:
+                        type: integer
+                        description: The number of points the panelist has redeemed.
+                      points_survey:
+                        type: integer
+                        description: The number of points the panelist has earned from completing surveys.
+                      points_referral:
+                        type: integer
+                        description: The number of points the panelist has received from referrals.
+                      points_other:
+                        type: integer
+                        description: The number of points the panelist has received from an administrator.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    data:
+                      pid: '1'
+                      sourceid: '1'
+                      localid: '1'
+                      portalid: '1'
+                      subscribed: 'yes'
+                      identifier: 1_SVFMJV
+                      email: test@example.com
+                      password: null
+                      emailok: 'yes'
+                      phoneok: 'no'
+                      blacklisted: 'no'
+                      modified: '2011-11-08 16:39:02'
+                      created: '2011-10-04 12:50:32'
+                      joined: '2011-10-04'
+                      first_participation: null
+                      last_participation: null
+                      first_invitation: null
+                      last_invitation: null
+                      unsubscribed: null
+                      timeblacklisted: null
+                      timeunblacklisted: null
+                      timereferred: null
+                      first_completed: null
+                      last_completed: null
+                      last_pointsearned: '2011-11-08 16:39:02'
+                      last_surveyscreened: null
+                      responserate: null
+                      completionrate: null
+                      invited: '0'
+                      responded: '0'
+                      completed: '0'
+                      md_invited: '0'
+                      md_started: '0'
+                      md_completed: '0'
+                      md_screened: '0'
+                      md_finished: '0'
+                      md_referredpanelists: '0'
+                      points_earned: '5000'
+                      points_available: '5000'
+                      points_redeemed: '0'
+                      points_survey: '0'
+                      points_referral: '0'
+                      points_other: '5000'
+                error-0:
+                  description: The supplied datapoints are not valid datapoint labels or panelist fields.
+                  summary: Datapoints invalid
+                  value:
+                    success: false
+                    error: 'Invalid datapoint value(s): (datapoints)'
+                    errno: '20303'
+                error-1:
+                  description: The supplied index type is invalid. Index type can only be set to "pid" or "identifier".
+                  summary: Index type invalid
+                  value:
+                    success: false
+                    error: Invalid index type
+                    errno: '20100'
+                error-2:
+                  description: The supplied panelist ID is not numeric.
+                  summary: Panelist ID invalid
+                  value:
+                    success: false
+                    error: Panelist Id is invalid
+                    errno: '20102'
+                error-3:
+                  description: Panelist with supplied identifier is not found.
+                  summary: Panelist not found
+                  value:
+                    success: false
+                    error: Panelist not found
+                    errno: '20203'
+                error-4:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session has expired. You must start a new session.
+                    errno: '30100'
+                error-5:
+                  description: Session is not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: sessionkey not found
+                    errno: '30200'
+                error-6:
+                  description: User ID not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: userid for sessionkey not found
+                    errno: '30200'
+                error-7:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: sessionkey is invalid
+                    errno: '30300'
+                error-8:
+                  description: A panel needs to be selected before calling this method.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: You must select a panel before you can use this method.
+                    errno: '40001'
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api.pro#method=integration.panelist.update:
+    post:
+      operationId: panelistUpdate
+      summary: Update a panelist
+      description: Update a panelist data
+      tags:
+      - Panelist
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.panelist.update
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - sesKey
+              - settings
+              properties:
+                sesKey:
+                  description: A valid login hash.
+                  type: string
+                  example: 5a15852c564933807bbd36da58071063
+                settings:
+                  type: array
+                  description: A zero based array of associative arrays, with a size equal to the number of settings the user wishes to initialize. Settings are listed below. Email or Identifier required.
+                  items:
+                    required:
+                    - label
+                    - name
+                    type: object
+                    properties:
+                      label:
+                        type: string
+                        description: A valid datapoint label or panelist field.
+                      name:
+                        type: string
+                        description: The answer to set for the label.
+                  example:
+                  - label: email
+                    answer: test@kinesissurvey.com
+                  - label: sourceid
+                    answer: 335
+                  - label: identifier
+                    answer: KS_234234
+                  - label: Qopenend
+                    answer: Test
+                  - label: Qradio
+                    answer: '2'
+                  - label: Qcheckbox
+                    answer: 3,4,5
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                error-0:
+                  description: An identifier or email address needs to be supplied to find the panelist.
+                  summary: Identifier/Email missing
+                  value:
+                    success: false
+                    error: An identifier or email must be provided in order to update a panelist.
+                    errno: '0'
+                error-1:
+                  description: The supplied checkbox answer is not a numeric or string integers separated by commas ("1,2,3").
+                  summary: Settings checkbox answer invalid
+                  value:
+                    success: false
+                    error: Supplied choice is invalid
+                    errno: '0'
+                error-2:
+                  description: The supplied settings radio answer is not numeric.
+                  summary: Settings radio answer invalid
+                  value:
+                    success: false
+                    error: Supplied choice(answer) is invalid for data point (datapoint label). The value must be an unsigned integer or NULL.
+                    errno: '0'
+                error-3:
+                  description: The supplied radio or checkbox answer is not in choice range.
+                  summary: Settings radio/checkbox answer invalid
+                  value:
+                    success: false
+                    error: Invalid choice(answer) for data point (datapoint label). The value must be either NULL or an unsigned integer between (datapoint choice min) and (datapoint choice max).
+                    errno: '0'
+                error-4:
+                  description: One of the supplied settings labels is not found for any datapoints.
+                  summary: Settings label not found
+                  value:
+                    success: false
+                    error: Unknown datapoint label (label).
+                    errno: '20000'
+                error-5:
+                  description: The subscribed is invalid. Subscribed can only be set to "yes" or "no".
+                  summary: Settings subscribed invalid
+                  value:
+                    success: false
+                    error: The supplied value for label 'subscribed' is invalid
+                    errno: '20000'
+                error-6:
+                  description: The supplied date answer was not in valid date format (YYYY-MM-DD).
+                  summary: Settings date answer invalid
+                  value:
+                    success: false
+                    error: The supplied date (answer) was invalid for (datapoint label) (date)
+                    errno: '20000'
+                error-7:
+                  description: The supplied openend answer is not a string.
+                  summary: Settings openend answer invalid
+                  value:
+                    success: false
+                    error: The data type (answer type) is not valid for (datapoint label) (openend)
+                    errno: '20000'
+                error-8:
+                  description: The supplied timezone is not valid timezone.
+                  summary: Settings timezone invalid
+                  value:
+                    success: false
+                    error: Unknown or bad timezone
+                    errno: '20000'
+                error-9:
+                  description: The supplied settings array does not contain datapoint array(s) with "label" and/or "answer".
+                  summary: Settings invalid
+                  value:
+                    success: false
+                    error: Panelist datapoint data is malformed!
+                    errno: '20102'
+                error-10:
+                  description: The supplied settings array contains datapoint array(s) with arrays or objects for "answer".
+                  summary: Settings invalid
+                  value:
+                    success: false
+                    error: Answer data is in invalid format!
+                    errno: '20102'
+                error-11:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session has expired. You must start a new session.
+                    errno: '30100'
+                error-12:
+                  description: Session is not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: sessionkey not found
+                    errno: '30200'
+                error-13:
+                  description: User ID not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: userid for sessionkey not found
+                    errno: '30200'
+                error-14:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: sessionkey is invalid
+                    errno: '30300'
+                error-15:
+                  description: A panel needs to be selected before calling this method.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: You must select a panel before you can use this method.
+                    errno: '40001'
+                error-16:
+                  description: Panelist with supplied email address is not found.
+                  summary: Panelist not found
+                  value:
+                    success: false
+                    error: Invalid email! User not found.
+                    errno: '40010'
+                error-17:
+                  description: Panelist with supplied identifier is not found.
+                  summary: Panelist not found
+                  value:
+                    success: false
+                    error: Invalid identifier! User not found.
+                    errno: '40010'
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api.pro#method=integration.panelist.bulkupdate:
+    post:
+      operationId: panelistBulkUpdate
+      summary: Update datapoints for multiple panelists
+      description: 'Update datapoints for multiple panelists.
+
+
+        Depending on the amount of panelist records that are being changed,
+
+        this call can take a few minutes to complete. It will, however, immediately return a token
+
+        that can be used to check the status of the process and verify whether there were any issues.'
+      tags:
+      - Panelist
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.panelist.bulkupdate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - sesKey
+              - settings
+              properties:
+                sesKey:
+                  description: A valid login hash.
+                  type: string
+                  example: '[your sesKey]'
+                settings:
+                  type: array
+                  description: An array of panelist records you wish to update.<br/> Each "row" represents a single panelist and must contain label/answer objects.<br/> The included labels must match for all panelists in the list.<br/> The panelist’s identifier or email address must always be included.
+                  items:
+                    type: array
+                    items:
+                      required:
+                      - label
+                      - answer
+                      type: object
+                      properties:
+                        label:
+                          type: string
+                          description: A valid datapoint label or panelist field.
+                        answer:
+                          type: string
+                          description: The answer to set for the label.
+                  example:
+                  - - label: identifier
+                      answer: identifier_1
+                    - label: Qfirstname
+                      answer: Alida
+                    - label: Qlastname
+                      answer: Beaver
+                    - label: Qhouseholdappliances
+                      answer: 1,2,5
+                    - label: Qgender
+                      answer: 2
+                  - - label: identifier
+                      answer: identifier_2
+                    - label: Qfirstname
+                      answer: Neil
+                    - label: Qlastname
+                      answer: Toth
+                    - label: Qhouseholdappliances
+                      answer: 2,5,6
+                    - label: Qgender
+                      answer: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: '&nbsp;'
+                    token:
+                      type: string
+                      description: A token which can be used with <code>integration.token.get</code> to check the status of the operation.
+              examples:
+                success-0:
+                  summary: Success
+                  value:
+                    success: true
+                    token: 5ix2h091vv8ckg4044sg00c0g
+                error-0:
+                  description: ''
+                  summary: Label invalid, must be a string.
+                  value:
+                    success: false
+                    error: Invalid label
+                    errno: '0'
+                error-1:
+                  description: ''
+                  summary: Label invalid, must exist.
+                  value:
+                    success: false
+                    error: 'Unknown datapoint label: &lt;label&gt;'
+                    errno: '0'
+                error-2:
+                  description: ''
+                  summary: Data invalid, consult the manual.
+                  value:
+                    success: false
+                    error: 'Invalid data structure (line: nnn)'
+                    errno: '0'
+                error-3:
+                  description: ''
+                  summary: Data invalid. "label" missing in the answer / label object.
+                  value:
+                    success: false
+                    error: 'Invalid data structure: label not found (line: nnn)'
+                    errno: '0'
+                error-4:
+                  description: ''
+                  summary: Data invalid. "answer" missing in the answer / label object.
+                  value:
+                    success: false
+                    error: 'Invalid data structure: answer not found (line: nnn)'
+                    errno: '0'
+                error-5:
+                  description: ''
+                  summary: Data invalid. Label / answer not there.
+                  value:
+                    success: false
+                    error: 'Label / answer array expected (line: %u)'
+                    errno: '0'
+                error-6:
+                  description: ''
+                  summary: All panelist records must include the same "labels".
+                  value:
+                    success: false
+                    error: 'Unexpected label found (line: nnn)'
+                    errno: '0'
+                error-7:
+                  description: ''
+                  summary: One or more choices for a checkbox datapoint are invalid.
+                  value:
+                    success: false
+                    error: 'Invalid choice found (line: nnn)'
+                    errno: '0'
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api.pro#method=integration.panelist.rewardPointsAdd:
+    post:
+      operationId: panelistRewardPointsAdd
+      summary: Add points
+      description: 'Add points to the panelist''s account.
+
+
+        # Note
+
+
+        It is ALWAYS recommended to specify "indexType" when making this call. If "IndexType" is
+
+        not specified and the panel allows numeric identifiers for panelists, this call could not
+
+        find the panelist or award points to an incorrect panelist.'
+      tags:
+      - Panelist
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.panelist.rewardPointsAdd
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - sesKey
+              - index
+              - points
+              - note
+              properties:
+                sesKey:
+                  description: A valid login hash.
+                  type: string
+                  example: 5a15852c564933807bbd36da58071063
+                index:
+                  description: Panelist identifier or PID.
+                  type: string
+                  example: '34359'
+                points:
+                  description: Points to add
+                  type: integer
+                  example: 50
+                note:
+                  description: Note that will be visible to the panelists and show in the reward history.
+                  type: string
+                  example: Participation bonus
+                indexType:
+                  description: The type of index being used
+                  enum:
+                  - identifier
+                  - pid
+                  example: identifier
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                error-0:
+                  description: The supplied index type is invalid. Index type can only be set to "pid" or "identifier".
+                  summary: Index type invalid
+                  value:
+                    success: false
+                    error: Invalid index type
+                    errno: '20100'
+                error-1:
+                  description: The supplied panelist ID is not numeric.
+                  summary: Panelist ID invalid
+                  value:
+                    success: false
+                    error: Panelist Id is invalid
+                    errno: '20102'
+                error-2:
+                  description: Panelist with supplied identifier is not found.
+                  summary: Panelist not found
+                  value:
+                    success: false
+                    error: Panelist not found
+                    errno: '20203'
+                error-3:
+                  description: The supplied points value is not greater than 0.
+                  summary: Points invalid
+                  value:
+                    success: false
+                    error: Number of points to add must be positive
+                    errno: '20203'
+                error-4:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session has expired. You must start a new session.
+                    errno: '30100'
+                error-5:
+                  description: Session is not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: sessionkey not found
+                    errno: '30200'
+                error-6:
+                  description: User ID not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: userid for sessionkey not found
+                    errno: '30200'
+                error-7:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: sessionkey is invalid
+                    errno: '30300'
+                error-8:
+                  description: A panel needs to be selected before calling this method.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: You must select a panel before you can use this method.
+                    errno: '40001'
+                error-9:
+                  description: Panelist with supplied panelist ID is not found.
+                  summary: Panelist not found
+                  value:
+                    success: false
+                    error: 'No data found for Panelist ID: (panelist ID)'
+                    errno: '40010'
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api.pro#method=integration.panelist.rewardPointsDeduct:
+    post:
+      operationId: panelistRewardPointsDeduct
+      summary: Deduct points
+      description: 'Deduct points from the panelist''s account.
+
+
+        # Note
+
+
+        It is ALWAYS recommended to specify "indexType" when making this call. If "IndexType" is not specified
+
+        and the panel allows numeric identifiers for panelists, this call could not find the panelist
+
+        or deduct points from an incorrect panelist.'
+      tags:
+      - Panelist
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.panelist.rewardPointsDeduct
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - sesKey
+              - index
+              - points
+              - note
+              properties:
+                sesKey:
+                  description: A valid login hash.
+                  type: string
+                  example: 5a15852c564933807bbd36da58071063
+                index:
+                  description: Panelist identifier or PID.
+                  type: string
+                  example: '34359'
+                points:
+                  description: Points to deduct (must be negative)
+                  type: integer
+                  example: -50
+                note:
+                  description: Note that will be visible to the panelists and show in the reward history.
+                  type: string
+                  example: Gift card redemption
+                indexType:
+                  description: The type of index being used
+                  enum:
+                  - identifier
+                  - pid
+                  example: identifier
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                error-0:
+                  description: The supplied index type is invalid. Index type can only be set to "pid" or "identifier".
+                  summary: Index type invalid
+                  value:
+                    success: false
+                    error: Invalid index type
+                    errno: '20100'
+                error-1:
+                  description: The supplied panelist ID is not numeric.
+                  summary: Panelist ID invalid
+                  value:
+                    success: false
+                    error: Panelist Id is invalid
+                    errno: '20102'
+                error-2:
+                  description: Panelist with supplied identifier is not found.
+                  summary: Panelist not found
+                  value:
+                    success: false
+                    error: Panelist not found
+                    errno: '20203'
+                error-3:
+                  description: The supplied points value is not less than 0.
+                  summary: Points invalid
+                  value:
+                    success: false
+                    error: Number of points to deduct must be negative
+                    errno: '20203'
+                error-4:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session has expired. You must start a new session.
+                    errno: '30100'
+                error-5:
+                  description: Session is not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: sessionkey not found
+                    errno: '30200'
+                error-6:
+                  description: User ID not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: userid for sessionkey not found
+                    errno: '30200'
+                error-7:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: sessionkey is invalid
+                    errno: '30300'
+                error-8:
+                  description: A panel needs to be selected before calling this method.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: You must select a panel before you can use this method.
+                    errno: '40001'
+                error-9:
+                  description: Panelist with supplied panelist ID is not found.
+                  summary: Panelist not found
+                  value:
+                    success: false
+                    error: 'No data found for Panelist ID: (panelist ID)'
+                    errno: '40010'
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api.pro#method=integration.panelist.rewardPointsBalance:
+    post:
+      operationId: panelistRewardPointsBalance
+      summary: Get reward point balance
+      description: 'Get a panelist''s current reward point balance
+
+
+        # Note
+
+
+        It is ALWAYS recommended to specify "indexType" when making this call. If "IndexType" is not specified and the
+
+        panel allows numeric identifiers for panelists, this call could not find the panelist or
+
+        return points from an incorrect panelist.'
+      tags:
+      - Panelist
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.panelist.rewardPointsBalance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - sesKey
+              - index
+              - points
+              - note
+              properties:
+                sesKey:
+                  description: A valid login hash.
+                  type: string
+                  example: 5a15852c564933807bbd36da58071063
+                index:
+                  description: Panelist identifier or PID.
+                  type: string
+                  example: '34359'
+                indexType:
+                  description: The type of index being used
+                  enum:
+                  - identifier
+                  - pid
+                  example: identifier
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                    data:
+                      type: object
+                      properties:
+                        balance:
+                          type: number
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    data:
+                      balance: 9001
+                error-0:
+                  description: The supplied index type is invalid. Index type can only be set to "pid" or "identifier".
+                  summary: Index type invalid
+                  value:
+                    success: false
+                    error: Invalid index type
+                    errno: '20100'
+                error-1:
+                  description: The supplied panelist ID is not numeric.
+                  summary: Panelist ID invalid
+                  value:
+                    success: false
+                    error: Panelist Id is invalid
+                    errno: '20102'
+                error-2:
+                  description: Panelist with supplied identifier is not found.
+                  summary: Panelist not found
+                  value:
+                    success: false
+                    error: Panelist not found
+                    errno: '20203'
+                error-3:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session has expired. You must start a new session.
+                    errno: '30100'
+                error-4:
+                  description: Session is not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: sessionkey not found
+                    errno: '30200'
+                error-5:
+                  description: User ID not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: userid for sessionkey not found
+                    errno: '30200'
+                error-6:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: sessionkey is invalid
+                    errno: '30300'
+                error-7:
+                  description: A panel needs to be selected before calling this method.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: You must select a panel before you can use this method.
+                    errno: '40001'
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api.pro#method=integration.panelist.contactFrequenciesGet:
+    post:
+      operationId: panelistContactFrequenciesGet
+      summary: Get panelist contact frequencies
+      description: 'Gets the currently set panelist contact frequencies.
+
+
+        # Note
+
+
+        It is ALWAYS recommended to specify "indexType" when making this call. If "IndexType" is not
+
+        specified and the panel allows numeric identifiers for panelists, this call could not find the
+
+        panelist or return points from an incorrect panelist.
+
+
+        **Notice:** Panelists don''t have a contact frequencies record by default.'
+      tags:
+      - Panelist
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.panelist.contactFrequenciesGet
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - sesKey
+              - index
+              properties:
+                sesKey:
+                  description: A valid login hash.
+                  type: string
+                  example: 5a15852c564933807bbd36da58071063
+                index:
+                  description: Panelist identifier or PID.
+                  type: string
+                  example: '34359'
+                indexType:
+                  description: The type of index being used
+                  enum:
+                  - identifier
+                  - pid
+                  example: identifier
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: Retrieving the contact frequencies was successful.
+                    maxMessages:
+                      type: integer
+                      description: The number of messages the panelist wants to receive in the specified time frame.
+                    nextMessage:
+                      type: string
+                      description: Date string of the projected time, when panelist is ready to receive the next email invitation.
+                      pattern: ^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$
+                    timeFrame:
+                      type: string
+                      enum:
+                      - week
+                      - day
+                      description: The time frame.
+                    SMSFrom:
+                      type: string
+                      pattern: ^\d{2}:\d{2}:\d{2}$
+                      description: The time when it is acceptable to start sending SMS to the panelist.
+                    SMSTo:
+                      type: string
+                      pattern: ^\d{2}:\d{2}:\d{2}$
+                      description: The time after which the panelist does not wish to receive SMS.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    maxMessages: 5
+                    nextMessage: '2014-12-08 11:34:00'
+                    timeFrame: week
+                    SMSFrom: 09:00:00
+                    SMSTo: '21:00:00'
+                error-0:
+                  description: The supplied index type is invalid. Index type can only be set to "pid" or "identifier".
+                  summary: Index type invalid
+                  value:
+                    success: false
+                    error: Invalid index type
+                    errno: '20100'
+                error-1:
+                  description: The supplied panelist ID is not numeric.
+                  summary: Panelist ID invalid
+                  value:
+                    success: false
+                    error: Panelist Id is invalid
+                    errno: '20102'
+                error-2:
+                  description: Panelist with supplied identifier is not found.
+                  summary: Panelist not found
+                  value:
+                    success: false
+                    error: Panelist not found
+                    errno: '20203'
+                error-3:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session has expired. You must start a new session.
+                    errno: '30100'
+                error-4:
+                  description: Session is not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: sessionkey not found
+                    errno: '30200'
+                error-5:
+                  description: User ID not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: userid for sessionkey not found
+                    errno: '30200'
+                error-6:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: sessionkey is invalid
+                    errno: '30300'
+                error-7:
+                  description: A panel needs to be selected before calling this method.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: You must select a panel before you can use this method.
+                    errno: '40001'
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api.pro#method=integration.panelist.contactFrequenciesSet:
+    post:
+      operationId: panelistContactFrequenciesSet
+      summary: Set the contact frequencies
+      description: 'Set the contact frequencies for a specified panelist
+
+
+        # Note
+
+
+        It is ALWAYS recommended to specify "indexType" when making this call. If "IndexType"
+
+        is not specified and the panel allows numeric identifiers for panelists, this call could not find the panelist or
+
+        sets information for an incorrect panelist.
+
+
+        **Notice:** The `SMSFrom` and `SMSTo` settings are only of importance, if you''re sending SMS invitations
+
+        from your panel.'
+      tags:
+      - Panelist
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.panelist.contactFrequenciesSet
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - sesKey
+              - index
+              - maxMessages
+              - timeFrame
+              properties:
+                sesKey:
+                  description: A valid login hash.
+                  type: string
+                  example: ce512c91
+                index:
+                  description: Panelist identifier or PID.
+                  type: string
+                  example: '34359'
+                maxMessages:
+                  example: 5
+                  type: integer
+                  description: The number of messages the panelist wants to receive in the specified time frame.
+                timeFrame:
+                  example: week
+                  type: string
+                  description: The time frame.
+                SMSFrom:
+                  description: The time when it is acceptable to start sending SMS to the panelist.
+                  type: string
+                  pattern: ^\d{2}:\d{2}:\d{2}$
+                  example: 09:00:00
+                SMSTo:
+                  description: The time after which the panelist does not wish to receive SMS.
+                  type: string
+                  pattern: ^\d{2}:\d{2}:\d{2}$
+                  example: '21:00:00'
+                indexType:
+                  description: The type of index being used
+                  enum:
+                  - identifier
+                  - pid
+                  example: identifier
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                error-0:
+                  description: The time frame is invalid. The time frame can only be set to "day" or "week".
+                  summary: Time frame invalid
+                  value:
+                    success: false
+                    error: Time frame out of range, allowed values are 'day' and 'week'
+                    errno: '0'
+                error-1:
+                  description: 'Missing a time constraint: SMSFrom or SMSTo.'
+                  summary: SMSFrom and SMSTo invalid
+                  value:
+                    success: false
+                    error: Both time constraints must be supplied or none.
+                    errno: '0'
+                error-2:
+                  description: The supplied SMSFrom needs to be a valid time (HH:MM:SS).
+                  summary: SMSFrom invalid
+                  value:
+                    success: false
+                    error: Invalid time stamp received
+                    errno: '0'
+                error-3:
+                  description: The supplied SMSTo needs to be a valid time (HH:MM:SS).
+                  summary: SMSTo invalid
+                  value:
+                    success: false
+                    error: Invalid time stamp received
+                    errno: '0'
+                error-4:
+                  description: The supplied index type is invalid. Index type can only be set to "pid" or "identifier".
+                  summary: Index type invalid
+                  value:
+                    success: false
+                    error: Invalid index type
+                    errno: '20100'
+                error-5:
+                  description: The supplied panelist ID is not numeric.
+                  summary: Panelist ID invalid
+                  value:
+                    success: false
+                    error: Panelist Id is invalid
+                    errno: '20102'
+                error-6:
+                  description: Panelist with supplied identifier is not found.
+                  summary: Panelist not found
+                  value:
+                    success: false
+                    error: Panelist not found
+                    errno: '20203'
+                error-7:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session has expired. You must start a new session.
+                    errno: '30100'
+                error-8:
+                  description: Session is not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: sessionkey not found
+                    errno: '30200'
+                error-9:
+                  description: User ID not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: userid for sessionkey not found
+                    errno: '30200'
+                error-10:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: sessionkey is invalid
+                    errno: '30300'
+                error-11:
+                  description: A panel needs to be selected before calling this method.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: You must select a panel before you can use this method.
+                    errno: '40001'
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api.pro#method=integration.panelist.findByDataPoint:
+    post:
+      operationId: panelistIntegrationFindByDataPoint
+      summary: Find Panelists by datapoint value
+      description: 'Finds and returns a list of panelist identifiers based on a datapoint value.
+
+
+        # Note
+
+
+        Providing checkbox answers will find all panelists who selected the requested choices.'
+      tags:
+      - Panelist
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.panelist.findByDataPoint
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sesKey:
+                  type: string
+                  description: A valid login hash
+                label:
+                  type: string
+                  description: Datapoint label to filter by.
+                answer:
+                  oneOf:
+                  - type: string
+                  - type: integer
+                  - type: array
+                  description: The answer (answer type depends on the requested datapoint type).
+              required:
+              - sesKey
+              - label
+              - answer
+            examples:
+              Openend example:
+                value:
+                  sesKey: 2565b78d2d00414fa2092ba1f89d6576
+                  label: Qfirstname
+                  answer: Jim
+              Date example:
+                value:
+                  sesKey: 2565b78d2d00414fa2092ba1f89d6576
+                  label: Qbirthday
+                  answer: '1965-01-15'
+              Radio example:
+                value:
+                  sesKey: 2565b78d2d00414fa2092ba1f89d6576
+                  label: Qgender
+                  answer: 1
+              Checkbox example:
+                value:
+                  sesKey: 2565b78d2d00414fa2092ba1f89d6576
+                  label: Qfood
+                  answer:
+                  - 1
+                  - 2
+                  - 3
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                    identifiers:
+                      type: array
+                      description: Array of panelist identifiers that matched the criteria
+                      items:
+                        type: string
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    identifiers:
+                    - K_ggwp76rx67
+                    - K_kjns874n38
+                error-0:
+                  description: The label was invalid
+                  summary: Datapoint label invalid
+                  value:
+                    success: false
+                    error: Invalid datapoint label
+                    errno: '0'
+                error-1:
+                  description: The datapoint was not found
+                  summary: Datapoint not found
+                  value:
+                    success: false
+                    error: Datapoint not found
+                    errno: '0'
+                error-2:
+                  description: The answer data type was not suitable for the datapoint
+                  summary: Answer invalid
+                  value:
+                    success: false
+                    error: Answer type mismatch
+                    errno: '0'
+                error-3:
+                  description: The date for a date datapoint is malformed
+                  summary: Date answer invalid
+                  value:
+                    success: false
+                    error: Invalid date
+                    errno: '0'
+                error-4:
+                  description: The supplied choices for a radio/checkbox datapoint were invalid
+                  summary: Choice answer invalid
+                  value:
+                    success: false
+                    error: Invalid choice
+                    errno: '0'
+                error-5:
+                  description: Session has expired
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session has expired. You must start a new session.
+                    errno: '0'
+                error-6:
+                  description: Session is not found for supplied session key
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: sessionkey not found
+                    errno: '30200'
+                error-7:
+                  description: User ID not found for supplied session key
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: userid for sessionkey not found
+                    errno: '30200'
+                error-8:
+                  description: Session key is not in correct format
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: sessionkey is invalid
+                    errno: '30300'
+                error-9:
+                  description: A panel needs to be selected before panelists can be queried
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: You must select a panel before you can use this method.
+                    errno: '40001'
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api/integration/panels/{panelId}/panelists:
+    get:
+      operationId: panelistGetPanelistById
+      summary: Retrieve Panelists
+      description: Results are ordered by created time descending. Newest panelists are returned first. Output is limited to 100 panelists.
+      tags:
+      - Panelist
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: panelId
+        in: path
+        required: true
+        description: A Panel ID
+        schema:
+          type: integer
+      - in: query
+        name: filter[id]
+        description: Filter by panelist id.
+        schema:
+          type: string
+        examples:
+          one panelist by id:
+            value: y36uhip5r8j7
+            description: One panelist by identifier
+          multiple panelists by id:
+            value: y36uhip5r8j7,oa85aha25i,gjore8o7237,zx69g6ybzue
+            description: Multiple panelists by identifier
+      - in: query
+        name: filter[pid]
+        description: Filter by panelist pid.
+        schema:
+          type: string
+        examples:
+          one panelist by pid:
+            value: '1'
+            description: One panelist by pid
+          multiple panelists by pid:
+            value: 1,2,3,4
+            description: Multiple panelists by pid
+      - in: query
+        name: filter[email]
+        description: Filter by panelist email.
+        schema:
+          type: string
+        examples:
+          one panelist by email:
+            value: panelist1@forsta.com
+            description: One panelist by email
+          multiple panelists by email:
+            value: panelist2@forsta.com,panelist1@forsta.com
+            description: Multiple panelists by email
+      - $ref: '#/components/parameters/after'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    email:
+                      type: string
+                    phone_ok:
+                      type: boolean
+                    email_ok:
+                      type: boolean
+                    blacklisted:
+                      type: boolean
+                    subscribed:
+                      type: string
+                      enum:
+                      - 'yes'
+                      - 'no'
+                      - unconfirmed
+                    timezone:
+                      type: string
+                    joined_at:
+                      type: integer
+                      description: Unix timestamp of when the panelist opted in.
+                    source_id:
+                      type: string
+                    community_id:
+                      type: string
+                    language:
+                      type: string
+                    created_at:
+                      type: integer
+                      description: Unix timestamp of when the panelist opted in.
+                    first_participation_at:
+                      type: integer
+                      description: Unix timestamp representation of the time when the panelist first participated in a survey.
+                    last_participation_at:
+                      type: integer
+                      description: Unix timestamp representation of the last time when the panelist participated in a survey.
+                    first_invitation_at:
+                      type: integer
+                      description: Unix timestamp representation of the first time the panelist received a survey invitation.
+                    last_invitation_at:
+                      type: integer
+                      description: Unix timestamp representation of the last time the panelist received a survey invitation.
+                    unsubscribed_at:
+                      type: integer
+                      description: Unix timestamp representation of when the panelist unsubscribed.
+                    blacklisted_at:
+                      type: integer
+                      description: Unix timestamp representation of when the panelist was blacklisted.
+                    unblacklisted_at:
+                      type: integer
+                      description: Unix timestamp representation of when the panelist had its blacklisted status removed.
+                    referred_at:
+                      type: integer
+                      description: Unix timestamp representation of when the panelist was referred.
+                    first_completed_at:
+                      type: integer
+                      description: Unix timestamp representation of when the panelist completed their first survey.
+                    last_completed_at:
+                      type: integer
+                      description: Unix timestamp representation of when the panelist completed their last survey.
+                    last_points_earned_at:
+                      type: integer
+                      description: Unix timestamp representation of when the panelist earned their last points.
+                    last_survey_screened_at:
+                      type: integer
+                      description: Unix timestamp representation of the last time the panelist was screened out from a survey.
+                    invited:
+                      type: integer
+                      description: Number of surveys the panelist was invited to.
+                    started:
+                      type: integer
+                      description: Number of surveys the panelist started (regardless of whether they finished).
+                    completed:
+                      type: integer
+                      description: Number of surveys the panelist completed.
+                    screened:
+                      type: integer
+                      description: Number of surveys the panelist was screened out from (profile/quota).
+                    finished:
+                      type: integer
+                      description: Number of surveys the panelist finished (completed/quota/profile).
+                    referred_panelists:
+                      type: integer
+                      description: Number of times the panelist referred somebody else (regardless of outcome).
+                    points_earned:
+                      type: integer
+                      description: Number of points earned by the panelist since they've joined.
+                    points_available:
+                      type: integer
+                      description: Number of points currently available to the panelist.
+                    points_redeemed:
+                      type: integer
+                      description: Number of points used for redemptions.
+                    points_survey:
+                      type: integer
+                      description: Number of points earned by taking surveys.
+                    points_referral:
+                      type: integer
+                      description: Number of points earned by successfully referring other panelists.
+                    points_other:
+                      type: integer
+                      description: Number of points obtained through other means (administrative, signup bonus).
+                  example:
+                  - id: string
+                    email: string
+                    phone_ok: true
+                    email_ok: true
+                    blacklisted: true
+                    subscribed: 'yes'
+                    timezone: string
+                    joined_at: 0
+                    source_id: string
+                    community_id: string
+                    language: string
+                    created_at: 0
+                    first_participation_at: 0
+                    last_participation_at: 0
+                    first_invitation_at: 0
+                    last_invitation_at: 0
+                    unsubscribed_at: 0
+                    blacklisted_at: 0
+                    unblacklisted_at: 0
+                    referred_at: 0
+                    first_completed_at: 0
+                    last_completed_at: 0
+                    last_points_earned_at: 0
+                    last_survey_screened_at: 0
+                    invited: 0
+                    started: 0
+                    completed: 0
+                    screened: 0
+                    finished: 0
+                    referred_panelists: 0
+                    points_earned: 0
+                    points_available: 0
+                    points_redeemed: 0
+                    points_survey: 0
+                    points_referral: 0
+                    points_other: 0
+        '400':
+          description: Supplied property was invalid. The error message should return more information about what went wrong.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    example: string
+                    type: string
+        '401':
+          description: Access token is missing or invalid
+        '404':
+          description: The supplied resource id was not found
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api/integration/panels/{panelId}/panelists/{panelistHash}:
+    delete:
+      operationId: panelistDeletePanelistById
+      summary: Delete Panelists
+      description: 'Mark panelist to be deleted, allow 24 to 48 hours for full deletion.
+
+        Panelist will still appear in reports until they have been permanently cleared out by the application.'
+      tags:
+      - Panelist
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: panelId
+        in: path
+        required: true
+        description: A Panel ID
+        schema:
+          type: integer
+      - name: panelistHash
+        in: path
+        required: true
+        description: A Panelist Identifier
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Access token is missing or invalid
+        '404':
+          description: The supplied resource id was not found
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api/integration/panels/{panelId}/panelists/oidc/{oidcName}/{sub}:
+    delete:
+      operationId: panelistDeletePanelistByOidcSubject
+      summary: Delete Panelist by OIDC subject
+      description: 'Mark the panelist identified by the given OIDC login integration name and subject to be deleted,
+
+        allow 24 to 48 hours for full deletion.
+
+        Panelist will still appear in reports until they have been permanently cleared out by the application.
+
+
+        `oidcName` and `sub` are a composite key: together they identify a single panelist.'
+      tags:
+      - Panelist
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: panelId
+        in: path
+        required: true
+        description: A Panel ID
+        schema:
+          type: integer
+      - name: oidcName
+        in: path
+        required: true
+        description: The name of an OIDC login integration configured for the panel
+        schema:
+          type: string
+      - name: sub
+        in: path
+        required: true
+        description: The OIDC subject identifier of the panelist
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+              example:
+                success: true
+        '401':
+          description: Access token is missing or invalid
+        '404':
+          description: 'The panel id, OIDC login integration name or subject was not found.
+
+            The error message should provide detail about which parameter failed.
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api/integration/panels/{panelId}/panelists/{panelistId}/datapoints:
+    get:
+      operationId: panelistGetPanelistDatapoints
+      summary: Retrieve Datapoints
+      description: Output datapoints.
+      tags:
+      - Panelist
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: panelId
+        in: path
+        required: true
+        description: A Panel ID
+        schema:
+          type: integer
+      - name: panelistHash
+        in: path
+        required: true
+        description: Panelist's Hash
+        schema:
+          type: string
+      - in: query
+        name: filter[label]
+        required: true
+        description: Labels of datapoint to be retrieved
+        schema:
+          type: string
+        examples:
+          one datapoint:
+            value: Label1
+            description: One labels
+          multiple datapoint:
+            value: Label1,Label2
+            description: Multiple labels
+      - in: query
+        name: choice_format
+        required: false
+        description: Format of answers. Allowed values are choice_id, export_values, choice_text.
+        schema:
+          type: string
+        examples:
+          choice id:
+            value: choice_id
+            description: datapoint’s choice ID
+          export values:
+            value: export_values
+            description: datapoint’s export value (if it is not defined choice ID will be returned)
+          choice text:
+            value: choice_text
+            description: datapoint’s text
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    label:
+                      type: string
+                    answer:
+                      type: string
+                  example:
+                  - label: string
+                    answer: string
+        '400':
+          description: Supplied property was invalid. The error message should return more information about what went wrong.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    example: string
+                    type: string
+        '401':
+          description: Access token is missing or invalid
+        '404':
+          description: The supplied resource id was not found
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api/integration/panels/{panelId}/activities:
+    get:
+      operationId: panelistActivityByPanelId
+      summary: Retrieve Panelist Survey Activity
+      description: Results are ordered to show most recently created survey activity first.
+      tags:
+      - Panelist
+      security:
+      - BearerAuth: []
+      parameters:
+      - $ref: '#/components/parameters/panelid'
+      - in: query
+        name: filter[id]
+        required: false
+        description: Filter by activity id
+        schema:
+          type: string
+      - $ref: '#/components/parameters/projectidfilter'
+      - $ref: '#/components/parameters/panelistidfilter'
+      - in: query
+        name: filter[status]
+        required: false
+        description: 'Filter by activity status.
+
+          Valid values are:
+
+          - pending
+
+          - invited
+
+          - started
+
+          - profile
+
+          - quota
+
+          - completed
+
+
+          To filter by multiple statuses, provide them as a comma separated list.'
+        schema:
+          type: string
+        examples:
+          Single status:
+            value: filter[status]=completed
+            description: Get only activities which resulted in a complete.
+            summary: Single status
+          Multiple statuses:
+            value: filter[status]=started,profile,quota,completed
+            description: Get only activities where panelists clicked the invite.
+            summary: Multiple statuses
+      - in: query
+        name: filter[status_changed_at][gt]
+        required: false
+        description: 'Filter the `status_changed_at` timestamp by values greater than what you provided.
+
+
+          Expected value is a Unix Timestamp.
+
+
+          The `gt` filter value is not inclusive, i.e. it is not "greater than or equal".'
+        schema:
+          type: integer
+        examples:
+          Example 1:
+            value: filter[status_changed_at][gt]=1619560879
+            description: 'Get only activities which occurred after (but not including): `1619560879`.'
+      - in: query
+        name: filter[status_changed_at][lt]
+        required: false
+        description: 'Filter the `status_changed_at` timestamp by values less than what you provided.
+
+
+          Expected value is a Unix Timestamp.
+
+
+          The `lt` filter value is not inclusive, i.e. it is not "less than or equal".'
+        schema:
+          type: integer
+        examples:
+          Example 1:
+            value: filter[status_changed_at][lt]=1619560879
+            description: 'Get only activities which occurred before (but not including): `1619560879`.'
+      - $ref: '#/components/parameters/after'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    status:
+                      type: string
+                    started_at:
+                      type: integer
+                    status_changed_at:
+                      type: integer
+                    panelist_id:
+                      type: string
+                    project_id:
+                      type: string
+                  example:
+                  - id: string
+                    status: pending
+                    started_at: 0
+                    status_changed_at: 0
+                    panelist_id: string
+                    project_id: string
+        '400':
+          description: Supplied property was invalid. The error message should return more information about what went wrong.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    example: string
+                    type: string
+        '401':
+          description: Access token is missing or invalid
+        '404':
+          description: The supplied resource id was not found
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api/integration/panels/{panelId}/rewards:
+    get:
+      operationId: panelistGetRewards
+      summary: Retrieve Panelist Survey Rewards
+      description: Results are ordered by id descending.
+      tags:
+      - Panelist
+      security:
+      - BearerAuth: []
+      parameters:
+      - $ref: '#/components/parameters/panelid'
+      - $ref: '#/components/parameters/projectidfilter'
+      - $ref: '#/components/parameters/panelistidfilter'
+      - in: query
+        name: filter[id]
+        required: false
+        description: Filter by reward id
+        schema:
+          type: string
+      - $ref: '#/components/parameters/after'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    panelist_id:
+                      type: string
+                    project_id:
+                      type: string
+                    points:
+                      type: integer
+                    awarded_at:
+                      type: integer
+                  example:
+                  - id: string
+                    panelist_id: string
+                    project_id: string
+                    points: 0
+                    awarded_at: 0
+        '400':
+          description: Supplied property was invalid. The error message should return more information about what went wrong.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    example: string
+                    type: string
+        '401':
+          description: Access token is missing or invalid
+        '404':
+          description: The supplied resource id was not found
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api/integration/panels/{panelId}/panelist_datapoint_reports:
+    post:
+      operationId: panelistDatapointReports
+      summary: Export datapoints/system fields for a known list of panelists by identifier
+      description: 'Export all answers for the list of datapoints and panelists provided. Instead of returning the results in the
+
+        response, a report is generated with a url of where to download it from.'
+      tags:
+      - Panelist
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: panelId
+        in: path
+        required: true
+        description: A Panel ID
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                panelist_ids:
+                  type: array
+                  description: An array of panelist identifiers to retrieve data for. Invalid / non-existent identifiers are omitted in the result.
+                  items:
+                    type: string
+                datapoint_labels:
+                  type: array
+                  description: An array of datapoint labels or panelist system fields to include. Invalid / non-existent datapoints or panelist fields are ignored and not included in the result.
+                  items:
+                    type: string
+                csv_labels_only:
+                  type: boolean
+                  default: true
+                  description: Controls if the labels for the `checkbox/multiple options` should be displayed.
+              required:
+              - panelist_ids
+              - datapoint_labels
+            example:
+              panelist_ids:
+              - K_00000000123
+              - K_00000000456
+              - K_00000000789
+              datapoint_labels:
+              - Qfirstname
+              - Qgender
+              - email
+      responses:
+        '201':
+          description: "Ok.   \n\nThe `id` value returned in the response can be used as the `reportId` parameter \n`GET /api/integration/panels/{panelId}/panelist_datapoint_reports/{reportId}`.\n"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    example: string
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                    - waiting
+                    - running
+                    - complete
+                    - error
+                    example: waiting
+                  report_url:
+                    type: string
+                    example: string
+                    description: 'URL where to download the finished report (only set when `status` is `complete`)
+
+                      '
+        '400':
+          description: Supplied property was invalid. The error message should return more information about what went wrong.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    example: string
+                    type: string
+        '401':
+          description: Access token is missing or invalid
+        '404':
+          description: The supplied resource id was not found
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+  /api/integration/panels/{panelId}/panelist_datapoint_reports/{reportId}:
+    get:
+      operationId: panelistLoadReportById
+      summary: Load a report by its id
+      description: 'The result includes the status of the report and a URL where the report can be downloaded.
+
+        The generated report will be in CSV format.'
+      tags:
+      - Panelist
+      security:
+      - BearerAuth: []
+      parameters:
+      - $ref: '#/components/parameters/panelid'
+      - name: reportId
+        in: path
+        required: true
+        description: reportId
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    example: string
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                    - waiting
+                    - running
+                    - complete
+                    - error
+                    example: waiting
+                  report_url:
+                    type: string
+                    example: string
+                    description: 'URL where to download the finished report (only set when `status` is `complete`)
+
+                      '
+        '401':
+          description: Access token is missing or invalid
+        '404':
+          description: The supplied resource id was not found
+    servers:
+    - url: https://{server}
+      description: Replace server with your instance domain.
+      variables:
+        server:
+          default: staging.panel.dev.focusvision.com/
+          description: Server domain
+components:
+  parameters:
+    method:
+      name: method
+      in: query
+      required: true
+      description: Method
+      schema:
+        type: string
+    panelistidfilter:
+      in: query
+      description: Filter by panelist identifier
+      name: filter[panelist_id]
+      schema:
+        type: string
+      examples:
+        single:
+          value: y36uhip5r8j7
+          summary: Single panelist
+        multiple:
+          value: y36uhip5r8j7,oa85aha25i,gjore8o7237,zx69g6ybzue
+          summary: Multiple panelists
+    panelid:
+      name: panelId
+      in: path
+      required: true
+      description: A Panel ID
+      schema:
+        type: integer
+    after:
+      in: query
+      name: after
+      required: false
+      description: Pagination parameter for cursor based pagination
+      schema:
+        type: string
+      examples:
+        example 1:
+          value: 123
+          description: Request values after id 123
+    projectidfilter:
+      in: query
+      name: filter[project_id]
+      description: Filter by project id
+      schema:
+        type: string
+      examples:
+        single:
+          value: 1
+          summary: Single project
+        multiple:
+          value: 1,2,3,4
+          summary: Multiple projects
+  schemas:
+    error:
+      type: object
+      properties:
+        success:
+          type: boolean
+        error:
+          description: The error message.
+          type: string
+        errno:
+          description: The error code.
+          type: string
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: query
+      name: seskey
+    BearerAuth:
+      type: http
+      scheme: bearer
+x-refined-from:
+- forsta-panel-management-community-openapi.yml
+- forsta-panel-management-integration-openapi.yml
+x-tagGroups:
+- name: Autoclose
+  tags:
+  - Autoclose
+- name: Data Input and Output
+  tags:
+  - Data
+  - Data Feed
+  - Response Summary
+  - Modifying Data
+  - Datasources
+  - Datasources Data
+  - Umerge
+- name: Survey Metadata
+  tags:
+  - Simulated Data
+  - Survey State
+  - Survey Evaluate
+  - Survey Quotas
+  - Survey Files
+  - Survey Warnings
+  - Survey Terms
+  - Survey Subscribers
+  - Survey Users
+  - Survey Tasks
+- name: Panels
+  tags:
+  - Panel Data
+  - Panel Datapoints
+  - Survey Panels
+- name: Research Hub
+  tags:
+  - Users
+  - Companies
+  - Categories
+  - Surveys
+  - Panels
+  - Crosstabs
+  - Archives
+  - Archival Reports
+  - API Keys
+  - Usage
+  - Warnings Summary
+- name: Crosstabs
+  tags:
+  - Crosstabs Configuration
+  - Crosstabs Execution
+  - Crosstabs Nets
+  - Saved Crosstabs
+  - Crosstabs Table Settings
+  - Crosstabs Validation
+  - Crosstabs Rim Weighting
+- name: Dashboards
+  tags:
+  - Dashboards
+- name: DQ APIs
+  tags:
+  - DQ-Specific API Calls
+  - MaxDiff API Calls
+  - Discrete Choice Model API Calls
+  - Media Testimonial API Calls
+- name: Response Summary
+  tags:
+  - Share Link
+- name: Sample Management
+  tags:
+  - Bounced Emails
+  - Participant Sources
+- name: Distribution
+  tags:
+  - Email Distribution
+  - SFTP Distribution
+  - Slack Distribution
+- name: Campaign Manager
+  tags:
+  - Campaigns
+  - Campaign Email Invites
+  - Campaign Exports
+  - Campaign Lists
+  - Shared Campaign Lists
+  - Campaign Sends
+  - Campaign Status Lists
+  - Supression Lists
+- name: Question Library
+  tags:
+  - Company Element
+  - Company Elements
+  - Survey Elements
+  - Survey Element Report Settings
+- name: Language Manager
+  tags:
+  - LM Application Data
+  - LM Application Translations
+  - Translation Resources
+  - Translations
+  - Translation Deltas
+  - Translation Reservations
+  - Primary Survey Language
+  - Other Survey Languages
+  - Unused Survey Languages
+- name: Project Parameters
+  tags:
+  - Available Project Parameters
+  - Saved Project Parameters
+  - Project Parameters Configuration
+- name: Multi-User Editing
+  tags:
+  - Available Sections
+  - Check Out Section
+  - Check In Section
+  - Sync Section
+  - Section Editor
+  - Abandon Section
+  - Validate Section
+- name: Video Management
+  tags:
+  - Videos
+  - Watermarked Videos
+- name: Miscellaneous
+  tags:
+  - System Information
+  - Logic Nodes
+  - Logic Events
+  - CATI
+  - Global Search
+  - Miscellaneous

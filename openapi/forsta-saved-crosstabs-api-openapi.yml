@@ -1,0 +1,637 @@
+openapi: 3.2.0
+info:
+  title: Decipher Rest Saved Crosstabs API
+  version: '1.0'
+  description: The Decipher REST API allows comprehensive automation of your private or shared Decipher instance.
+servers:
+- url: https://{server}/api/v1
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: selfserve.decipherinc.com
+      description: Server domain
+security:
+- APIKey: []
+tags:
+- name: Saved Crosstabs
+paths:
+  /surveys/{survey}/crosstabs/saved:
+    get:
+      operationId: getSurveyCrosstabsSaved
+      summary: List saved reports
+      tags:
+      - Saved Crosstabs
+      description: Lists "saved reports" and "saved crosstabs" created on a survey.
+      parameters:
+      - name: survey
+        description: the survey to list saved reports for
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      description: the unique ID of the report; use it to execute it
+                      type: string
+                    title:
+                      description: the title
+                      type: string
+                    description:
+                      description: the full description
+                      type: string
+                    visibility:
+                      description: '(deprecated) one of `public` (anyone -- even without login --
+
+                        can view), `protected` (only owner can edit), or `shared`
+
+                        (anyone with survey access can edit)
+
+                        '
+                      type: string
+                      enum:
+                      - public
+                      - protected
+                      - shared
+                    access:
+                      description: one of `public` (anyone -- even without login -- can view), `private` (only owner can view/edit), or `readonly` (anyone with survey access can view)
+                      type: string
+                      enum:
+                      - public
+                      - private
+                      - readonly
+                    updated_on:
+                      description: when this report was last changed
+                      type: string
+                      format: datetime
+                    created_on:
+                      description: when this report was created
+                      type: string
+                      format: datetime
+                    updated_by:
+                      description: id of user who modified this report last
+                      type: integer
+                    tmp:
+                      description: indicates if this report has been saved
+                      type: boolean
+  /surveys/{survey}/crosstabs/saved/{saved}/execute:
+    post:
+      operationId: createSurveyCrosstabsSavedExecute
+      summary: Execute saved report
+      description: 'This runs the saved report/crosstab, outputting the same format as an
+
+        ordinary crosstab.'
+      tags:
+      - Saved Crosstabs
+      parameters:
+      - name: survey
+        description: survey path to run crosstabs in
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: saved
+        description: the 12 or 16 character report ID
+        example: 1h7c1s5znuk1
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                simplified:
+                  description: Generate vastly simplified output rather than the full.
+                  default: false
+                  type: boolean
+                aggregates:
+                  description: 'Show output matching report grid tables. If set to `false`,
+
+                    question tables are not aggregated and a separate table is shown
+
+                    for each data variable. Not Applicable for saved reports.
+
+                    '
+                  default: true
+                  type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  segments:
+                    type: array
+                    description: An array of the segment objects you requested.
+                    items:
+                      type: object
+                      properties:
+                        count:
+                          type: integer
+                          description: Count of participants matching the segment.
+                        abbr:
+                          type: string
+                          description: Label used for stat testing.
+                        sg:
+                          type: string
+                          description: 'If is set and not null, this segment was stat tested
+
+                            against only other segments within the same `sg` value.
+
+                            '
+                        cond:
+                          type: string
+                          description: 'Segment condition (Python expression, e.g. "ALL" or
+
+                            "q1.r1")
+
+                            '
+                        title:
+                          type: string
+                          description: Segment's title.
+                  objects:
+                    type: array
+                    description: An array of the table data.
+                    items:
+                      type: object
+                      properties:
+                        label:
+                          type: string
+                          description: 'The table label. This uniquely identifies a table. The
+
+                            table label consists of the question''s system label (i.e.
+
+                            label as specified in the XML file, and not through e.g.
+
+                            variables.xls or data export customization), a $ sign then
+
+                            a sub-label.  For example, if question q1 has only one
+
+                            table it will be labelled `q1$`. Multiple tables might be
+
+                            labelled `q1$r1` and `q1$mean` (for Mean Summary table).
+
+                            '
+                        qlabel:
+                          type: string
+                          description: The label of the underlying question.
+                        title:
+                          type: string
+                          description: 'The main title of this table. This will be the question''s
+
+                            title.
+
+                            '
+                        subtitle:
+                          type: string
+                          description: 'When a question has multiple tables, each will have a
+
+                            different subtitle. May be null if no subtitle.
+
+                            '
+                        rows:
+                          description: 'An array of objects defining the table row structures.
+
+                            '
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              obj:
+                                type: string
+                                description: 'The underlying object for the row (e.g. "q1,c1" would
+
+                                  mean the row was created from the definition of
+
+                                  column "c1" within question "q1").
+
+                                  '
+                              title:
+                                type: string
+                                description: 'The reporting title to be displayed for the row (the
+
+                                  reporting title starts out as what is specified in
+
+                                  the survey.xml with HTML etc. stripped; it can be
+
+                                  customized in the report).
+
+                                  '
+                              label:
+                                type: string
+                                description: 'The row label. This is typically the label of the
+
+                                  underlying row or column, e.g. "c1".
+
+                                  '
+                              cond:
+                                type: string
+                                description: 'The Python logic condition that was used to generate
+
+                                  the data for the table row.
+
+                                  '
+                              dv:
+                                type: integer
+                                description: 'The data value used for statistical calculation (e.g.
+
+                                  if showing a rating question table with 5 rows, the
+
+                                  data values might span from 5 to 1 or 1 to 5
+
+                                  depending on whether the scale is ascending or
+
+                                  descending).
+
+                                  '
+                              intent:
+                                type: string
+                                enum:
+                                - total
+                                - data
+                                - numnet
+                                - net
+                                - stat
+                                description: 'Set to `total` for the total row, `data` for ordinary
+
+                                  data rows showing a percentage, `numnet` for numeric
+
+                                  nets, `net` for normal nets and `stat` for statistic
+
+                                  rows.
+
+                                  '
+                              stat:
+                                type: string
+                                enum:
+                                - counts
+                                - mean
+                                - stddev
+                                - median
+                                - se
+                                - sum
+                                description: 'If intent="stat", this describes what stat is being
+
+                                  shown in this row. One of `counts` (checkbox count),
+
+                                  `mean`, `stddev`, `median`, `se` (Standard Error) or
+
+                                  `sum`.
+
+                                  '
+                              qa:
+                                type: array
+                                items:
+                                  type: string
+                                description: 'optional property: If it exists it''s an array of QA
+
+                                  codes specific to the underlying survey row or
+
+                                  column.
+
+                                  '
+                              pct:
+                                type: string
+                                description: 'Hint on how to display percentages. If `null` then
+
+                                  percentages should not be disabled for this table
+
+                                  row. This value is set on rows that are not included
+
+                                  in the total base (I.e. "Refuse to Answer") which in
+
+                                  the survey.xml are configured as `aggregates="0"`.
+
+                                  '
+                        data:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              type: array
+                              items:
+                                type: number
+                          description: "The `data` array contains one entry per item in the `rows`.\nEach entry in data is another array, containing one item\nper segment in this table. That final item is an array\nagain with two possible layouts. If the row's `intent` is\n`stat` then this is a statistical row with 3 items:\n\n* `0` the stat value (mean, median etc. depending on the\n  `stat` property of the matching row)\n* `1` the count of items matching the condition\n* `2` stat testing data (see below).\n\nIf `intent` is set to anything but `stat` the row is a\npercentage row, i.e. displaying a count and percentages.\nIt will have 5 items:\n\n* `0` vertical percentage, relative to the effective base\n  for this row. This percentage is emitted with 6 digits\n  of precision\n* `1` weighted count (rounded to nearest number)\n* `2` unweighted count. This will be the same as item #1\n  unless weighting was applied\n* `3` effective base. This is used for stat testing\n  calculations and will be slightly different from normal\n  base if weighting was used.\n* `4` stat testing data. Either `null` or an array\n  containing references to other columns where a stat test\n  was successful. The reference is either the upper or\n  lower-case variant of the row's `abbr` property.\n\nIf you specify `simplified` = true, the output is vastly\nsimplified. It will be an object with one property by table\nlabel, for example `q1$r1`. The value is an array of the\nrows displayed: the first element is the row's title and\nthe next N*2 elements are the percentage or stat value and\ncount, one per segment.\n"
+                        qtype:
+                          type: string
+                          description: 'Question type of the underlying question (corresponds to
+
+                            the lower-case XML tag, e.g. "radio").
+
+                            '
+                        segments:
+                          description: 'Segments that were applied to this particular table. When
+
+                            using pinned reports, tables display may have non-uniform
+
+                            segments.
+
+                            '
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              title:
+                                type: string
+                                description: Segment's title.
+                              cond:
+                                type: string
+                                description: 'Segment condition (Python expression ,e.g. "ALL" or
+
+                                  "q1.r1").
+
+                                  '
+                              sg:
+                                type: string
+                                description: 'If is set and not null, this segment was stat
+
+                                  tested against only other segments within the same
+
+                                  `sg` value.
+
+                                  '
+                        qa:
+                          type: array
+                          items:
+                            type: array
+                            minItems: 2
+                            maxItems: 2
+                            items:
+                              type: string
+                          description: 'An array of QA codes for the underlying question. Each
+
+                            array element is a 2-element array of the QA code
+
+                            (e.g. "SHF\(r\)") and the human readable explanation
+
+                            (e.g. "Rows are shuffled")
+
+                            '
+                        intent:
+                          type: string
+                          description: 'This is `null` for all tables except net summaries, where
+
+                            it''s `summary`
+
+                            '
+                        obj:
+                          type: string
+                          description: 'The XML object that is the primary object driving this
+
+                            table.  For a question that generates a single table, this
+
+                            will be e.g. "q1".  For question that consists of multiple
+
+                            tables (e.g. 2D radio grouped by rows), "q1,r1" .. "q1,r5".
+
+                            '
+                        tableType:
+                          type: string
+                          enum:
+                          - simple
+                          - numeric
+                          - net
+                          - stat
+                          description: 'Set to `simple` (table contains percentages), `numeric`
+
+                            (table contains stats such as mean), `net`" (additional
+
+                            table  created for variable nets) or `stat` (summary table
+
+                            for stats).
+
+                            '
+                  dlident:
+                    type: string
+                    description: 'The "DownLoad IDENT" value can be used to create a direct link
+
+                      to a report run or to download data matching the report
+
+                      segments.
+
+                      '
+  /surveys/{survey}/crosstabs/saved/{saved}/export/{format}:
+    post:
+      operationId: createSurveyCrosstabsSavedExport
+      summary: Export saved report
+      description: 'Request a conversion of a saved report. The requested file type is
+
+        immediately returned.'
+      tags:
+      - Saved Crosstabs
+      parameters:
+      - name: survey
+        description: The survey whose saved report you want to execute
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: saved
+        description: The 12 or 16 character report ID
+        example: 1h7c1s5znuk1
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: format
+        description: 'One of "pptx" (Microsoft PowerPoint), "excel" (Excel) or "pdf"
+
+          (Adobe PDF)
+
+          '
+        in: path
+        required: true
+        schema:
+          type: string
+          enum:
+          - pptx
+          - excel
+          - pdf
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                aggregates:
+                  description: 'Show output matching report grid tables. If set to `false`,
+
+                    question tables are not aggregated and a separate table is shown
+
+                    for each data variable. Not Applicable for saved reports.
+
+                    '
+                  default: true
+                  type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+components:
+  securitySchemes:
+    APIKey:
+      type: apiKey
+      in: header
+      name: x-apikey
+      description: 'In order to access the api, you''ll need to generate an API key. Refer to the
+
+        instructions [here](/docs/decipher/api#section/API-Keys) to generate and
+
+        configure an API key with the appropriate permission sets. You can generate
+
+        as many keys as required.
+
+
+        Configure each request to include your API key in the request header. For example:
+
+
+        ```
+
+        x-apikey: dp48ss3mgsaucyjtybxw728h7s4cgnwzhejtszdwhf4xpe8yhmtdwpk2ntdhtwbs
+
+        ```
+
+        '
+x-tagGroups:
+- name: Autoclose
+  tags:
+  - Autoclose
+- name: Data Input and Output
+  tags:
+  - Data
+  - Data Feed
+  - Response Summary
+  - Modifying Data
+  - Datasources
+  - Datasources Data
+  - Umerge
+- name: Survey Metadata
+  tags:
+  - Simulated Data
+  - Survey State
+  - Survey Evaluate
+  - Survey Quotas
+  - Survey Files
+  - Survey Warnings
+  - Survey Terms
+  - Survey Subscribers
+  - Survey Users
+  - Survey Tasks
+- name: Panels
+  tags:
+  - Panel Data
+  - Panel Datapoints
+  - Survey Panels
+- name: Research Hub
+  tags:
+  - Users
+  - Companies
+  - Categories
+  - Surveys
+  - Panels
+  - Crosstabs
+  - Archives
+  - Archival Reports
+  - API Keys
+  - Usage
+  - Warnings Summary
+- name: Crosstabs
+  tags:
+  - Crosstabs Configuration
+  - Crosstabs Execution
+  - Crosstabs Nets
+  - Saved Crosstabs
+  - Crosstabs Table Settings
+  - Crosstabs Validation
+  - Crosstabs Rim Weighting
+- name: Dashboards
+  tags:
+  - Dashboards
+- name: DQ APIs
+  tags:
+  - DQ-Specific API Calls
+  - MaxDiff API Calls
+  - Discrete Choice Model API Calls
+  - Media Testimonial API Calls
+- name: Response Summary
+  tags:
+  - Share Link
+- name: Sample Management
+  tags:
+  - Bounced Emails
+  - Participant Sources
+- name: Distribution
+  tags:
+  - Email Distribution
+  - SFTP Distribution
+  - Slack Distribution
+- name: Campaign Manager
+  tags:
+  - Campaigns
+  - Campaign Email Invites
+  - Campaign Exports
+  - Campaign Lists
+  - Shared Campaign Lists
+  - Campaign Sends
+  - Campaign Status Lists
+  - Supression Lists
+- name: Question Library
+  tags:
+  - Company Element
+  - Company Elements
+  - Survey Elements
+  - Survey Element Report Settings
+- name: Language Manager
+  tags:
+  - LM Application Data
+  - LM Application Translations
+  - Translation Resources
+  - Translations
+  - Translation Deltas
+  - Translation Reservations
+  - Primary Survey Language
+  - Other Survey Languages
+  - Unused Survey Languages
+- name: Project Parameters
+  tags:
+  - Available Project Parameters
+  - Saved Project Parameters
+  - Project Parameters Configuration
+- name: Multi-User Editing
+  tags:
+  - Available Sections
+  - Check Out Section
+  - Check In Section
+  - Sync Section
+  - Section Editor
+  - Abandon Section
+  - Validate Section
+- name: Video Management
+  tags:
+  - Videos
+  - Watermarked Videos
+- name: Miscellaneous
+  tags:
+  - System Information
+  - Logic Nodes
+  - Logic Events
+  - CATI
+  - Global Search
+  - Miscellaneous

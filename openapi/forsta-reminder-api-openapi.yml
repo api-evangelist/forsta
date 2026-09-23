@@ -1,0 +1,265 @@
+openapi: 3.2.0
+info:
+  title: Integration Reminder API
+  version: ''
+servers:
+- url: https://{server}
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: staging.panel.dev.focusvision.com/
+      description: Server domain
+tags:
+- name: Reminder
+paths:
+  /api.pro#method=integration.reminder.create:
+    post:
+      operationId: reminderCreate
+      summary: Create a reminder
+      description: Create a reminder for an existing campaign (requires existing campaign with existing scheduled invitation)
+      tags:
+      - Reminder
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.reminder.create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - sesKey
+              - campaignid
+              - messages
+              - startDate
+              - sampleIds
+              properties:
+                sesKey:
+                  description: A valid login hash.
+                  type: string
+                  example: 5a15852c564933807bbd36da58071063
+                campaignid:
+                  description: Name of the sample.
+                  type: integer
+                  example: 1
+                messages:
+                  description: A zero based array of associative arrays containing localized message data.
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      subject:
+                        type: string
+                      content:
+                        type: string
+                      locale:
+                        type: string
+                  example:
+                  - subject: The Subject
+                    content: This is the message content
+                    locale: 1
+                  - subject: The Subject
+                    content: This is the message content
+                    locale: 2
+                  - subject: The Subject
+                    content: This is the message content
+                    locale: 3
+                startDate:
+                  description: The date and time when the reminder should be sent.
+                  type: string
+                  pattern: ^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$
+                  example: '2011-12-24 17:40:00'
+                sampleIds:
+                  description: Specifies which samples to send to. (If empty it will send to all sampleids in the campaign)
+                  type: array
+                  items:
+                    type: number
+                  example:
+                  - 1
+                  - 2
+                  - 3
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                    data:
+                      properties:
+                        reminderid:
+                          type: integer
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    data:
+                      reminderid: 1
+                error-0:
+                  description: Campaign with supplied campaign ID is not found in selected project.
+                  summary: Campaign ID not found
+                  value:
+                    success: false
+                    error: 'No data found for Campaign ID: (campaign ID)'
+                    errno: '10000'
+                error-1:
+                  description: The supplied messages array did not contain messages with all locales for the selected panel.
+                  summary: Messages invalid
+                  value:
+                    success: false
+                    error: Localized Reminder data must contain all locales!
+                    errno: '10000'
+                error-2:
+                  description: The supplied campaign ID is not numeric.
+                  summary: Campaign ID invalid
+                  value:
+                    success: false
+                    error: The "campaignId" parameter is of an unexpected type (campaign ID type). Please use an integer, as described in the documentation.
+                    errno: '20102'
+                error-3:
+                  description: The supplied messages parameter is not an array.
+                  summary: Messages invalid
+                  value:
+                    success: false
+                    error: The "messages" parameter is of an unexpected type (messages type). Please use an array, as described in the documentation.
+                    errno: '20103'
+                error-4:
+                  description: The supplied messages locale is not numeric.
+                  summary: Messages locale invalid
+                  value:
+                    success: false
+                    error: Invalid value for locale encountered (message locale type). Please use an integer.
+                    errno: '20103'
+                error-5:
+                  description: The supplied messages array has multiple messages with the same locale. There can only
+                  summary: Messages locale invalid
+                  value:
+                    success: false
+                    error: You have more than one message defined for locale (local ID). Message locales must be unique.
+                    errno: '20103'
+                error-6:
+                  description: The supplied start date is not valid timestamp (YYYY-MM-DD HH:mm:ss).
+                  summary: Start date invalid
+                  value:
+                    success: false
+                    error: The "when" parameter is of an unexpected type (start date type). Please use a valid (UNIX) timestamp, as described in the documentation.
+                    errno: '20104'
+                error-7:
+                  description: The supplied sample IDs is not an array or is null.
+                  summary: Sample IDs invalid
+                  value:
+                    success: false
+                    error: The "sampleIds" parameter is of an unexpected type (sample ID type). Please use an array, as described in the documentation.
+                    errno: '20105'
+                error-8:
+                  description: One of the supplied sample IDs is not numeric.
+                  summary: Sample IDs invalid
+                  value:
+                    success: false
+                    error: Invalid value in "sampleId" encountered (sample ID type). Please use an array of integers, as described in the documentation.
+                    errno: '20105'
+                error-9:
+                  description: Sample with supplied sample ID is not found.
+                  summary: Sample not found
+                  value:
+                    success: false
+                    error: The supplied sample id (sample ID) in "sampleId" is invalid or cannot be used for this campaign.
+                    errno: '20105'
+                error-10:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session has expired. You must start a new session.
+                    errno: '30100'
+                error-11:
+                  description: Session is not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: sessionkey not found
+                    errno: '30200'
+                error-12:
+                  description: User ID not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: userid for sessionkey not found
+                    errno: '30200'
+                error-13:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: sessionkey is invalid
+                    errno: '30300'
+                error-14:
+                  description: A panel needs to be selected before calling this method.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: You must select a panel before you can use this method.
+                    errno: '40001'
+                error-15:
+                  description: A project needs to be selected before calling this method.
+                  summary: Project not found
+                  value:
+                    success: false
+                    error: You must select a project before you can use this method.
+                    errno: '40002'
+components:
+  parameters:
+    method:
+      name: method
+      in: query
+      required: true
+      description: Method
+      schema:
+        type: string
+  schemas:
+    error:
+      type: object
+      properties:
+        success:
+          type: boolean
+        error:
+          description: The error message.
+          type: string
+        errno:
+          description: The error code.
+          type: string
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+    ApiKey:
+      type: apiKey
+      in: query
+      name: sesKey
+x-tagGroups:
+- name: Data Input and Output
+  tags:
+  - Auth
+  - Campaign
+  - Category
+  - Community
+  - Datapoint
+  - Panel
+  - Notes
+  - Panelist
+  - Project
+  - Reminder
+  - Sample
+  - Session
+  - Survey
+  - Token

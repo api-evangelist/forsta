@@ -1,0 +1,740 @@
+openapi: 3.2.0
+info:
+  title: Decipher Rest Crosstabs Table Settings API
+  version: '1.0'
+  description: The Decipher REST API allows comprehensive automation of your private or shared Decipher instance.
+servers:
+- url: https://{server}/api/v1
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: selfserve.decipherinc.com
+      description: Server domain
+security:
+- APIKey: []
+tags:
+- name: Crosstabs Table Settings
+paths:
+  /surveys/{survey}/crosstabs/tablesettings:
+    delete:
+      operationId: deleteSurveyCrosstabsTablesettings
+      summary: Delete crosstabs table settings
+      description: 'Reset all tables or just the given table to their "as programmed" state,
+
+        removing any customization. Requires reporting: edit permission for the
+
+        project.'
+      tags:
+      - Crosstabs Table Settings
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tablename:
+                  description: 'Table to reset. If supplied, only this table will be reset,
+
+                    otherwise all tables will be reset.
+
+                    '
+                  type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+  /surveys/{survey}/crosstabs/targets/{target}/settings:
+    get:
+      operationId: getSurveyCrosstabsTargetSettings
+      summary: Get crosstabs settings for a target
+      description: 'Retrieve all report settings for a specific target (question/object) or global settings.
+
+
+        This endpoint returns the current configuration for a question or global report settings
+
+        that have been customized via the crosstabs settings API or the rconf.py script.
+
+
+        **Target Types:**
+
+        - **Question label** (e.g., `q1`, `q2`) - Returns object-specific settings for that question
+
+        - **`global`** - Returns global report settings that apply to all tables
+
+
+        **Response Details:**
+
+        - For question targets, returns only settings that have been explicitly customized. An empty
+
+        object `{}` means the question uses default behaviors.
+
+        - For global target, returns current values for global settings (custom or defaults).
+
+
+        **Permissions:** Requires `report.view` permission for the survey.'
+      tags:
+      - Crosstabs Table Settings
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      - name: target
+        description: 'Question label (e.g., `q1`) or `global` for global settings
+
+          '
+        in: path
+        required: true
+        schema:
+          type: string
+        example: q1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                description: 'Returns an object containing all settings for the specified target.
+
+                  For object targets, returns only settings that have been explicitly set.
+
+                  For global targets, returns only global settings that are present.
+
+                  '
+              examples:
+                Object settings:
+                  description: Example response for a question with custom settings
+                  value:
+                    alt: Custom Question Title
+                    hide: false
+                    pct: 2
+                    stats:
+                    - mean
+                    - stddev
+                    ignore:
+                    - 1
+                    - 2
+                Global settings:
+                  description: Example response for global settings
+                  value:
+                    smallSample: 150
+                    verySmallSample: 30
+                    sigtestMajor: 95
+                    sigtestMinor: 90
+                Empty object settings:
+                  description: Example response for a question with no custom settings
+                  value: {}
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  $error:
+                    type: string
+                    description: Error message
+                  $code:
+                    type: integer
+                    description: HTTP status code
+              examples:
+                Invalid target:
+                  description: Target label does not exist in survey
+                  value:
+                    $error: 'Unknown target label: nonexistent_q'
+                    $code: 400
+        '403':
+          description: Forbidden - User lacks report.view permission
+  /surveys/{survey}/crosstabs/targets/{target}/settings/{setting}:
+    put:
+      operationId: updateSurveyCrosstabsTargetSetting
+      summary: Update a crosstabs setting for a target
+      description: 'Update an individual report setting for a specific target (question/object) or global setting.
+
+
+        This endpoint replicates the functionality of the `rconf.py` command-line script, allowing
+
+        programmatic updates to crosstabs report settings via REST API.
+
+
+        **Target Types:**
+
+        - **Question label** (e.g., `q1`, `q2`) - Updates object-specific settings for that question
+
+        - **`global`** - Updates global report settings that apply to all tables
+
+
+        **Object Settings** (per question/target):
+
+
+        - **`alt`** (string) - Override the display title for this question in the crosstab report.
+
+        Use this to provide a more descriptive or client-friendly name than the default question text.
+
+        Example: `"Customer Satisfaction Score"` instead of the default question label.
+
+
+        - **`ignore`** (comma-separated integers) - Specify which row or column indices to exclude from the
+
+        crosstab display for this question. For example, `"1,2,3"` will hide rows/columns 1, 2, and 3.
+
+        Useful for removing "Don''t know" or "Prefer not to answer" options from the report.
+
+
+        - **`stats`** (comma-separated strings) - Control which statistics are calculated and displayed for
+
+        this question in crosstabs. Available options:
+
+        - `counts` - Show response counts
+
+        - `mean` - Show mean/average values
+
+        - `stddev` - Show standard deviation
+
+        - `median` - Show median values
+
+        - `se` - Show standard error
+
+        - `sum` - Show sum of values
+
+        - `min` - Show minimum value
+
+        - `max` - Show maximum value
+
+
+        Example: `"mean,stddev,median"` will display only those three statistics.
+
+
+        - **`pct`** (integer: 0-4) - Set the number of decimal places for percentage values in this question''s
+
+        crosstab. For example, `2` displays percentages as "45.67%" while `0` displays as "46%".
+
+
+        - **`stats.prec`** (integer: 0-4) - Set the number of decimal places for statistical values (mean,
+
+        standard deviation, etc.) in this question''s crosstab. For example, `3` displays "12.345" while `1` displays "12.3".
+
+
+        **Global Settings** (apply to all questions):
+
+
+        - **`smallSample`** (integer, 0+) - Set the threshold for flagging small sample sizes in your reports.
+
+        When a table total''s count falls below this number, it will be visually flagged as a small sample.
+
+        Default: `100`
+
+
+        - **`verySmallSample`** (integer, 0+) - Set the threshold for flagging very small sample sizes.
+
+        When a table total''s count falls below this number, it will be flagged with a stronger warning than `smallSample`.
+
+        Default: `30`
+
+
+        - **`sigtestMajor`** (integer: 0-100) - Set the confidence level (as a percentage) for major significance
+
+        testing in crosstabs. For example, `95` means 95% confidence level (p < 0.05).
+
+        Default: `95`
+
+
+        - **`sigtestMinor`** (integer: 0-100) - Set the confidence level (as a percentage) for minor significance
+
+        testing in crosstabs. Typically set lower than `sigtestMajor` for a secondary significance indicator.
+
+        Default: `90`
+
+
+        **Permissions:** Requires `report.edit` permission for the survey.'
+      tags:
+      - Crosstabs Table Settings
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      - name: target
+        description: 'Question label (e.g., `q1`) or `global` for global settings
+
+          '
+        in: path
+        required: true
+        schema:
+          type: string
+        example: q1
+      - name: setting
+        description: 'Setting name to update (e.g., `title`, `hide`, `smallSample`)
+
+          '
+        in: path
+        required: true
+        schema:
+          type: string
+        example: title
+      - name: value
+        description: 'New value for the setting. Type depends on the setting:
+
+          - Strings: passed as-is
+
+          - Booleans: `true`, `false`, `1`, `0`, `yes`, `no` (case-insensitive)
+
+          - Integers: numeric string (e.g., `"2"`)
+
+          - Lists: comma-separated values (e.g., `"mean,stddev"` or `"1,2,3"`)
+
+          '
+        in: query
+        required: true
+        schema:
+          type: string
+        example: My Custom Title
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  target:
+                    type: string
+                    description: The target that was updated
+                  setting:
+                    type: string
+                    description: The setting that was updated
+                  previous_value:
+                    description: 'The previous value of the setting, or `"<missing>"` if not previously set
+
+                      '
+                    oneOf:
+                    - type: string
+                    - type: boolean
+                    - type: integer
+                    - type: array
+                  new_value:
+                    description: The new value that was set
+                    oneOf:
+                    - type: string
+                    - type: boolean
+                    - type: integer
+                    - type: array
+              examples:
+                String setting:
+                  description: Update a string setting like title
+                  value:
+                    target: q1
+                    setting: title
+                    previous_value: <missing>
+                    new_value: My Custom Title
+                Boolean setting:
+                  description: Update a boolean setting like hide
+                  value:
+                    target: q1
+                    setting: hide
+                    previous_value: <missing>
+                    new_value: true
+                Integer setting:
+                  description: Update an integer setting like pct
+                  value:
+                    target: q1
+                    setting: pct
+                    previous_value: <missing>
+                    new_value: 2
+                List setting (stats):
+                  description: Update a list setting like stats
+                  value:
+                    target: q1
+                    setting: stats
+                    previous_value: <missing>
+                    new_value:
+                    - mean
+                    - stddev
+                    - median
+                List setting (ignore):
+                  description: Update an integer list setting like ignore
+                  value:
+                    target: q1
+                    setting: ignore
+                    previous_value: <missing>
+                    new_value:
+                    - 1
+                    - 2
+                    - 3
+                Global setting:
+                  description: Update a global setting
+                  value:
+                    target: global
+                    setting: smallSample
+                    previous_value: 100
+                    new_value: 150
+                Update existing value:
+                  description: Updating a setting that already has a value
+                  value:
+                    target: q1
+                    setting: title
+                    previous_value: Old Title
+                    new_value: New Title
+        '400':
+          description: Bad Request - Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  $error:
+                    type: string
+                    description: Error message
+                  $code:
+                    type: integer
+                    description: HTTP status code
+              examples:
+                Invalid boolean:
+                  description: Boolean value is not valid
+                  value:
+                    $error: hide must be a boolean (true or false)
+                    $code: 400
+                Out of range integer:
+                  description: Integer value is outside valid range
+                  value:
+                    $error: pct must be in range 0-4
+                    $code: 400
+                Invalid stats option:
+                  description: Stats value contains invalid option
+                  value:
+                    $error: 'Invalid stats ''invalid_stat''. Allowed options: counts, mean, stddev, median, se, sum, min, max'
+                    $code: 400
+                Empty stats list:
+                  description: Stats cannot be empty
+                  value:
+                    $error: stats cannot be empty
+                    $code: 400
+                Negative integer in list:
+                  description: Negative value in integer list
+                  value:
+                    $error: Each item in ignore must be a non-negative integer
+                    $code: 400
+                Unknown target:
+                  description: Target label does not exist
+                  value:
+                    $error: 'Unknown target label: nonexistent_q'
+                    $code: 400
+                Unknown object setting:
+                  description: Invalid setting name for object
+                  value:
+                    $error: 'Unknown object setting: invalid_setting. Valid options: alt, ignore, stats, pct, stats.prec'
+                    $code: 400
+                Unknown global setting:
+                  description: Invalid setting name for global
+                  value:
+                    $error: 'Unknown global setting: invalid_setting. Valid options: smallSample, verySmallSample, sigtestMajor, sigtestMinor, stats.prec, pct'
+                    $code: 400
+        '403':
+          description: Forbidden - User lacks report.edit permission
+    delete:
+      operationId: deleteSurveyCrosstabsTargetSetting
+      summary: Delete a crosstabs setting for a target
+      description: 'Delete an individual report setting for a specific target (question/object) or global setting.
+
+
+        This endpoint removes a customized setting, restoring the question or report to its default
+
+        behavior for that setting. This is equivalent to using `delete` as the value in the rconf.py script.
+
+
+        **Target Types:**
+
+        - **Question label** (e.g., `q1`, `q2`) - Deletes the custom setting for that specific question
+
+        - **`global`** - Deletes the custom global report setting
+
+
+        **What Happens After Deletion:**
+
+        - For **question settings**: The custom setting is removed. The question will use the default
+
+        behavior for that setting in future reports.
+
+        - For **global settings**: The custom setting is removed. The report will use the system default
+
+        value for that setting (e.g., `smallSample` returns to 100, `sigtestMajor` returns to 95).
+
+
+        **Permissions:** Requires `report.edit` permission for the survey.'
+      tags:
+      - Crosstabs Table Settings
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      - name: target
+        description: 'Question label (e.g., `q1`) or `global` for global settings
+
+          '
+        in: path
+        required: true
+        schema:
+          type: string
+        example: q1
+      - name: setting
+        description: 'Setting name to delete. Valid options depend on the target type:
+
+
+          **For question targets** (e.g., `q1`):
+
+          - `alt`, `ignore`, `stats`, `pct`, `stats.prec`
+
+
+          **For global target**:
+
+          - `smallSample`, `verySmallSample`, `sigtestMajor`, `sigtestMinor`, `stats.prec`, `pct`
+
+
+          See the PUT endpoint documentation for detailed explanations of each setting.
+
+          '
+        in: path
+        required: true
+        schema:
+          type: string
+        example: alt
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  target:
+                    type: string
+                    description: The target that was updated
+                  setting:
+                    type: string
+                    description: The setting that was deleted
+                  deleted_value:
+                    description: 'The value that was deleted, or `"<missing>"` if the setting was not set
+
+                      '
+                    oneOf:
+                    - type: string
+                    - type: boolean
+                    - type: integer
+                    - type: array
+                  status:
+                    type: string
+                    enum:
+                    - deleted
+                    description: Status of the operation
+              examples:
+                Delete object setting:
+                  description: Successfully deleted an object setting
+                  value:
+                    target: q1
+                    setting: alt
+                    deleted_value: My Custom Title
+                    status: deleted
+                Delete global setting:
+                  description: Successfully deleted a global setting
+                  value:
+                    target: global
+                    setting: smallSample
+                    deleted_value: 150
+                    status: deleted
+                Delete non-existent setting:
+                  description: Attempting to delete a setting that was never set
+                  value:
+                    target: q1
+                    setting: hide
+                    deleted_value: <missing>
+                    status: deleted
+        '400':
+          description: Bad Request - Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  $error:
+                    type: string
+                    description: Error message
+                  $code:
+                    type: integer
+                    description: HTTP status code
+              examples:
+                Unknown target:
+                  description: Target label does not exist
+                  value:
+                    $error: 'Unknown target label: nonexistent_q'
+                    $code: 400
+                Unknown object setting:
+                  description: Invalid setting name for object
+                  value:
+                    $error: 'Unknown object setting: invalid_setting. Valid options: alt, ignore, stats, pct, stats.prec'
+                    $code: 400
+                Unknown global setting:
+                  description: Invalid setting name for global
+                  value:
+                    $error: 'Unknown global setting: invalid_setting. Valid options: smallSample, verySmallSample, sigtestMajor, sigtestMinor, stats.prec, pct'
+                    $code: 400
+        '403':
+          description: Forbidden - User lacks report.edit permission
+components:
+  parameters:
+    survey:
+      name: survey
+      in: path
+      required: true
+      description: The survey path.
+      example: selfserve/1a/123456
+      schema:
+        type: string
+        format: uri
+  securitySchemes:
+    APIKey:
+      type: apiKey
+      in: header
+      name: x-apikey
+      description: 'In order to access the api, you''ll need to generate an API key. Refer to the
+
+        instructions [here](/docs/decipher/api#section/API-Keys) to generate and
+
+        configure an API key with the appropriate permission sets. You can generate
+
+        as many keys as required.
+
+
+        Configure each request to include your API key in the request header. For example:
+
+
+        ```
+
+        x-apikey: dp48ss3mgsaucyjtybxw728h7s4cgnwzhejtszdwhf4xpe8yhmtdwpk2ntdhtwbs
+
+        ```
+
+        '
+x-tagGroups:
+- name: Autoclose
+  tags:
+  - Autoclose
+- name: Data Input and Output
+  tags:
+  - Data
+  - Data Feed
+  - Response Summary
+  - Modifying Data
+  - Datasources
+  - Datasources Data
+  - Umerge
+- name: Survey Metadata
+  tags:
+  - Simulated Data
+  - Survey State
+  - Survey Evaluate
+  - Survey Quotas
+  - Survey Files
+  - Survey Warnings
+  - Survey Terms
+  - Survey Subscribers
+  - Survey Users
+  - Survey Tasks
+- name: Panels
+  tags:
+  - Panel Data
+  - Panel Datapoints
+  - Survey Panels
+- name: Research Hub
+  tags:
+  - Users
+  - Companies
+  - Categories
+  - Surveys
+  - Panels
+  - Crosstabs
+  - Archives
+  - Archival Reports
+  - API Keys
+  - Usage
+  - Warnings Summary
+- name: Crosstabs
+  tags:
+  - Crosstabs Configuration
+  - Crosstabs Execution
+  - Crosstabs Nets
+  - Saved Crosstabs
+  - Crosstabs Table Settings
+  - Crosstabs Validation
+  - Crosstabs Rim Weighting
+- name: Dashboards
+  tags:
+  - Dashboards
+- name: DQ APIs
+  tags:
+  - DQ-Specific API Calls
+  - MaxDiff API Calls
+  - Discrete Choice Model API Calls
+  - Media Testimonial API Calls
+- name: Response Summary
+  tags:
+  - Share Link
+- name: Sample Management
+  tags:
+  - Bounced Emails
+  - Participant Sources
+- name: Distribution
+  tags:
+  - Email Distribution
+  - SFTP Distribution
+  - Slack Distribution
+- name: Campaign Manager
+  tags:
+  - Campaigns
+  - Campaign Email Invites
+  - Campaign Exports
+  - Campaign Lists
+  - Shared Campaign Lists
+  - Campaign Sends
+  - Campaign Status Lists
+  - Supression Lists
+- name: Question Library
+  tags:
+  - Company Element
+  - Company Elements
+  - Survey Elements
+  - Survey Element Report Settings
+- name: Language Manager
+  tags:
+  - LM Application Data
+  - LM Application Translations
+  - Translation Resources
+  - Translations
+  - Translation Deltas
+  - Translation Reservations
+  - Primary Survey Language
+  - Other Survey Languages
+  - Unused Survey Languages
+- name: Project Parameters
+  tags:
+  - Available Project Parameters
+  - Saved Project Parameters
+  - Project Parameters Configuration
+- name: Multi-User Editing
+  tags:
+  - Available Sections
+  - Check Out Section
+  - Check In Section
+  - Sync Section
+  - Section Editor
+  - Abandon Section
+  - Validate Section
+- name: Video Management
+  tags:
+  - Videos
+  - Watermarked Videos
+- name: Miscellaneous
+  tags:
+  - System Information
+  - Logic Nodes
+  - Logic Events
+  - CATI
+  - Global Search
+  - Miscellaneous

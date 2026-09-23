@@ -1,0 +1,494 @@
+openapi: 3.2.0
+info:
+  title: Panel Management Community Email API
+  version: ''
+servers:
+- url: https://{server}
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: staging.panel.dev.focusvision.com/
+      description: Server domain
+security:
+- ApiKey: []
+tags:
+- name: Email
+paths:
+  /api.pro#method=portal.email.sendOptOutConfirmation:
+    post:
+      operationId: portal.email.sendOptOutConfirmation
+      summary: Sends an opt-out confirmation email to a panelist
+      description: 'Sends an opt-out confirmation email to a panelist. The system will automatically use the pre-defined email template from the community the panelist belongs to. When the panelist clicks on the link embedded in the email the system will mark the panelist as unsubscribed. If a custom API powered community is used then panelists will be redirected to "Receiver URL for landing pages" which is setup in the community properties.
+
+
+        Example redirect:
+
+        https://www.customcommunity.com/landing.php?kslp=AkjdJDEcnj3ddf
+
+
+        The kslp parameter specifies the appropriate landing page which can be obtained using integration.community.getLandingPage call.'
+      tags:
+      - Email
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.email.sendOptOutConfirmation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mobile:
+                  type: boolean
+                  description: If true send an SMS, if false send an Email.
+                  default: false
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+            example:
+              seskey: ce512c91
+              mobile: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: The email was successful.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                error-0:
+                  description: Due to an internal error, sending the email failed.
+                  summary: Internal error
+                  value:
+                    success: false
+                    error: Failed to send optout email.
+                    errno: '0'
+                error-1:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-2:
+                  description: The supplied mobile is not a boolean value.
+                  summary: Mobile invalid
+                  value:
+                    success: false
+                    error: The mobile flag type is invalid
+                    errno: '20102'
+                error-3:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-4:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.email.sendReferFriend:
+    post:
+      operationId: portal.email.sendReferFriend
+      summary: Send a refer a friend email to the supplied email address
+      description: 'Send a refer a friend email to the supplied email address. The system will automatically use the pre-defined email template from the community the panelist belongs to. If a custom API powered community is used then panelists will be redirected to "Receiver URL for landing pages" which is setup in the community properties.
+
+
+        Example redirect:
+
+        https://www.customcommunity.com/landing.php?kslp=AkjdJDEcnj3ddf
+
+
+        The kslp parameter specifies the appropriate landing page which can be obtained using integration.community.getLandingPage call.'
+      tags:
+      - Email
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.email.sendReferFriend
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: The email address to refer.
+                points:
+                  type: integer
+                  description: The points rewarded to the referrer.
+                mobile:
+                  type: boolean
+                  description: If true send an SMS, if false send an Email.
+                  default: false
+                seskey:
+                  type: string
+                  description: A valid login hash.
+              required:
+              - seskey
+              - email
+              - points
+            example:
+              seskey: ce512c91
+              email: person@example.com
+              points: 100
+              mobile: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: The email was successful.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                error-0:
+                  description: Due to an internal error, sending the email failed.
+                  summary: Internal error
+                  value:
+                    success: false
+                    error: Failed to send refer friend email.
+                    errno: '0'
+                error-1:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session string is invalid
+                    errno: '20101'
+                error-2:
+                  description: The supplied email is not a valid email address.
+                  summary: Email invalid
+                  value:
+                    success: false
+                    error: The supplied email address is invalid
+                    errno: '20102'
+                error-3:
+                  description: The supplied points value is not numeric.
+                  summary: Points invalid
+                  value:
+                    success: false
+                    error: The supplied points value is invalid
+                    errno: '20103'
+                error-4:
+                  description: The supplied mobile is not a boolean value.
+                  summary: Mobile invalid
+                  value:
+                    success: false
+                    error: The mobile flag type is invalid
+                    errno: '20104'
+                error-5:
+                  description: The supplied email address is a member or has been sent a referral by the current panelist. Additional referrals cannot be sent to this email address.
+                  summary: Email member already referred
+                  value:
+                    success: false
+                    error: The person you were trying to refer is already a member or has already been referred by you
+                    errno: '20202'
+                error-6:
+                  description: The supplied email address is opted-out of referrals and cannot be sent additional referrals.
+                  summary: Email referral opt-out
+                  value:
+                    success: false
+                    error: The person you were trying to refer does not wish to be referred again
+                    errno: '20302'
+                error-7:
+                  description: Session is not valid or is not found for supplied session key.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: Session invalid
+                    errno: '30100'
+                error-8:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session expired
+                    errno: '30100'
+  /api.pro#method=portal.email.sendResetPassword:
+    post:
+      operationId: portal.email.sendResetPassword
+      summary: Send a reset password email
+      description: 'Send a reset password email to the e-mail address provided. The system will automatically use the pre-defined email template from the community the panelist belongs to. If a custom API powered community is used then panelists will be redirected to "Receiver URL for landing pages" which is setup in the community properties.
+
+
+        Example redirect:
+
+        https://www.customcommunity.com/landing.php?kslp=AkjdJDEcnj3ddf
+
+
+        The kslp parameter specifies the appropriate landing page which can be obtained using integration.community.getLandingPage call.'
+      tags:
+      - Email
+      security: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.email.sendResetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                panelid:
+                  type: integer
+                  description: The panelid that the email address is registered to.
+                email:
+                  type: string
+                  description: The email address to send the email to.
+                mobile:
+                  type: boolean
+                  description: If true send an SMS, if false send an Email.
+                  default: false
+              required:
+              - panelid
+              - email
+            example:
+              panelid: 1
+              email: demo@example.com
+              mobile: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: The email was successful.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                error-0:
+                  description: Due to an internal error, sending the email failed.
+                  summary: Internal error
+                  value:
+                    success: false
+                    error: Failed to send reset password email.
+                    errno: '0'
+                error-1:
+                  description: Panel with supplied panel ID is not found.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: Panel ID does not exist, or is currently inaccessible.
+                    errno: '10000'
+                error-2:
+                  description: The supplied panel ID is not numeric.
+                  summary: Panel ID invalid
+                  value:
+                    success: false
+                    error: Panel ID is invalid
+                    errno: '20101'
+                error-3:
+                  description: The supplied email is not a valid email address.
+                  summary: Email invalid
+                  value:
+                    success: false
+                    error: The supplied email address is invalid
+                    errno: '20102'
+                error-4:
+                  description: Panelist with supplied email address is not found.
+                  summary: Email not found
+                  value:
+                    success: false
+                    error: The supplied email address could not be found
+                    errno: '20102'
+                error-5:
+                  description: The supplied mobile is not a boolean value.
+                  summary: Mobile invalid
+                  value:
+                    success: false
+                    error: The mobile flag type is invalid
+                    errno: '20103'
+  /api.pro#method=portal.email.sendOptInConfirmation:
+    post:
+      operationId: portal.email.sendOptInConfirmation
+      summary: Sends an opt-in email to the e-mail address provided
+      description: 'Sends an opt-in email to the e-mail address provided. The system will automatically use the pre-defined email template from the community the panelist belongs to. If a custom API powered community is used then panelists will be redirected to "Receiver URL for landing pages" which is setup in the community properties.
+
+
+        Example redirect:
+
+        https://www.customcommunity.com/landing.php?kslp=AkjdJDEcnj3ddf
+
+
+        The kslp parameter specifies the appropriate landing page which can be obtained using integration.community.getLandingPage call.'
+      tags:
+      - Email
+      security: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - portal.email.sendOptInConfirmation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                panelid:
+                  type: integer
+                  description: The panelid that the email address is registered to.
+                email:
+                  type: string
+                  description: The email address to send the email to.
+                mobile:
+                  type: boolean
+                  description: If true send an SMS, if false send an Email.
+                  default: false
+              required:
+              - panelid
+              - email
+            example:
+              panelid: 1
+              email: demo@example.com
+              mobile: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                      description: The email was successful.
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                error-0:
+                  description: Due to an internal error, sending the email failed.
+                  summary: Internal error
+                  value:
+                    success: false
+                    error: Failed to send optin email.
+                    errno: '0'
+                error-1:
+                  description: Panelist cannot resend confirmation because panelist is unconfirmed.
+                  summary: Panelist unconfirmed
+                  value:
+                    success: false
+                    error: Failed to send optin email.
+                    errno: '0'
+                error-2:
+                  description: Panel with supplied panel ID is not found.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: Panel ID does not exist, or is currently inaccessible.
+                    errno: '10000'
+                error-3:
+                  description: The supplied panel ID is not numeric.
+                  summary: Panel ID invalid
+                  value:
+                    success: false
+                    error: Panel ID is invalid
+                    errno: '20101'
+                error-4:
+                  description: The supplied email is not a valid email address.
+                  summary: Email invalid
+                  value:
+                    success: false
+                    error: The supplied email address is invalid
+                    errno: '20102'
+                error-5:
+                  description: Panelist with supplied email address is not found.
+                  summary: Email not found
+                  value:
+                    success: false
+                    error: The supplied email address could not be found
+                    errno: '20102'
+                error-6:
+                  description: The supplied mobile is not a boolean value.
+                  summary: Mobile invalid
+                  value:
+                    success: false
+                    error: The mobile flag type is invalid
+                    errno: '20103'
+components:
+  parameters:
+    method:
+      name: method
+      in: query
+      required: true
+      description: Method
+      schema:
+        type: string
+  schemas:
+    error:
+      type: object
+      properties:
+        success:
+          type: boolean
+        error:
+          description: The error message.
+          type: string
+        errno:
+          description: The error code.
+          type: string
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: query
+      name: seskey
+x-tagGroups:
+- name: Data Input and Output
+  tags:
+  - Auth
+  - Email
+  - Panel
+  - Panelist
+  - Points
+  - Quickpoll
+  - Redemption
+  - Reward
+  - Survey
+  - System

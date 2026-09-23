@@ -1,0 +1,980 @@
+openapi: 3.2.0
+info:
+  title: Integration Project API
+  version: ''
+servers:
+- url: https://{server}
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: staging.panel.dev.focusvision.com/
+      description: Server domain
+tags:
+- name: Project
+paths:
+  /api.pro#method=integration.project.select:
+    post:
+      operationId: projectSelect
+      summary: Select a project
+      description: 'Select a current project for the connection. The project will stay selected for all consecutive actions.
+
+        Look for standard return for success or failure.'
+      tags:
+      - Project
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.project.select
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - sesKey
+              - projectid
+              properties:
+                sesKey:
+                  description: A valid login hash.
+                  type: string
+                  example: 5a15852c564933807bbd36da58071063
+                projectid:
+                  description: The id of the project to select.
+                  type: integer
+                  example: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                error-0:
+                  description: The supplied project ID is not numeric.
+                  summary: Project ID invalid
+                  value:
+                    success: false
+                    error: Invalid project id (project ID)
+                    errno: '20102'
+                error-1:
+                  description: Project with supplied project ID is not found in selected panel.
+                  summary: Project ID not found
+                  value:
+                    success: false
+                    error: Project (project ID) not found in panel (selected panel ID)
+                    errno: '20302'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session has expired. You must start a new session.
+                    errno: '30100'
+                error-3:
+                  description: Session is not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: sessionkey not found
+                    errno: '30200'
+                error-4:
+                  description: User ID not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: userid for sessionkey not found
+                    errno: '30200'
+                error-5:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: sessionkey is invalid
+                    errno: '30300'
+                error-6:
+                  description: A panel needs to be selected before calling this method.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: You must select a panel before you can use this method.
+                    errno: '40001'
+  /api.pro#method=integration.project.rewards:
+    post:
+      operationId: projectRewards
+      summary: Get a list of rewards
+      description: Get a list of reward points that were given out for the currently selected project.
+      tags:
+      - Project
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.project.rewards
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - sesKey
+              properties:
+                sesKey:
+                  description: A valid login hash.
+                  type: string
+                  example: 5a15852c564933807bbd36da58071063
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      example: true
+                      type: boolean
+                    data:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          identifier:
+                            type: string
+                          points:
+                            type: integer
+                          date:
+                            type: string
+                            pattern: ^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    data:
+                    - identifier: K_s93807bx3dt
+                      points: 100
+                      date: '2020-12-22 13:43:00'
+                    - identifier: K_d36ya580w10
+                      points: 10
+                      date: '2020-12-22 13:43:00'
+                    - identifier: K_54er357gw1q
+                      points: 100
+                      date: '2020-12-22 13:43:00'
+  /api.pro#method=integration.project.create:
+    post:
+      operationId: projectCreate
+      summary: Create a project
+      description: Create a new project in the currently selected panel.
+      tags:
+      - Project
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.project.create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sesKey:
+                  type: string
+                  description: A valid login hash.
+                settings:
+                  type: object
+                  description: An associative array containing project settings (listed below).
+                  properties:
+                    name:
+                      type: string
+                      description: Project name.
+                    URL:
+                      type: string
+                      format: url
+                      description: Project URL, including replacable parameters
+                    description:
+                      type: string
+                      description: Project description.
+                    clientId:
+                      type: integer
+                      description: id must already exist in the panel.
+                    defaultPointsCompleted:
+                      type: integer
+                      description: Default number of points awarded for survey completion.
+                    defaultPointsProfile:
+                      type: integer
+                      description: Default number of points awarded when respondent is profile terminated.
+                    defaultPointsQuota:
+                      type: integer
+                      description: Default number of points awarded when respondent is quota terminated.
+                    defaultMaxParticipation:
+                      type: integer
+                      description: Default number of times respondent can take survey. (0 is unlimited)
+                    receiveEncryptType:
+                      type: string
+                      description: invitation link encryption.
+                    terminationEncryptType:
+                      type: string
+                      description: termination link encryption.
+                    secret:
+                      type: string
+                      description: secret key used for encryption. (should be set to the same value for the survey)
+                  required:
+                  - name
+                  - URL
+                categories:
+                  type: array
+                  description: An array of category IDs that the project will be assigned to. (Category IDs can be obtained by calling `integration.category.listing`)
+                  items:
+                    type: integer
+              required:
+              - sesKey
+              - settings
+              example:
+                sesKey: 5a15852c564933807bbd36da58071063
+                settings:
+                  name: First Project
+                  url: https://web.example.com/?identifier=[IDENTIFIER]&amp;sesskey=[sesskey]
+                categories:
+                - 1
+                - 2
+                - 42
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                    data:
+                      type: object
+                      properties:
+                        projectid:
+                          type: integer
+                          description: Unique project identifier
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    data:
+                      projectid: 3
+                error-0:
+                  description: The supplied settings array contains a key that is not valid for project settings.
+                  summary: Settings invalid
+                  value:
+                    success: false
+                    error: Invalid property (settings)
+                    errno: '10000'
+                error-1:
+                  description: The supplied settings default max participation is not numeric.
+                  summary: Settings default max participation invalid
+                  value:
+                    success: false
+                    error: defaultmaxparticipation (settings default max participation) must be numeric
+                    errno: '10000'
+                error-2:
+                  description: The supplied default points quota is not numeric.
+                  summary: Settings default points quota invalid
+                  value:
+                    success: false
+                    error: defaultpointsquota (settings default points quota) must be numeric
+                    errno: '10000'
+                error-3:
+                  description: The supplied default points profile is not numeric.
+                  summary: Settings default points profile invalid
+                  value:
+                    success: false
+                    error: defaultpointsprofile (settings default points profile) must be numeric
+                    errno: '10000'
+                error-4:
+                  description: The supplied default points completed is not numeric.
+                  summary: Settings default points completed invalid
+                  value:
+                    success: false
+                    error: default points completed (settings default points completed) must be numeric
+                    errno: '10000'
+                error-5:
+                  description: The supplied settings name is empty.
+                  summary: Empty settings name
+                  value:
+                    success: false
+                    error: Invalid project name. Project name can not be empty.
+                    errno: '10000'
+                error-6:
+                  description: The supplied settings name is more than 100 characters in length.
+                  summary: Settings name invalid
+                  value:
+                    success: false
+                    error: Invalid project name (settings name) length. Can not be longer than 100 characters.
+                    errno: '10000'
+                error-7:
+                  description: The supplied settings URL is empty.
+                  summary: Empty settings URL
+                  value:
+                    success: false
+                    error: Project URL must be set before calling save
+                    errno: '10000'
+                error-8:
+                  description: The supplied client ID is not numeric.
+                  summary: Settings client ID invalid
+                  value:
+                    success: false
+                    error: clientid (settings client ID) must be a positive number or null
+                    errno: '10000'
+                error-9:
+                  description: Client with supplied client ID is not found.
+                  summary: Client not found
+                  value:
+                    success: false
+                    error: Invalid clientid (settings client ID) client does not exist
+                    errno: '10000'
+                error-10:
+                  description: The supplied settings URL is not a valid URL.
+                  summary: Setting URL invalid
+                  value:
+                    success: false
+                    error: URL (settings URL) is not a properly formatted URL
+                    errno: '10000'
+                error-11:
+                  description: The supplied settings URL does not contain "sesskey" parameter. The URL must contain "sesskey" for activity tracking.
+                  summary: Settings URL invalid
+                  value:
+                    success: false
+                    error: The survey URL does not contain the substitution parameter '[sesskey]' as a value. This parameter contains a session key, which is necessary for activity tracking.
+                    errno: '10000'
+                error-12:
+                  description: The supplied settings description is more than 65536 characters in length.
+                  summary: Settings description invalid.
+                  value:
+                    success: false
+                    error: Invalid project description (settings description) length. Can not be longer than 65k characters
+                    errno: '10000'
+                error-13:
+                  description: The supplied settings secret is more than 255 characters in length.
+                  summary: Settings secret invalid
+                  value:
+                    success: false
+                    error: Invalid secret hash salt (settings secret) can not be longer than 255 characters
+                    errno: '10000'
+                error-14:
+                  description: The supplied settings receive encrypt type is not valid. Receive encrypt type can only be "md5" or "none".
+                  summary: Settings receive encrypt type invalid
+                  value:
+                    success: false
+                    error: 'Invalid recencrypttype (settings receive encrypt type) value. Allowed values are: md5, none'
+                    errno: '10000'
+                error-15:
+                  description: The supplied settings termination encrypt type is not valid. Termination encrypt type can only be "md5" or "none".
+                  summary: Settings termination encrypt type invalid
+                  value:
+                    success: false
+                    error: 'Invalid recencrypttype (settings termination encrypt type) value. Allowed values are: md5, none'
+                    errno: '10000'
+                error-16:
+                  description: The supplied categories contains one or more values that are not numeric.
+                  summary: Categories invalid
+                  value:
+                    success: false
+                    error: Invalid category id(category ID)
+                    errno: '20102'
+                error-17:
+                  description: One or more categories from supplied categories are not found.
+                  summary: Category not found
+                  value:
+                    success: false
+                    error: Supplied category id(category ID) not found.
+                    errno: '20103'
+                error-18:
+                  description: The supplied settings is not an array.
+                  summary: Settings invalid
+                  value:
+                    success: false
+                    error: The "project" parameter is of an unexpected type (settings type). Please use an appropriate object or array, as described in the documentation.
+                    errno: '20102'
+                error-19:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session has expired. You must start a new session.
+                    errno: '30100'
+                error-20:
+                  description: Session is not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: sessionkey not found
+                    errno: '30200'
+                error-21:
+                  description: User ID not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: userid for sessionkey not found
+                    errno: '30200'
+                error-22:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: sessionkey is invalid
+                    errno: '30300'
+                error-23:
+                  description: A panel needs to be selected before calling this method.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: You must select a panel before you can use this method.
+                    errno: '40001'
+  /api.pro#method=integration.project.close:
+    post:
+      operationId: projectClose
+      summary: Close project
+      description: 'Closes specified project ID. Once project is closed the panelist will have "grace" period to complete taking the
+
+        survey, thereafter panelists are no longer accepted to start surveys. Check for standard return for
+
+        success code (true/false).'
+      tags:
+      - Project
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.project.close
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - sesKey
+              - projectid
+              properties:
+                sesKey:
+                  description: A valid login hash.
+                  type: string
+                  example: 5a15852c564933807bbd36da58071063
+                projectid:
+                  description: The id of the project to close.
+                  type: integer
+                  example: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      example: true
+                      type: boolean
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                error-0:
+                  description: Project with supplied project ID is not found in selected panel.
+                  summary: Project ID not found
+                  value:
+                    success: false
+                    error: The specified projectid does not exist
+                    errno: '10000'
+                error-1:
+                  description: The supplied project ID is not numeric.
+                  summary: Project ID invalid
+                  value:
+                    success: false
+                    error: Project ID must be numeric!
+                    errno: '20102'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session has expired. You must start a new session.
+                    errno: '30100'
+                error-3:
+                  description: Session is not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: sessionkey not found
+                    errno: '30200'
+                error-4:
+                  description: User ID not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: userid for sessionkey not found
+                    errno: '30200'
+                error-5:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: sessionkey is invalid
+                    errno: '30300'
+                error-6:
+                  description: A panel needs to be selected before calling this method.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: You must select a panel before you can use this method.
+                    errno: '40001'
+  /api/integration/panels/{panelId}/projects/{projectId}/stats/delivery:
+    get:
+      operationId: projectStatsDelivery
+      summary: Project delivery statistics
+      description: Get stats covering message delivery for one particular project.
+      tags:
+      - Project
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: panelId
+        in: path
+        required: true
+        description: A Panel ID
+        schema:
+          type: string
+      - name: projectId
+        in: path
+        required: true
+        description: A Project ID
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  delivered:
+                    type: object
+                    properties:
+                      count:
+                        type: boolean
+                      percent:
+                        type: boolean
+                  pending:
+                    type: object
+                    properties:
+                      count:
+                        type: boolean
+                      percent:
+                        type: boolean
+                  bounced:
+                    type: object
+                    properties:
+                      count:
+                        type: boolean
+                      percent:
+                        type: boolean
+                  deferred:
+                    type: object
+                    properties:
+                      count:
+                        type: boolean
+                      percent:
+                        type: boolean
+                  unknown:
+                    type: object
+                    properties:
+                      count:
+                        type: boolean
+                      percent:
+                        type: boolean
+                  delayed:
+                    type: object
+                    properties:
+                      count:
+                        type: boolean
+                      percent:
+                        type: boolean
+                example:
+                  delivered:
+                    count: 28
+                    percent: 0.7
+                  pending:
+                    count: 0
+                    percent: 0
+                  bounced:
+                    count: 5
+                    percent: 0.125
+                  deferred:
+                    count: 3
+                    percent: 0.075
+                  unknown:
+                    count: 0
+                    percent: 0
+                  delayed:
+                    count: 4
+                    percent: 0.1
+        '401':
+          description: Access token is missing or invalid
+        '404':
+          description: Panel or project id were not found
+  /api/integration/panels/{panelId}/projects/{projectId}/stats/reward:
+    get:
+      operationId: projectStatsReward
+      summary: Project reward statistics
+      description: Get stats covering panelist reward distribution for one particular project.
+      security:
+      - BearerAuth: []
+      tags:
+      - Project
+      parameters:
+      - name: panelId
+        in: path
+        required: true
+        description: A Panel ID
+        schema:
+          type: string
+      - name: projectId
+        in: path
+        required: true
+        description: A Project ID
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  completed:
+                    type: object
+                    properties:
+                      points:
+                        type: boolean
+                  profile:
+                    type: object
+                    properties:
+                      points:
+                        type: boolean
+                  quota:
+                    type: object
+                    properties:
+                      points:
+                        type: boolean
+                example:
+                  completed:
+                    points: 23000
+                  profile:
+                    points: 50
+                  quota:
+                    points: 0
+        '401':
+          description: Access token is missing or invalid
+        '404':
+          description: Panel or project id were not found
+  /api/integration/panels/{panelId}/projects/{projectId}/stats/activity:
+    get:
+      operationId: projectStatsActivity
+      summary: Project activity statistics
+      description: 'Get stats covering panelist activity for one particular project.
+
+
+        The percentages are based on the total number of panelists that were invited to the project.'
+      tags:
+      - Project
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: panelId
+        in: path
+        required: true
+        description: A Panel ID
+        schema:
+          type: string
+      - name: projectId
+        in: path
+        required: true
+        description: A Project ID
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  completed:
+                    type: object
+                    properties:
+                      count:
+                        type: boolean
+                      percent:
+                        type: boolean
+                  profile:
+                    type: object
+                    properties:
+                      count:
+                        type: boolean
+                      percent:
+                        type: boolean
+                  quota:
+                    type: object
+                    properties:
+                      count:
+                        type: boolean
+                      percent:
+                        type: boolean
+                  started:
+                    type: object
+                    properties:
+                      count:
+                        type: boolean
+                      percent:
+                        type: boolean
+                  invited:
+                    type: object
+                    properties:
+                      count:
+                        type: boolean
+                      percent:
+                        type: boolean
+                example:
+                  completed":
+                    count: 23
+                    percent: 0.153
+                  profile:
+                    count: 5
+                    percent: 0.033
+                  quota:
+                    count: 0
+                    percent: 0
+                  started:
+                    count: 7
+                    percent: 0.047
+                  invited:
+                    count: 75
+                    percent: 0.767
+        '401':
+          description: Access token is missing or invalid
+        '404':
+          description: Panel or project id were not found
+  /api.pro#method=integration.project.listing:
+    post:
+      operationId: projectListing
+      summary: List all Projects
+      description: List all Projects.
+      tags:
+      - Project
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.project.listing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - sesKey
+              properties:
+                sesKey:
+                  description: A valid login hash.
+                  type: string
+                  example: 5a15852c564933807bbd36da58071063
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                    data:
+                      type: array
+                      description: An array of objects, each of which is a project containing project data.
+                      items:
+                        properties:
+                          id:
+                            type: integer
+                            description: Project ID.
+                          name:
+                            type: string
+                            description: Project name.
+                          status:
+                            type: string
+                            enum:
+                            - open
+                            - closed
+                            description: Project status. Projects marked as 'completed' are returned as 'open' until they are closed.
+                          created:
+                            type: string
+                            description: The project's date of creation.
+                            pattern: ^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$
+                          completed:
+                            type:
+                            - string
+                            - 'null'
+                            description: 'The date and time on which the project marked as completed. Null, if the project was never marked complete. "Completed" projects will not allow panelists to start new sessions, but will allow additional completes until the defined grace period (Default: 2h) has passed.'
+                            pattern: ^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$
+                          closed:
+                            type:
+                            - string
+                            - 'null'
+                            description: The date and time on which the project was closed. Null, if the project was never closed or has been reopened. Closed projects will not allow panelists to start new sessions or finish them.
+                            pattern: ^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$
+                          created_by:
+                            type: string
+                            description: The user who created the project.
+                          categories:
+                            type: array
+                            description: An array of category IDs that the project belongs to. (Category IDs can be obtained by calling <code>integration.category.listing</code>)
+                            items:
+                              type: integer
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    data:
+                    - id: 1
+                      name: foo's new project
+                      status: open
+                      created: '2011-10-14 12:13:13'
+                      completed: null
+                      closed: null
+                      created_by: Kinesis Tester
+                      categories:
+                      - 1
+                      - 2
+                      - 42
+                    - id: 2
+                      name: bar's new project
+                      status: closed
+                      created: '2014-02-10 14:34:00'
+                      completed: '2020-12-22 15:48:00'
+                      closed: '2020-12-22 17:48:00'
+                      created_by: Kinesis Tester
+                      categories: []
+                error-0:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session has expired. You must start a new session.
+                    errno: '30100'
+                error-1:
+                  description: Session is not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: sessionkey not found
+                    errno: '30200'
+                error-2:
+                  description: User ID not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: userid for sessionkey not found
+                    errno: '30200'
+                error-3:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: sessionkey is invalid
+                    errno: '30300'
+                error-4:
+                  description: A panel needs to be selected before calling this method.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: You must select a panel before you can use this method.
+                    errno: '40001'
+components:
+  parameters:
+    method:
+      name: method
+      in: query
+      required: true
+      description: Method
+      schema:
+        type: string
+  schemas:
+    error:
+      type: object
+      properties:
+        success:
+          type: boolean
+        error:
+          description: The error message.
+          type: string
+        errno:
+          description: The error code.
+          type: string
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+    ApiKey:
+      type: apiKey
+      in: query
+      name: sesKey
+x-tagGroups:
+- name: Data Input and Output
+  tags:
+  - Auth
+  - Campaign
+  - Category
+  - Community
+  - Datapoint
+  - Panel
+  - Notes
+  - Panelist
+  - Project
+  - Reminder
+  - Sample
+  - Session
+  - Survey
+  - Token

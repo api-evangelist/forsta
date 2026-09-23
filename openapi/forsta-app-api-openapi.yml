@@ -1,0 +1,139 @@
+openapi: 3.2.0
+info:
+  version: 1.0-beta
+  title: Sample Marketplace Partner Setup App API
+  description: '# Summary
+
+
+    This document describes the endpoints used to manage vendor configurations
+
+    within the Sample Marketplace.'
+servers:
+- url: https://eks.us-west-2.fvdev.net/smp-partner-service
+  description: Staging Environment
+- url: https://us-west-2-eks.aws.focusvision.com/smp-partner-service
+  description: Production Environment
+tags:
+- name: App
+paths:
+  /v1.0/app:
+    get:
+      summary: Get your app's information
+      tags:
+      - App
+      description: This returns the current information about your app that is in our system. These properties are configured and managed by Forsta as part of the initial signup process.
+      security:
+      - OAuth2: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAppResponse'
+        '401':
+          $ref: '#/components/responses/401'
+        '500':
+          $ref: '#/components/responses/500'
+      operationId: getV10App
+      x-operation-id-source: derived
+components:
+  schemas:
+    GetAppResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: hd6cb443h
+          description: Generated ID for the partner
+        name:
+          type: string
+          example: FVSupplier
+          description: Name of the partner
+          maxLength: 50
+        status:
+          type: string
+          example: approved
+          description: Status of the partner
+          enum:
+          - pending
+          - approved
+          - denied
+          - inactive
+        logo_link:
+          type: string
+          format: uri
+          example: https://s3.partnerlogos.focusvision.com/somelogo.png
+          description: Link to the current logo used for this vendor in the marketplace.
+        marketing_text:
+          type: string
+          example: Quality sample at a quality price
+          description: Text shown to users at the results page of the marketplace.
+          maxLength: 240
+        email:
+          type: string
+          format: email
+          example: contact-us@email.com
+          description: Contact email
+        phone_number:
+          type: string
+          format: phone number
+          example: 1-555-555-5555
+          description: Contact phone number
+  responses:
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                description: Error code and message
+                properties:
+                  status:
+                    type: string
+                    description: HTTP status Code
+                    enum:
+                    - 500
+                  message:
+                    type: string
+                    description: Status message
+                    enum:
+                    - Internal Server Error
+    '401':
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                description: Error code and message
+                properties:
+                  status:
+                    type: string
+                    description: HTTP status Code
+                    enum:
+                    - 401
+                  message:
+                    type: string
+                    example: Unauthorized
+                    description: Status message
+                    enum:
+                    - Unauthorized
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      description: See https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html
+      flows:
+        clientCredentials:
+          tokenUrl: /oauth2/token/
+          scopes: {}
+      x-tokenInfoFunc: demo.token_auth
+    BasicAuth:
+      type: http
+      scheme: basic
+      x-basicInfoFunc: demo.basic_auth

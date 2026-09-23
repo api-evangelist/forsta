@@ -1,0 +1,687 @@
+openapi: 3.2.0
+info:
+  title: Integration Community API
+  version: ''
+servers:
+- url: https://{server}
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: staging.panel.dev.focusvision.com/
+      description: Server domain
+tags:
+- name: Community
+paths:
+  /api.pro#method=integration.community.createSession:
+    post:
+      operationId: communityCreateSession
+      summary: Create a session by username/email address
+      description: 'Creates an active session using the panelist username/email address for use with Portal API,
+
+        without the need for a panelist password.'
+      tags:
+      - Community
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.community.createSession
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - sesKey
+              - username
+              properties:
+                sesKey:
+                  description: A valid login hash.
+                  type: string
+                  example: 5a15852c564933807bbd36da58071063
+                username:
+                  description: The username of the panelist the session is created for.
+                  type: string
+                  example: test@kinesissurvey.com
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      example: true
+                      type: boolean
+                    data:
+                      properties:
+                        seskey:
+                          description: A valid login hash.
+                          type: string
+                        panelistid:
+                          description: The id of the panelist that the session was created for.
+                          type: integer
+                        email:
+                          description: The email address of the panelist that the session was created for.
+                          type: string
+                        fullname:
+                          description: The full name of the panelist that the session was created for.
+                          type: string
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    data:
+                      seskey: 672ef56f6a475fedb0fcf8f109e3f410
+                      panelistid: 1
+                      email: test@kinesissurvey.com
+                      fullname: ''
+                error-0:
+                  description: The supplied email address is not valid or a panelist with supplied email address is not found.
+                  summary: Email invalid or not found
+                  value:
+                    success: false
+                    error: The supplied email is invalid
+                    errno: '20102'
+                error-1:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session has expired. You must start a new session.
+                    errno: '30100'
+                error-2:
+                  description: Session is not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: sessionkey not found
+                    errno: '30200'
+                error-3:
+                  description: User ID not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: userid for sessionkey not found
+                    errno: '30200'
+                error-4:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: sessionkey is invalid
+                    errno: '30300'
+                error-5:
+                  description: A panel needs to be selected before calling this method.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: You must select a panel before you can use this method.
+                    errno: '40001'
+  /api.pro#method=integration.community.createSessionWithPID:
+    post:
+      operationId: communityCreateSessionWithPID
+      summary: Create a session using the panelist pid
+      description: 'Creates an active session using the panelist pid (panelist id) for use with Portal API, without the need for a
+
+        panelist password.'
+      tags:
+      - Community
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.community.createSessionWithPID
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - sesKey
+              - pid
+              properties:
+                sesKey:
+                  description: A valid login hash.
+                  type: string
+                  example: 5a15852c564933807bbd36da58071063
+                pid:
+                  description: The pid (panelist id) of the panelist the session is created for.
+                  type: integer
+                  example: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      example: true
+                      type: boolean
+                    data:
+                      properties:
+                        seskey:
+                          description: A valid login hash.
+                          type: string
+                        panelistid:
+                          description: The id of the panelist that the session was created for.
+                          type: integer
+                        email:
+                          description: The email address of the panelist that the session was created for.
+                          type: string
+                        fullname:
+                          description: The full name of the panelist that the session was created for.
+                          type: string
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    data:
+                      seskey: 672ef56f6a475fedb0fcf8f109e3f410
+                      panelistid: 1
+                      email: test@kinesissurvey.com
+                      fullname: ''
+                error-0:
+                  description: The supplied panelist ID is not numeric or a panelist with supplied panelist ID is not found.
+                  summary: PID invalid or not found
+                  value:
+                    success: false
+                    error: The supplied pid is invalid
+                    errno: '20102'
+                error-1:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session has expired. You must start a new session.
+                    errno: '30100'
+                error-2:
+                  description: Session is not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: sessionkey not found
+                    errno: '30200'
+                error-3:
+                  description: User ID not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: userid for sessionkey not found
+                    errno: '30200'
+                error-4:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: sessionkey is invalid
+                    errno: '30300'
+                error-5:
+                  description: A panel needs to be selected before calling this method.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: You must select a panel before you can use this method.
+                    errno: '40001'
+  /api.pro#method=integration.community.createSessionWithIdentifier:
+    post:
+      operationId: communityCreateSessionWithIdentifier
+      summary: Creates an active session using the panelist identifier
+      description: 'Creates an active session using the panelist identifier for use with Portal API, without the need for a panelist
+
+        password.'
+      tags:
+      - Community
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.community.createSessionWithIdentifier
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - sesKey
+              - identifier
+              properties:
+                sesKey:
+                  description: A valid login hash.
+                  type: string
+                  example: 5a15852c564933807bbd36da58071063
+                identifier:
+                  description: The identifier of the panelist the session is created for.
+                  type: string
+                  example: K_a1b2c3d4e5
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      example: true
+                      type: boolean
+                    data:
+                      properties:
+                        seskey:
+                          description: A valid login hash.
+                          type: string
+                        panelistid:
+                          description: The id of the panelist that the session was created for.
+                          type: integer
+                        email:
+                          description: The email address of the panelist that the session was created for.
+                          type: string
+                        fullname:
+                          description: The full name of the panelist that the session was created for.
+                          type: string
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    data:
+                      seskey: 672ef56f6a475fedb0fcf8f109e3f410
+                      panelistid: 1
+                      email: test@kinesissurvey.com
+                      fullname: ''
+                error-0:
+                  description: The supplied identifier is not a string or a Panelist with supplied identifier (username) is not found.
+                  summary: Identifier invalid or not found
+                  value:
+                    success: false
+                    error: The supplied identifier is invalid
+                    errno: '20102'
+                error-1:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session has expired. You must start a new session.
+                    errno: '30100'
+                error-2:
+                  description: Session is not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: sessionkey not found
+                    errno: '30200'
+                error-3:
+                  description: User ID not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: userid for sessionkey not found
+                    errno: '30200'
+                error-4:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: sessionkey is invalid
+                    errno: '30300'
+                error-5:
+                  description: A panel needs to be selected before calling this method.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: You must select a panel before you can use this method.
+                    errno: '40001'
+  /api.pro#method=integration.community.getLandingPage:
+    post:
+      operationId: communityGetLandingPage
+      summary: Get landing page info
+      description: 'Query community landing page texts and page titles. Since panel itself does not display themed info pages anymore,
+
+        but has its built in community portal handle it instead, in order to display these now called "landing pages" when
+
+        the community portal is in API Mode, this call is necessary.
+
+
+        Every time a panelist triggers an action that before would have resulted in a message displayed on screen,
+
+        we must now query for that.
+
+
+        When a community is used in "API mode", an setting becomes available to specify a "Receiver URL for landing pages".
+
+
+        This URL is where panelists are redirected and where the landing page can be shown.
+
+
+        # Example PHP code for landing page receiver:
+
+
+        ```PHP
+
+        $sesKey, // We must be authenticated to use this! (see: /api/integration/sessions)
+
+        ''encStr''=>$kslp
+
+        ]; // JSON Encode our data
+
+        $dataJSON = json_encode($data);
+
+
+        // Initialize CURL and post the data
+
+        $client = curl_init();
+
+        curl_setopt($client, CURLOPT_URL, "https://example.com/panel/api.pro?method=integration.community.getLandingPage");
+
+        curl_setopt($client, CURLOPT_POST, true);
+
+        curl_setopt($client, CURLOPT_POSTFIELDS, [''data'' => $dataJSON]);
+
+        curl_setopt($client, CURLOPT_RETURNTRANSFER, true);
+
+        // Submit request
+
+        $result = curl_exec($client);
+
+
+        // JSON decode result data
+
+        $result = json_decode($result);
+
+
+        ?>
+
+
+        data->title; ?>
+
+
+        data->message; ?>
+
+
+        ```'
+      tags:
+      - Community
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.community.getLandingPage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - sesKey
+              - encStr
+              properties:
+                sesKey:
+                  description: A valid login hash.
+                  type: string
+                  example: 5a15852c564933807bbd36da58071063
+                encStr:
+                  description: 'This string is submitted via URL to the current "Receiver URL for landing
+
+                    pages", which is configurable on the "Community settings" page in the Community
+
+                    manager.<br/>
+
+                    The incoming URL parameter is called: "kslp" and is safe for submitting via URL.
+
+                    It must not be altered in any way.
+
+                    '
+                  type: string
+                  example: mLBVh8xap8EmpdilvnTSh3gMY3Yxg1Y08FifDcH64mydZf6klHFAidAq0CjIzTi_uZDtCQJEtLnHPl_NjmXDwktJDJqCiTIdiUx1UVyM2psBWjzfDm1qcTG-1VGQnR-P3AVC_kNVdGQFcfMc7kB3NQ
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      example: true
+                      type: boolean
+                    data:
+                      properties:
+                        title:
+                          description: The landing page title
+                          type: string
+                        message:
+                          description: The landing page content
+                          type: string
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    data:
+                      title: Participation recorded!
+                      message: '&gt;span style=''font:normal 1em Arial;''&lt;We appreciate your responses. Your participation in this study has been recorded.&gt;br/&lt;&gt;br/&lt;Thank you!&gt;/span&lt;'
+                error-0:
+                  description: The supplied encrypted string includes a panel ID that cannot be found.
+                  summary: Internal error
+                  value:
+                    success: false
+                    error: Unable to successfully select database (database name)!
+                    errno: '0'
+                error-1:
+                  description: The supplied encrypted string is not a valid or it is empty.
+                  summary: Encrypted string invalid
+                  value:
+                    success: false
+                    error: The supplied data could not be decrypted
+                    errno: '20102'
+                error-2:
+                  description: The supplied encrypted string is not a valid.
+                  summary: Encrypted string invalid
+                  value:
+                    success: false
+                    error: The decrypted data could not be verified
+                    errno: '20102'
+                error-3:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session has expired. You must start a new session.
+                    errno: '30100'
+                error-4:
+                  description: Session is not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: sessionkey not found
+                    errno: '30200'
+                error-5:
+                  description: User ID not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: userid for sessionkey not found
+                    errno: '30200'
+                error-6:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: sessionkey is invalid
+                    errno: '30300'
+  /api.pro#method=integration.community.isUniqueOpenend:
+    post:
+      operationId: communityisUniqueOpened
+      summary: Checks uniqueness of open end data point
+      description: 'This method checks uniqueness of open end data point supplied by searching through the panel database.
+
+        A datapoint label and a value must be provided to run the check.'
+      tags:
+      - Community
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.community.isUniqueOpenend
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - sesKey
+              - label
+              - value
+              properties:
+                sesKey:
+                  description: A valid login hash.
+                  type: string
+                  example: 5a15852c564933807bbd36da58071063
+                label:
+                  description: 'The data point label
+
+                    '
+                  type: string
+                  example: Qfirstname
+                value:
+                  description: The data point value to check for
+                  type: string
+                  example: John
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+                    unique:
+                      type: boolean
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    unique: false
+                error-0:
+                  description: Data point with supplied label is not found or supplied label is invalid.
+                  summary: Label invalid or not found
+                  value:
+                    success: false
+                    error: Invalid label - data point not found or not open-end.
+                    errno: '20102'
+                error-1:
+                  description: The supplied value is not a string.
+                  summary: Value invalid
+                  value:
+                    success: false
+                    error: Supplied value is invalid.
+                    errno: '20103'
+                error-2:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session has expired. You must start a new session.
+                    errno: '30100'
+                error-3:
+                  description: Session is not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: sessionkey not found
+                    errno: '30200'
+                error-4:
+                  description: User ID not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: userid for sessionkey not found
+                    errno: '30200'
+                error-5:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: sessionkey is invalid
+                    errno: '30300'
+                error-6:
+                  description: A panel needs to be selected before calling this method.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: You must select a panel before you can use this method.
+                    errno: '40001'
+components:
+  parameters:
+    method:
+      name: method
+      in: query
+      required: true
+      description: Method
+      schema:
+        type: string
+  schemas:
+    error:
+      type: object
+      properties:
+        success:
+          type: boolean
+        error:
+          description: The error message.
+          type: string
+        errno:
+          description: The error code.
+          type: string
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+    ApiKey:
+      type: apiKey
+      in: query
+      name: sesKey
+x-tagGroups:
+- name: Data Input and Output
+  tags:
+  - Auth
+  - Campaign
+  - Category
+  - Community
+  - Datapoint
+  - Panel
+  - Notes
+  - Panelist
+  - Project
+  - Reminder
+  - Sample
+  - Session
+  - Survey
+  - Token

@@ -1,0 +1,89 @@
+openapi: 3.2.0
+info:
+  title: Data sent by webhooks Survey Activity API
+  version: 1.0.0
+  license:
+    name: Forsta
+    identifier: Forsta
+    url: http://forsta.com
+  description: 'Data sent by webhooks
+
+
+    # Signed payload
+
+
+    During creation of a webhook there is an option to send payload signed.'
+servers:
+- url: CLIENT SERVER URL
+  description: Panel Management servers
+tags:
+- name: Survey Activity
+  description: Endpoints related to survey activities
+paths:
+  /webhookSurveyActivityEvents:
+    post:
+      operationId: webhookSurveyActivityEvents
+      security:
+      - signedPayloadAuth: []
+      summary: Payload format for events about survey activities
+      tags:
+      - Survey Activity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  identifier:
+                    type: string
+                    description: Request identifier
+                  timestamp:
+                    type: integer
+                    description: Timestamp of the request
+                  panel_id:
+                    type: integer
+                    description: Panel ID related to the event
+                  event:
+                    type: string
+                    description: Event name, possible option 'survey-activity'. Tracks survey statuses 'started','completed', 'profile', 'quota'
+                  project_id:
+                    type: integer
+                    description: Project ID
+                  started_at:
+                    type: integer
+                    description: Timestamp of the start
+                  status:
+                    type: string
+                    description: Status of the survey activity
+                  event_id:
+                    type: integer
+                    description: Event ID
+            example:
+            - identifier: req123
+              timestamp: 1724359389
+              panel_id: 1
+              event: survey-activity
+              project_id: 1
+              started_at: 1724359389
+              status: started
+              event_id: 123123
+components:
+  securitySchemes:
+    signedPayloadAuth:
+      type: apiKey
+      in: header
+      name: X-KP-Webhook-Signature
+      description: 'Security scheme for signed payloads.
+
+        Include a signature of the payload in the "X-KP-Webhook-Signature" header.
+
+        '
+x-tagGroups:
+- name: Data sent by webhooks
+  tags:
+  - Panelists
+  - Survey Activity
+  - Survey Invitation

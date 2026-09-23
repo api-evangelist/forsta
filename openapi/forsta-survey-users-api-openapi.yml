@@ -1,0 +1,1170 @@
+openapi: 3.2.0
+info:
+  title: Decipher Rest Survey Users API
+  version: '1.0'
+  description: The Decipher REST API allows comprehensive automation of your private or shared Decipher instance.
+servers:
+- url: https://{server}/api/v1
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: selfserve.decipherinc.com
+      description: Server domain
+security:
+- APIKey: []
+tags:
+- name: Survey Users
+paths:
+  /surveys/{survey}/users:
+    get:
+      operationId: getSurveyUsers
+      summary: Get Survey Users
+      description: A permissions map, and a list of users and groups for a specified survey.
+      tags:
+      - Survey Users
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  permissions_map:
+                    $ref: '#/components/schemas/userPermissionsMap'
+                  users:
+                    type: array
+                    description: List of data for each user (and group member) in the survey.
+                    items:
+                      $ref: '#/components/schemas/surveyUserData'
+                additionalProperties: false
+              example:
+                permissions_map:
+                  none:
+                    admin: null
+                    theme_editor: none
+                    reporting_crosstabs: null
+                    response_summary: null
+                    campaign_manager: null
+                    survey: null
+                    research_dashboard: null
+                    offline: null
+                    data: null
+                  full:
+                    admin: full
+                    theme_editor: full
+                    reporting_crosstabs: edit
+                    response_summary: edit
+                    campaign_manager: build
+                    survey: build
+                    research_dashboard: build
+                    offline: full
+                    data: edit
+                  vendor:
+                    admin: null
+                    theme_editor: none
+                    reporting_crosstabs: null
+                    response_summary: view
+                    campaign_manager: null
+                    survey: view
+                    research_dashboard: null
+                    offline: full
+                    data: null
+                  edit:
+                    admin: full
+                    theme_editor: all
+                    reporting_crosstabs: edit
+                    response_summary: edit
+                    campaign_manager: null
+                    survey: edit
+                    research_dashboard: view
+                    offline: full
+                    data: download
+                  interviewer_only:
+                    admin: null
+                    theme_editor: none
+                    reporting_crosstabs: null
+                    response_summary: null
+                    campaign_manager: null
+                    survey: null
+                    research_dashboard: null
+                    offline: full
+                    data: null
+                  view_data:
+                    admin: null
+                    theme_editor: all
+                    reporting_crosstabs: view
+                    response_summary: view
+                    campaign_manager: null
+                    survey: view
+                    research_dashboard: view
+                    offline: full
+                    data: download
+                  view:
+                    admin: null
+                    theme_editor: all
+                    reporting_crosstabs: view
+                    response_summary: view
+                    campaign_manager: null
+                    survey: view
+                    research_dashboard: view
+                    offline: full
+                    data: null
+                users:
+                - added_on: '2025-03-22T19:23:06Z'
+                  email: user1@example.com
+                  user_id: 2
+                  group_id: null
+                  added_by:
+                    email: admin@example.com
+                    id: 1
+                  permissions: full
+                - added_on: '2025-06-08T06:15:21Z'
+                  email: user2@example.com
+                  user_id: 3
+                  group_id: 1
+                  added_by:
+                    email: admin@example.com
+                    id: 1
+                  permissions:
+                    admin: full
+                    theme_editor: company
+                    reporting_crosstabs: edit
+                    response_summary: edit
+                    campaign_manager: build
+                    survey: null
+                    research_dashboard: build
+                    data: download
+                    offline: full
+    post:
+      operationId: addSurveyUsers
+      summary: Add Survey Users
+      description: Adds users and/or groups to a project.
+      tags:
+      - Survey Users
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                group_list:
+                  description: 'List of groups to be added to the survey with specified permissions.
+
+                    '
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      group_id:
+                        type: integer
+                        description: The ID of the group.
+                      permissions:
+                        oneOf:
+                        - type: string
+                          description: Preset permissions to apply to the group.
+                          enum:
+                          - full
+                          - edit
+                          - view_data
+                          - view
+                          - vendor
+                          - interviewer_only
+                          - none
+                        - type: object
+                          description: Custom permissions to apply to the group.
+                          properties:
+                            admin:
+                              type: string
+                              enum:
+                              - full
+                              - none
+                            theme_editor:
+                              type: string
+                              enum:
+                              - full
+                              - all
+                              - company
+                              - system
+                              - none
+                            reporting_crosstabs:
+                              type: string
+                              enum:
+                              - edit
+                              - view
+                              - none
+                            response_summary:
+                              type: string
+                              enum:
+                              - edit
+                              - view
+                              - none
+                            campaign_manager:
+                              type: string
+                              enum:
+                              - build
+                              - none
+                            survey:
+                              type: string
+                              enum:
+                              - build
+                              - edit
+                              - view
+                              - none
+                            research_dashboard:
+                              type: string
+                              enum:
+                              - build
+                              - view
+                              - none
+                            offline:
+                              type: string
+                              enum:
+                              - full
+                              - none
+                            data:
+                              type: string
+                              enum:
+                              - edit
+                              - download
+                              - none
+                user_list:
+                  description: 'List of users to be added to the survey with specified permissions.
+
+                    '
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      email:
+                        type: string
+                        format: email address
+                        description: The email address of the user - required if no ID is provided.
+                      id:
+                        type: integer
+                        description: The ID of the user - required if no email is provided.
+                      permissions:
+                        oneOf:
+                        - type: string
+                          description: Preset permissions to apply to the user.
+                          enum:
+                          - full
+                          - edit
+                          - view_data
+                          - view
+                          - vendor
+                          - interviewer_only
+                          - none
+                        - type: object
+                          description: Custom permissions to apply to the user.
+                          properties:
+                            admin:
+                              type: string
+                              enum:
+                              - full
+                              - none
+                            theme_editor:
+                              type: string
+                              enum:
+                              - full
+                              - all
+                              - company
+                              - system
+                              - none
+                            reporting_crosstabs:
+                              type: string
+                              enum:
+                              - edit
+                              - view
+                              - none
+                            response_summary:
+                              type: string
+                              enum:
+                              - edit
+                              - view
+                              - none
+                            campaign_manager:
+                              type: string
+                              enum:
+                              - build
+                              - none
+                            survey:
+                              type: string
+                              enum:
+                              - build
+                              - edit
+                              - view
+                              - none
+                            research_dashboard:
+                              type: string
+                              enum:
+                              - build
+                              - view
+                              - none
+                            offline:
+                              type: string
+                              enum:
+                              - full
+                              - none
+                            data:
+                              type: string
+                              enum:
+                              - edit
+                              - download
+                              - none
+              example:
+                group_list:
+                - group_id: 1
+                  permissions: full
+                - group_id: 2
+                  permissions:
+                    survey: build
+                    reporting_crosstabs: edit
+                    data: download
+                    response_summary: edit
+                    campaign_manager: build
+                    research_dashboard: none
+                    admin: full
+                    theme_editor: company
+                    offline: none
+                user_list:
+                - id: 1
+                  permissions: view
+                - email: user2@decipherinc.com
+                  permissions: full
+                - email: user3@decipherinc.com
+                  permissions:
+                    survey: build
+                    reporting_crosstabs: edit
+                    data: download
+                    response_summary: edit
+                    campaign_manager: build
+                    research_dashboard: none
+                    admin: full
+                    theme_editor: company
+                    offline: none
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users_added:
+                    type: integer
+                    description: Number of users that were added.
+                  groups_added:
+                    type: integer
+                    description: Number of groups that were added.
+                  errors:
+                    type: array
+                    description: List of items that weren't added and details as to why.
+                    items:
+                      type: object
+                      properties:
+                        details:
+                          type: string
+                          description: The reason for failure to add.
+                        user:
+                          type: string
+                          format: email
+                          description: The email or ID of the user that could not be added.
+                        group:
+                          type: integer
+                          description: The group ID that could not be added.
+              example:
+                users_added: 2
+                groups_added: 1
+                errors:
+                - details: Valid permission required.
+                  user: baduser1@decipherinc.com
+                - details: Group not found.
+                  group: 9999
+        '400':
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  $code:
+                    type: integer
+                    description: The error code.
+                  $error:
+                    type: string
+                    description: The error message.
+                  extra:
+                    type: object
+                    description: Extra error information.
+                example:
+                  $code: 400
+                  $error: 'An error occurred: description of error'
+                  extra: null
+    delete:
+      operationId: removeSurveyUsers
+      summary: Remove Survey Users
+      description: Remove users from a survey by email address.
+      tags:
+      - Survey Users
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                group_list:
+                  description: List of group IDs to be removed from the survey.
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      group_id:
+                        type: integer
+                        description: The ID of the group to be removed from the survey.
+                user_list:
+                  description: List of users to be removed from the survey.
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      email:
+                        type: string
+                        format: email
+                        description: The email address of the user to be removed from the survey, required if no ID is provided.
+                      id:
+                        type: integer
+                        description: The ID of the user to be removed from the survey, required if no email is provided.
+              example:
+                group_list:
+                - group_id: 1
+                user_list:
+                - id: 1
+                - email: user1@example.com
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                - type: object
+                  properties:
+                    errors:
+                      type: object
+                      description: A description of any errors.
+                      properties:
+                        details:
+                          type: string
+                          description: The reason for failure to remove.
+                        user:
+                          type: string
+                          format: email
+                          description: The email or ID of the user that could not be removed.
+                        group:
+                          type: integer
+                          description: The group ID that could not be removed.
+  /surveys/{survey}/users/{user}:
+    get:
+      operationId: getSurveyUser
+      summary: Get a Specific Survey User
+      description: A permissions map, and a list of user entries for a specified survey.
+      tags:
+      - Survey Users
+      parameters:
+      - $ref: '#/components/parameters/survey'
+      - name: user
+        description: 'Either the ID or email address whose permissions you would like to view.
+
+          '
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  permissions_map:
+                    $ref: '#/components/schemas/userPermissionsMap'
+                  user_entries:
+                    type: array
+                    description: 'List of data for all entries of a specific user in a survey. A user may have
+
+                      multiple entries if they are a member of one or more groups.
+
+                      '
+                    items:
+                      $ref: '#/components/schemas/surveyUserData'
+                additionalProperties: false
+              example:
+                permissions_map:
+                  none:
+                    admin: null
+                    theme_editor: none
+                    reporting_crosstabs: null
+                    response_summary: null
+                    campaign_manager: null
+                    survey: null
+                    research_dashboard: null
+                    offline: null
+                    data: null
+                  full:
+                    admin: full
+                    theme_editor: full
+                    reporting_crosstabs: edit
+                    response_summary: edit
+                    campaign_manager: build
+                    survey: build
+                    research_dashboard: build
+                    offline: full
+                    data: edit
+                  vendor:
+                    admin: null
+                    theme_editor: none
+                    reporting_crosstabs: null
+                    response_summary: view
+                    campaign_manager: null
+                    survey: view
+                    research_dashboard: null
+                    offline: full
+                    data: null
+                  edit:
+                    admin: full
+                    theme_editor: all
+                    reporting_crosstabs: edit
+                    response_summary: edit
+                    campaign_manager: null
+                    survey: edit
+                    research_dashboard: view
+                    offline: full
+                    data: download
+                  interviewer_only:
+                    admin: null
+                    theme_editor: none
+                    reporting_crosstabs: null
+                    response_summary: null
+                    campaign_manager: null
+                    survey: null
+                    research_dashboard: null
+                    offline: full
+                    data: null
+                  view_data:
+                    admin: null
+                    theme_editor: all
+                    reporting_crosstabs: view
+                    response_summary: view
+                    campaign_manager: null
+                    survey: view
+                    research_dashboard: view
+                    offline: full
+                    data: download
+                  view:
+                    admin: null
+                    theme_editor: all
+                    reporting_crosstabs: view
+                    response_summary: view
+                    campaign_manager: null
+                    survey: view
+                    research_dashboard: view
+                    offline: full
+                    data: null
+                user_entries:
+                - added_on: '2025-03-22T19:23:06Z'
+                  email: user1@example.com
+                  user_id: 2
+                  group_id: null
+                  added_by:
+                    email: admin@example.com
+                    id: 1
+                  permissions: full
+                - added_on: '2025-06-08T06:15:21Z'
+                  email: user1@example.com
+                  user_id: 2
+                  group_id: 1
+                  added_by:
+                    email: admin@example.com
+                    id: 1
+                  permissions:
+                    admin: full
+                    theme_editor: company
+                    reporting_crosstabs: edit
+                    response_summary: edit
+                    campaign_manager: build
+                    survey: null
+                    research_dashboard: build
+                    data: download
+                    offline: full
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  $code:
+                    type: integer
+                    description: The error code.
+                  $error:
+                    type: string
+                    description: The error message.
+                  extra:
+                    type: object
+                    description: Extra error information.
+                example:
+                  $code: 404
+                  $error: User (user3@example.com) not found in this survey
+                  extra: null
+components:
+  parameters:
+    survey:
+      name: survey
+      in: path
+      required: true
+      description: The survey path.
+      example: selfserve/1a/123456
+      schema:
+        type: string
+        format: uri
+  schemas:
+    surveyUserData:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          description: The ID of the user.
+        added_on:
+          type: string
+          format: date-time
+          description: Date when the user was added to the survey.
+        group_id:
+          type:
+          - integer
+          - 'null'
+          description: The ID of the group the user belongs to, null if not in a group.
+        email:
+          type: string
+          format: email
+          description: Email address of the survey user.
+        added_by:
+          type: object
+          description: Information about the user that added the specified user to the survey.
+          properties:
+            email:
+              type: string
+              format: email
+              description: Email address of the user that added the user to the survey.
+            id:
+              type: integer
+              description: The ID of the user that added the user to the survey.
+        permissions:
+          description: Information about the user's permissions.
+          oneOf:
+          - type: string
+            description: The grouped alias for the user's permissions.
+            enum:
+            - full
+            - edit
+            - view_data
+            - view
+            - vendor
+            - interviewer_only
+            - none
+          - type: object
+            description: 'The user''s permissions if they do not align with one of the standard aliases.
+
+              '
+            properties:
+              survey:
+                type:
+                - string
+                - 'null'
+                enum:
+                - build
+                - edit
+                - view
+              reporting_crosstabs:
+                type:
+                - string
+                - 'null'
+                enum:
+                - edit
+                - view
+              data:
+                type:
+                - string
+                - 'null'
+                enum:
+                - edit
+                - download
+              response_summary:
+                type:
+                - string
+                - 'null'
+                enum:
+                - edit
+                - view
+              campaign_manager:
+                type:
+                - string
+                - 'null'
+                enum:
+                - build
+              research_dashboard:
+                type:
+                - string
+                - 'null'
+                enum:
+                - build
+                - view
+              admin:
+                type:
+                - string
+                - 'null'
+                enum:
+                - full
+              theme_editor:
+                type: string
+                enum:
+                - full
+                - all
+                - company
+                - system
+                - none
+              offline:
+                type:
+                - string
+                - 'null'
+                enum:
+                - full
+    userPermissionsMap:
+      type: object
+      description: Information about the preset permissions for a user.
+      properties:
+        full:
+          type: object
+          description: Preset permissions for a user with full permissions.
+          properties:
+            admin:
+              type:
+              - string
+              - 'null'
+            theme_editor:
+              type: string
+            reporting_crosstabs:
+              type:
+              - string
+              - 'null'
+            response_summary:
+              type:
+              - string
+              - 'null'
+            campaign_manager:
+              type:
+              - string
+              - 'null'
+            survey:
+              type:
+              - string
+              - 'null'
+            research_dashboard:
+              type:
+              - string
+              - 'null'
+            offline:
+              type:
+              - string
+              - 'null'
+            data:
+              type:
+              - string
+              - 'null'
+        edit:
+          type: object
+          description: Preset permissions for a user with edit permissions.
+          properties:
+            admin:
+              type:
+              - string
+              - 'null'
+            theme_editor:
+              type: string
+            reporting_crosstabs:
+              type:
+              - string
+              - 'null'
+            response_summary:
+              type:
+              - string
+              - 'null'
+            campaign_manager:
+              type:
+              - string
+              - 'null'
+            survey:
+              type:
+              - string
+              - 'null'
+            research_dashboard:
+              type:
+              - string
+              - 'null'
+            offline:
+              type:
+              - string
+              - 'null'
+            data:
+              type:
+              - string
+              - 'null'
+        view_data:
+          type: object
+          description: Preset permissions for a user with view-only with data permissions.
+          properties:
+            admin:
+              type:
+              - string
+              - 'null'
+            theme_editor:
+              type: string
+            reporting_crosstabs:
+              type:
+              - string
+              - 'null'
+            response_summary:
+              type:
+              - string
+              - 'null'
+            campaign_manager:
+              type:
+              - string
+              - 'null'
+            survey:
+              type:
+              - string
+              - 'null'
+            research_dashboard:
+              type:
+              - string
+              - 'null'
+            offline:
+              type:
+              - string
+              - 'null'
+            data:
+              type:
+              - string
+              - 'null'
+        view:
+          type: object
+          description: Preset permissions for a user with view-only permissions.
+          properties:
+            admin:
+              type:
+              - string
+              - 'null'
+            theme_editor:
+              type: string
+            reporting_crosstabs:
+              type:
+              - string
+              - 'null'
+            response_summary:
+              type:
+              - string
+              - 'null'
+            campaign_manager:
+              type:
+              - string
+              - 'null'
+            survey:
+              type:
+              - string
+              - 'null'
+            research_dashboard:
+              type:
+              - string
+              - 'null'
+            offline:
+              type:
+              - string
+              - 'null'
+            data:
+              type:
+              - string
+              - 'null'
+        vendor:
+          type: object
+          description: Preset permissions for a user with vendor permissions.
+          properties:
+            admin:
+              type:
+              - string
+              - 'null'
+            theme_editor:
+              type: string
+            reporting_crosstabs:
+              type:
+              - string
+              - 'null'
+            response_summary:
+              type:
+              - string
+              - 'null'
+            campaign_manager:
+              type:
+              - string
+              - 'null'
+            survey:
+              type:
+              - string
+              - 'null'
+            research_dashboard:
+              type:
+              - string
+              - 'null'
+            offline:
+              type:
+              - string
+              - 'null'
+            data:
+              type:
+              - string
+              - 'null'
+        interviewer_only:
+          type: object
+          description: Preset permissions for a user with interviewer-only permissions.
+          properties:
+            admin:
+              type:
+              - string
+              - 'null'
+            theme_editor:
+              type: string
+            reporting_crosstabs:
+              type:
+              - string
+              - 'null'
+            response_summary:
+              type:
+              - string
+              - 'null'
+            campaign_manager:
+              type:
+              - string
+              - 'null'
+            survey:
+              type:
+              - string
+              - 'null'
+            research_dashboard:
+              type:
+              - string
+              - 'null'
+            offline:
+              type:
+              - string
+              - 'null'
+            data:
+              type:
+              - string
+              - 'null'
+        none:
+          type: object
+          description: Preset permissions for a user with no permissions.
+          properties:
+            admin:
+              type:
+              - string
+              - 'null'
+            theme_editor:
+              type: string
+            reporting_crosstabs:
+              type:
+              - string
+              - 'null'
+            response_summary:
+              type:
+              - string
+              - 'null'
+            campaign_manager:
+              type:
+              - string
+              - 'null'
+            survey:
+              type:
+              - string
+              - 'null'
+            research_dashboard:
+              type:
+              - string
+              - 'null'
+            offline:
+              type:
+              - string
+              - 'null'
+            data:
+              type:
+              - string
+              - 'null'
+  securitySchemes:
+    APIKey:
+      type: apiKey
+      in: header
+      name: x-apikey
+      description: 'In order to access the api, you''ll need to generate an API key. Refer to the
+
+        instructions [here](/docs/decipher/api#section/API-Keys) to generate and
+
+        configure an API key with the appropriate permission sets. You can generate
+
+        as many keys as required.
+
+
+        Configure each request to include your API key in the request header. For example:
+
+
+        ```
+
+        x-apikey: dp48ss3mgsaucyjtybxw728h7s4cgnwzhejtszdwhf4xpe8yhmtdwpk2ntdhtwbs
+
+        ```
+
+        '
+x-tagGroups:
+- name: Autoclose
+  tags:
+  - Autoclose
+- name: Data Input and Output
+  tags:
+  - Data
+  - Data Feed
+  - Response Summary
+  - Modifying Data
+  - Datasources
+  - Datasources Data
+  - Umerge
+- name: Survey Metadata
+  tags:
+  - Simulated Data
+  - Survey State
+  - Survey Evaluate
+  - Survey Quotas
+  - Survey Files
+  - Survey Warnings
+  - Survey Terms
+  - Survey Subscribers
+  - Survey Users
+  - Survey Tasks
+- name: Panels
+  tags:
+  - Panel Data
+  - Panel Datapoints
+  - Survey Panels
+- name: Research Hub
+  tags:
+  - Users
+  - Companies
+  - Categories
+  - Surveys
+  - Panels
+  - Crosstabs
+  - Archives
+  - Archival Reports
+  - API Keys
+  - Usage
+  - Warnings Summary
+- name: Crosstabs
+  tags:
+  - Crosstabs Configuration
+  - Crosstabs Execution
+  - Crosstabs Nets
+  - Saved Crosstabs
+  - Crosstabs Table Settings
+  - Crosstabs Validation
+  - Crosstabs Rim Weighting
+- name: Dashboards
+  tags:
+  - Dashboards
+- name: DQ APIs
+  tags:
+  - DQ-Specific API Calls
+  - MaxDiff API Calls
+  - Discrete Choice Model API Calls
+  - Media Testimonial API Calls
+- name: Response Summary
+  tags:
+  - Share Link
+- name: Sample Management
+  tags:
+  - Bounced Emails
+  - Participant Sources
+- name: Distribution
+  tags:
+  - Email Distribution
+  - SFTP Distribution
+  - Slack Distribution
+- name: Campaign Manager
+  tags:
+  - Campaigns
+  - Campaign Email Invites
+  - Campaign Exports
+  - Campaign Lists
+  - Shared Campaign Lists
+  - Campaign Sends
+  - Campaign Status Lists
+  - Supression Lists
+- name: Question Library
+  tags:
+  - Company Element
+  - Company Elements
+  - Survey Elements
+  - Survey Element Report Settings
+- name: Language Manager
+  tags:
+  - LM Application Data
+  - LM Application Translations
+  - Translation Resources
+  - Translations
+  - Translation Deltas
+  - Translation Reservations
+  - Primary Survey Language
+  - Other Survey Languages
+  - Unused Survey Languages
+- name: Project Parameters
+  tags:
+  - Available Project Parameters
+  - Saved Project Parameters
+  - Project Parameters Configuration
+- name: Multi-User Editing
+  tags:
+  - Available Sections
+  - Check Out Section
+  - Check In Section
+  - Sync Section
+  - Section Editor
+  - Abandon Section
+  - Validate Section
+- name: Video Management
+  tags:
+  - Videos
+  - Watermarked Videos
+- name: Miscellaneous
+  tags:
+  - System Information
+  - Logic Nodes
+  - Logic Events
+  - CATI
+  - Global Search
+  - Miscellaneous

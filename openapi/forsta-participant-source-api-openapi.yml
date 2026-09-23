@@ -1,0 +1,168 @@
+openapi: 3.2.0
+info:
+  version: 1.0-beta
+  title: Sample Marketplace Partner Setup Participant Source API
+  description: '# Summary
+
+
+    This document describes the endpoints used to manage vendor configurations
+
+    within the Sample Marketplace.'
+servers:
+- url: https://eks.us-west-2.fvdev.net/smp-partner-service
+  description: Staging Environment
+- url: https://us-west-2-eks.aws.focusvision.com/smp-partner-service
+  description: Production Environment
+tags:
+- name: Participant Source
+paths:
+  /v1.0/app/samplesource:
+    get:
+      summary: Get your app's current participant source configuration
+      tags:
+      - Participant Source
+      description: This returns your app's current participant source configuration. This consists of all the information required to configure a participant source in a survey, including entry link query parameters and exit link redirects. Overquota participants are participants who enter the survey, but their qualifications are over the set amount required for the survey. Terminated participants are participants who have been forcefully removed from the survey. Qualified participants are those who successfully complete the survey. Upon leaving the survey, based on the resolution of the participant (overquota, qualified, terminated), they will be redirected to the link indicated in this call. If a variable is required in an exit link, first it must be passed in via the entry link variable, and then referenced in the exit link with the following syntax ${variable_name}.
+      security:
+      - OAuth2: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParticipantSource'
+        '401':
+          $ref: '#/components/responses/401'
+        '500':
+          $ref: '#/components/responses/500'
+      operationId: getV10AppSamplesource
+      x-operation-id-source: derived
+    patch:
+      summary: Update a vendor's participant source attributes
+      tags:
+      - Participant Source
+      description: This updates your app's current participant source configuration by performing a JSON Merge Patch of your app's current participant source configuration.
+      security:
+      - OAuth2: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParticipantSource'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParticipantSource'
+        '401':
+          $ref: '#/components/responses/401'
+        '500':
+          $ref: '#/components/responses/500'
+      operationId: patchV10AppSamplesource
+      x-operation-id-source: derived
+components:
+  responses:
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                description: Error code and message
+                properties:
+                  status:
+                    type: string
+                    description: HTTP status Code
+                    enum:
+                    - 500
+                  message:
+                    type: string
+                    description: Status message
+                    enum:
+                    - Internal Server Error
+    '401':
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                description: Error code and message
+                properties:
+                  status:
+                    type: string
+                    description: HTTP status Code
+                    enum:
+                    - 401
+                  message:
+                    type: string
+                    example: Unauthorized
+                    description: Status message
+                    enum:
+                    - Unauthorized
+  schemas:
+    ParticipantSource:
+      type: object
+      properties:
+        exit_links:
+          type: object
+          description: Your app's exit links for redirecting survey participants
+          properties:
+            qualified:
+              type: string
+              format: url
+              example: https://focusvision.com/callback?S=1&ID=${ID}
+              description: Callback URL for qualified participants
+            terminated:
+              type: string
+              format: url
+              example: https://focusvision.com/callback?S=2&ID=${ID}
+              description: Callback URL for terminated participants
+            overquota:
+              type: string
+              format: url
+              example: https://focusvision.com/callback?S=3&ID=${ID}
+              description: Callback URL for overquota participants
+        variables:
+          type: object
+          description: Any query parameters your app uses on survey entry links
+          properties:
+            unique:
+              type: array
+              items:
+                type: string
+              example:
+              - ID
+              description: Unique query parameter identifier's set on entry links
+            required:
+              type: array
+              items:
+                type: string
+              example: []
+              description: Required query parameter's provided on entry links
+            extra:
+              type: array
+              items:
+                type: string
+              example: []
+              description: Extra query parameter's provided on entry links
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      description: See https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html
+      flows:
+        clientCredentials:
+          tokenUrl: /oauth2/token/
+          scopes: {}
+      x-tokenInfoFunc: demo.token_auth
+    BasicAuth:
+      type: http
+      scheme: basic
+      x-basicInfoFunc: demo.basic_auth

@@ -1,0 +1,413 @@
+openapi: 3.2.0
+info:
+  title: Integration Sample API
+  version: ''
+servers:
+- url: https://{server}
+  description: Replace server with your instance domain.
+  variables:
+    server:
+      default: staging.panel.dev.focusvision.com/
+      description: Server domain
+tags:
+- name: Sample
+paths:
+  /api.pro#method=integration.sample.create:
+    post:
+      operationId: sampleCreate
+      summary: Create sample
+      description: Create a sample from panelist identifiers.
+      tags:
+      - Sample
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.sample.create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - sesKey
+              - name
+              - description
+              - identifiers
+              properties:
+                sesKey:
+                  description: A valid login hash.
+                  type: string
+                  example: 5a15852c564933807bbd36da58071063
+                name:
+                  description: Name of the sample.
+                  type: string
+                  example: First Sample
+                description:
+                  description: Description of the sample.
+                  type: string
+                  example: This is the First Sample
+                identifiers:
+                  description: Zero-based array of identifiers to be included in the sample.
+                  type: array
+                  items:
+                    type: string
+                  example:
+                  - 130_FNOAHH
+                  - 131_FNOAHH
+                  - 132_FNOAHH
+                  - 133_FNOAHH
+                  - 134_FNOAHH
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      example: true
+                      type: boolean
+                    data:
+                      properties:
+                        sampleid:
+                          type: integer
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                    data:
+                      sampleid: 1
+                error-0:
+                  description: The supplied name is empty. The name parameter is required.
+                  summary: Empty name
+                  value:
+                    success: false
+                    error: Please enter the name for the sample you would like to create.
+                    errno: '10000'
+                error-1:
+                  description: The supplied identifiers array is empty. The identifiers parameter is required.
+                  summary: Empty identifiers
+                  value:
+                    success: false
+                    error: Please enter the information for samples to be added.
+                    errno: '10000'
+                error-2:
+                  description: The supplied identifiers are not an array.
+                  summary: Identifiers invalid
+                  value:
+                    success: false
+                    error: The "identifiers" parameter is of an unexpected type (identifiers type). Please use an array, as described in the documentation.
+                    errno: '20104'
+                error-3:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session has expired. You must start a new session.
+                    errno: '30100'
+                error-4:
+                  description: Session is not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: sessionkey not found
+                    errno: '30200'
+                error-5:
+                  description: User ID not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: userid for sessionkey not found
+                    errno: '30200'
+                error-6:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: sessionkey is invalid
+                    errno: '30300'
+                error-7:
+                  description: A panel needs to be selected before calling this method.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: You must select a panel before you can use this method.
+                    errno: '40001'
+                error-8:
+                  description: A project needs to be selected before calling this method.
+                  summary: Project not found
+                  value:
+                    success: false
+                    error: You must select a project before you can use this method.
+                    errno: '40002'
+  /api.pro#method=integration.sample.update:
+    post:
+      operationId: sampleUpdate
+      summary: Update a sample
+      description: Update a sample with appended data
+      tags:
+      - Sample
+      security:
+      - ApiKey: []
+      parameters:
+      - $ref: '#/components/parameters/method'
+        schema:
+          enum:
+          - integration.sample.update
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sesKey:
+                  type: string
+                  description: A valid login hash.
+                sampleid:
+                  type: integer
+                  description: Sample to which you want to append data. (must already exist)
+                params:
+                  type: array
+                  description: Zero-based array containing parameter names. (i.e. value1,value2)
+                  items:
+                    type: string
+                identifiers:
+                  type: array
+                  description: Zero-based array containing identifiers to append data to.
+                  items:
+                    type: string
+                values:
+                  type: array
+                  description: Array of arrays, containing values for each param, for each panelist, (same order as identifier array)
+                  items:
+                    type: array
+                    items:
+                      oneOf:
+                      - type: string
+                      - type: integer
+              required:
+              - sesKey
+              - sampleid
+              - params
+              - identifiers
+              - values
+              example:
+                sesKey: 5a15852c564933807bbd36da58071063
+                sampleid: 1
+                params:
+                - value1
+                - value2
+                - value3
+                identifiers:
+                - 130_FNOAHH
+                - 131_FNOAHH
+                values:
+                - - 1
+                  - 2
+                  - 3
+                - - 4
+                  - 5
+                  - 6
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/error'
+                - type: object
+                  properties:
+                    success:
+                      type: boolean
+              examples:
+                success:
+                  summary: Success
+                  value:
+                    success: true
+                error-0:
+                  description: The supplied parameter names should not have spaces in supplied params array.
+                  summary: Params invalid
+                  value:
+                    success: false
+                    error: Header names cannot contain spaces! (params)
+                    errno: '10000'
+                error-1:
+                  description: The parameter names should only have numbers (0-9) or letters (A-Z or a-z) in supplied params array.
+                  summary: Params invalid
+                  value:
+                    success: false
+                    error: Header names may only contain Latin letters and numbers. (params)
+                    errno: '10000'
+                error-2:
+                  description: The parameter names should not start with a number (0-9) in supplied params array.
+                  summary: Params invalid
+                  value:
+                    success: false
+                    error: Header names cannot start with numbers! (params)
+                    errno: '10000'
+                error-3:
+                  description: The supplied sample ID is not numeric.
+                  summary: Sample ID invalid
+                  value:
+                    success: false
+                    error: The sampleId (sample ID) must be a number greater than zero
+                    errno: '20102'
+                error-4:
+                  description: The supplied params is not an array.
+                  summary: Params invalid
+                  value:
+                    success: false
+                    error: The "params" parameter is of an unexpected type (params type). Please use an array, as described in the documentation.
+                    errno: '20103'
+                error-5:
+                  description: The supplied identifier is not an array.
+                  summary: Identifiers invalid
+                  value:
+                    success: false
+                    error: The "identifiers" parameter is of an unexpected type (identifiers type). Please use an array, as described in the documentation.
+                    errno: '20104'
+                error-6:
+                  description: The supplied identifiers and values arrays do not contain the same amount of elements. Both of these parameters must have the same element count.
+                  summary: Identifiers invalid
+                  value:
+                    success: false
+                    error: Your "identifier" array contains more/fewer elements than your "values" array. They must match.
+                    errno: '20104'
+                error-7:
+                  description: The supplied&nbsp;values&nbsp;is not an array.
+                  summary: Values invalid
+                  value:
+                    success: false
+                    error: The "values" parameter is of an unexpected type (data type). Please use an array, as described in the documentation.
+                    errno: '20105'
+                error-8:
+                  description: The supplied params array is empty.
+                  summary: Empty params
+                  value:
+                    success: false
+                    error: The "params" array is empty, so there is nothing to append
+                    errno: '20203'
+                error-9:
+                  description: The supplied identifiers array is empty.
+                  summary: Empty identifiers
+                  value:
+                    success: false
+                    error: The "identifiers" array is empty, so there is nothing to append
+                    errno: '20204'
+                error-10:
+                  description: The supplied values array is empty.
+                  summary: Empty values
+                  value:
+                    success: false
+                    error: The "values" array is empty, so there is nothing to append
+                    errno: '20205'
+                error-11:
+                  description: Sample with supplied sample ID is not found for selected project.
+                  summary: Sample not found
+                  value:
+                    success: false
+                    error: Sample is empty
+                    errno: '20302'
+                error-12:
+                  description: The supplied identifiers are not found in sample.
+                  summary: Indentifiers invalid
+                  value:
+                    success: false
+                    error: 'The following identifiers were not found in the sample: (identifiers)'
+                    errno: '20304'
+                error-13:
+                  description: Session has expired.
+                  summary: Session expired
+                  value:
+                    success: false
+                    error: Session has expired. You must start a new session.
+                    errno: '30100'
+                error-14:
+                  description: Session is not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: sessionkey not found
+                    errno: '30200'
+                error-15:
+                  description: User ID not found for supplied session key.
+                  summary: Session not found
+                  value:
+                    success: false
+                    error: userid for sessionkey not found
+                    errno: '30200'
+                error-16:
+                  description: Session key is not in correct format.
+                  summary: Session invalid
+                  value:
+                    success: false
+                    error: sessionkey is invalid
+                    errno: '30300'
+                error-17:
+                  description: A panel needs to be selected before calling this method.
+                  summary: Panel not found
+                  value:
+                    success: false
+                    error: You must select a panel before you can use this method.
+                    errno: '40001'
+                error-18:
+                  description: A project needs to be selected before calling this method.
+                  summary: Project not found
+                  value:
+                    success: false
+                    error: You must select a project before you can use this method.
+                    errno: '40002'
+components:
+  parameters:
+    method:
+      name: method
+      in: query
+      required: true
+      description: Method
+      schema:
+        type: string
+  schemas:
+    error:
+      type: object
+      properties:
+        success:
+          type: boolean
+        error:
+          description: The error message.
+          type: string
+        errno:
+          description: The error code.
+          type: string
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+    ApiKey:
+      type: apiKey
+      in: query
+      name: sesKey
+x-tagGroups:
+- name: Data Input and Output
+  tags:
+  - Auth
+  - Campaign
+  - Category
+  - Community
+  - Datapoint
+  - Panel
+  - Notes
+  - Panelist
+  - Project
+  - Reminder
+  - Sample
+  - Session
+  - Survey
+  - Token
