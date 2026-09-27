@@ -134,7 +134,7 @@
     "forsta-participant-source-api-openapi.yml"
   ],
   "archived": [
-    "deleted 2 superseded output(s) from the previous generation"
+    "deleted 1 superseded output(s) from the previous generation"
   ],
   "errors": [],
   "warnings": [
@@ -269,8 +269,8 @@
     "tag 'Panelist' spans 2 source specs (forsta-panel-management-community-openapi.yml, forsta-panel-management-integration-openapi.yml): per-path servers applied",
     "tag 'Survey' spans 2 source specs (forsta-panel-management-community-openapi.yml, forsta-panel-management-integration-openapi.yml): per-path servers applied",
     "tag 'OAuth2' spans 2 source specs (forsta-sample-marketplace-partner-contract-openapi.yml, forsta-sample-marketplace-partner-setup-openapi.yml): per-path servers applied",
-    "superseded outputs removed: forsta-data-sources-api-openapi.yml, forsta-o-auth2-api-openapi.yml",
-    "apis.yml register: written (+2 apis, 120 total)"
+    "superseded outputs removed: forsta-data-sources-api-openapi.yml",
+    "apis.yml register: written (+1 apis, 120 total)"
   ],
   "skipped": [
     "_original/smp-setup.yaml: archived document superseded by a larger archived document",
@@ -335,7 +335,7 @@
     "forsta-miscellaneous-api-openapi.yml: previously refined output, superseded by openapi/_original/",
     "forsta-modifying-data-api-openapi.yml: previously refined output, superseded by openapi/_original/",
     "forsta-notes-api-openapi.yml: previously refined output, superseded by openapi/_original/",
-    "forsta-o-auth2-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "forsta-oauth2-api-openapi.yml: previously refined output, superseded by openapi/_original/",
     "forsta-other-survey-languages-api-openapi.yml: previously refined output, superseded by openapi/_original/",
     "forsta-panel-api-openapi.yml: previously refined output, superseded by openapi/_original/",
     "forsta-panel-data-api-openapi.yml: previously refined output, superseded by openapi/_original/",

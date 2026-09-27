@@ -94,6 +94,34 @@ components:
       schema:
         type: string
         format: uri
+  responses:
+    '400':
+      description: The request is invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+          example:
+            $code: 400
+            $error: The request is invalid.
+    '403':
+      description: API key is valid but access to requested resource is forbidden.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+          example:
+            $code: 403
+            $error: API key is valid but access to requested resource is forbidden.
+    '401':
+      description: The request is unauthorized.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+          example:
+            $code: 401
+            $error: The request is unauthorized.
   schemas:
     error:
       type: object
@@ -108,34 +136,6 @@ components:
           description: Additional error information.
           type: object
           additionalProperties: true
-  responses:
-    '403':
-      description: API key is valid but access to requested resource is forbidden.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/error'
-          example:
-            $code: 403
-            $error: API key is valid but access to requested resource is forbidden.
-    '400':
-      description: The request is invalid.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/error'
-          example:
-            $code: 400
-            $error: The request is invalid.
-    '401':
-      description: The request is unauthorized.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/error'
-          example:
-            $code: 401
-            $error: The request is unauthorized.
   securitySchemes:
     APIKey:
       type: apiKey

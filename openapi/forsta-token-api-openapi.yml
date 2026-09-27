@@ -82,14 +82,6 @@ paths:
                     status: complete
                     result: []
 components:
-  parameters:
-    method:
-      name: method
-      in: query
-      required: true
-      description: Method
-      schema:
-        type: string
   schemas:
     error:
       type: object
@@ -102,6 +94,14 @@ components:
         errno:
           description: The error code.
           type: string
+  parameters:
+    method:
+      name: method
+      in: query
+      required: true
+      description: Method
+      schema:
+        type: string
   securitySchemes:
     BearerAuth:
       type: http

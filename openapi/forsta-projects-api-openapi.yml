@@ -117,40 +117,7 @@ paths:
         '500':
           $ref: '#/components/responses/500'
 components:
-  schemas:
-    Projects:
-      type: object
-      properties:
-        name:
-          type: string
-          example: Myke's Projects
-          description: The name of the project.
-        project_id:
-          type: string
-          example: f7694b5e-3f50-4bb6-b307-f68b0fe111aa
-          description: The unique identifier of the project.
   responses:
-    '500':
-      description: Internal Server Error
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              error:
-                type: object
-                description: Error code and message
-                properties:
-                  status:
-                    type: string
-                    description: HTTP status Code
-                    enum:
-                    - 500
-                  message:
-                    type: string
-                    description: Status message
-                    enum:
-                    - Internal Server Error
     '404':
       description: Not Found
       content:
@@ -209,6 +176,27 @@ components:
                           type: string
                         message:
                           type: string
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                description: Error code and message
+                properties:
+                  status:
+                    type: string
+                    description: HTTP status Code
+                    enum:
+                    - 500
+                  message:
+                    type: string
+                    description: Status message
+                    enum:
+                    - Internal Server Error
     '401':
       description: Unauthorized
       content:
@@ -231,6 +219,18 @@ components:
                     description: Status message
                     enum:
                     - Unauthorized
+  schemas:
+    Projects:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Myke's Projects
+          description: The name of the project.
+        project_id:
+          type: string
+          example: f7694b5e-3f50-4bb6-b307-f68b0fe111aa
+          description: The unique identifier of the project.
   securitySchemes:
     OAuth2:
       type: oauth2

@@ -46,6 +46,18 @@ paths:
                 $ref: '#/components/schemas/error'
 components:
   schemas:
+    error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error code as specified in <a href="https://tools.ietf.org/html/rfc6749#section-5.2">IETF RFC-6749 Section-5.2</a>
+          enum:
+          - invalid_request
+          - invalid_client
+          - invalid_grant
+          - unauthorized_client
+          - unsupported_grant_type
     response:
       type: object
       properties:
@@ -63,18 +75,6 @@ components:
           type: number
           example: 3600
           description: The lifetime in seconds of the access token.
-    error:
-      type: object
-      properties:
-        error:
-          type: string
-          description: Error code as specified in <a href="https://tools.ietf.org/html/rfc6749#section-5.2">IETF RFC-6749 Section-5.2</a>
-          enum:
-          - invalid_request
-          - invalid_client
-          - invalid_grant
-          - unauthorized_client
-          - unsupported_grant_type
   securitySchemes:
     OAuth2:
       type: oauth2

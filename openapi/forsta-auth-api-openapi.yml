@@ -418,14 +418,6 @@ paths:
           default: staging.panel.dev.focusvision.com/
           description: Server domain
 components:
-  parameters:
-    method:
-      name: method
-      in: query
-      required: true
-      description: Method
-      schema:
-        type: string
   schemas:
     error:
       type: object
@@ -438,6 +430,14 @@ components:
         errno:
           description: The error code.
           type: string
+  parameters:
+    method:
+      name: method
+      in: query
+      required: true
+      description: Method
+      schema:
+        type: string
   securitySchemes:
     ApiKey:
       type: apiKey

@@ -3748,6 +3748,18 @@ paths:
           default: staging.panel.dev.focusvision.com/
           description: Server domain
 components:
+  schemas:
+    error:
+      type: object
+      properties:
+        success:
+          type: boolean
+        error:
+          description: The error message.
+          type: string
+        errno:
+          description: The error code.
+          type: string
   parameters:
     method:
       name: method
@@ -3756,6 +3768,19 @@ components:
       description: Method
       schema:
         type: string
+    projectidfilter:
+      in: query
+      name: filter[project_id]
+      description: Filter by project id
+      schema:
+        type: string
+      examples:
+        single:
+          value: 1
+          summary: Single project
+        multiple:
+          value: 1,2,3,4
+          summary: Multiple projects
     panelistidfilter:
       in: query
       description: Filter by panelist identifier
@@ -3787,31 +3812,6 @@ components:
         example 1:
           value: 123
           description: Request values after id 123
-    projectidfilter:
-      in: query
-      name: filter[project_id]
-      description: Filter by project id
-      schema:
-        type: string
-      examples:
-        single:
-          value: 1
-          summary: Single project
-        multiple:
-          value: 1,2,3,4
-          summary: Multiple projects
-  schemas:
-    error:
-      type: object
-      properties:
-        success:
-          type: boolean
-        error:
-          description: The error message.
-          type: string
-        errno:
-          description: The error code.
-          type: string
   securitySchemes:
     ApiKey:
       type: apiKey
