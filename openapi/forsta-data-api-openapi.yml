@@ -616,6 +616,74 @@ paths:
                           type: string
 components:
   schemas:
+    surveyData:
+      type: object
+      properties:
+        status:
+          description: The survey completion status.
+          example: 1
+          type: integer
+        uuid:
+          description: The survey `uuid`.
+          example: jwy3kwppp4yuqg86
+          type: string
+          format: uuid
+        vmobiledevice:
+          description: The respondent's mobile device code.
+          example: 5
+          type: integer
+        url:
+          description: The survey builder url.
+          example: http://release.decipherinc.com/survey/selfserve/1a/123456
+          type: string
+        vbrowser:
+          description: The respondent's browser code.
+          type: integer
+          example: 11
+        qtime:
+          description: The elapsed time (seconds) from survey start to complete.
+          example: 56.235
+          type: number
+          format: float
+        list:
+          example: 0
+          type: integer
+        dcua:
+          example: ..
+          type: string
+        markers:
+          example: qualified,/totalQuota/Total
+          type: string
+        record:
+          example: 1
+          type: integer
+        session:
+          description: Unique user session ID.
+          example: cwsps4gewqc0p175
+          type: string
+          format: uuid
+        vos:
+          description: The respondent's operating system (os).
+          example: 13
+          type: integer
+        date:
+          example: 09/02/2020 14:52
+          type: string
+        vlist:
+          example: 1
+          type: integer
+        Q1r1:
+          description: An example question response
+          example: '8'
+          type: string
+        Q2a:
+          description: An example question response
+          example: I thought it was great.
+          type: string
+        Q2b:
+          description: An example question response
+          example: I thought it was not so great.
+          type: string
     surveyDatamap:
       type: object
       properties:
@@ -757,74 +825,6 @@ components:
                 type: integer
               title:
                 type: string
-    surveyData:
-      type: object
-      properties:
-        status:
-          description: The survey completion status.
-          example: 1
-          type: integer
-        uuid:
-          description: The survey `uuid`.
-          example: jwy3kwppp4yuqg86
-          type: string
-          format: uuid
-        vmobiledevice:
-          description: The respondent's mobile device code.
-          example: 5
-          type: integer
-        url:
-          description: The survey builder url.
-          example: http://release.decipherinc.com/survey/selfserve/1a/123456
-          type: string
-        vbrowser:
-          description: The respondent's browser code.
-          type: integer
-          example: 11
-        qtime:
-          description: The elapsed time (seconds) from survey start to complete.
-          example: 56.235
-          type: number
-          format: float
-        list:
-          example: 0
-          type: integer
-        dcua:
-          example: ..
-          type: string
-        markers:
-          example: qualified,/totalQuota/Total
-          type: string
-        record:
-          example: 1
-          type: integer
-        session:
-          description: Unique user session ID.
-          example: cwsps4gewqc0p175
-          type: string
-          format: uuid
-        vos:
-          description: The respondent's operating system (os).
-          example: 13
-          type: integer
-        date:
-          example: 09/02/2020 14:52
-          type: string
-        vlist:
-          example: 1
-          type: integer
-        Q1r1:
-          description: An example question response
-          example: '8'
-          type: string
-        Q2a:
-          description: An example question response
-          example: I thought it was great.
-          type: string
-        Q2b:
-          description: An example question response
-          example: I thought it was not so great.
-          type: string
   parameters:
     survey:
       name: survey

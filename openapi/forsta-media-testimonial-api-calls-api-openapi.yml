@@ -95,6 +95,15 @@ components:
         type: string
         format: uri
   responses:
+    '401':
+      description: The request is unauthorized.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+          example:
+            $code: 401
+            $error: The request is unauthorized.
     '400':
       description: The request is invalid.
       content:
@@ -113,15 +122,6 @@ components:
           example:
             $code: 403
             $error: API key is valid but access to requested resource is forbidden.
-    '401':
-      description: The request is unauthorized.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/error'
-          example:
-            $code: 401
-            $error: The request is unauthorized.
   schemas:
     error:
       type: object

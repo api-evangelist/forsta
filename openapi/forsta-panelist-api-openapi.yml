@@ -3781,19 +3781,6 @@ components:
         multiple:
           value: 1,2,3,4
           summary: Multiple projects
-    panelistidfilter:
-      in: query
-      description: Filter by panelist identifier
-      name: filter[panelist_id]
-      schema:
-        type: string
-      examples:
-        single:
-          value: y36uhip5r8j7
-          summary: Single panelist
-        multiple:
-          value: y36uhip5r8j7,oa85aha25i,gjore8o7237,zx69g6ybzue
-          summary: Multiple panelists
     panelid:
       name: panelId
       in: path
@@ -3812,6 +3799,19 @@ components:
         example 1:
           value: 123
           description: Request values after id 123
+    panelistidfilter:
+      in: query
+      description: Filter by panelist identifier
+      name: filter[panelist_id]
+      schema:
+        type: string
+      examples:
+        single:
+          value: y36uhip5r8j7
+          summary: Single panelist
+        multiple:
+          value: y36uhip5r8j7,oa85aha25i,gjore8o7237,zx69g6ybzue
+          summary: Multiple panelists
   securitySchemes:
     ApiKey:
       type: apiKey

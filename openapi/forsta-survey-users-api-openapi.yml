@@ -627,6 +627,16 @@ paths:
                   $error: User (user3@example.com) not found in this survey
                   extra: null
 components:
+  parameters:
+    survey:
+      name: survey
+      in: path
+      required: true
+      description: The survey path.
+      example: selfserve/1a/123456
+      schema:
+        type: string
+        format: uri
   schemas:
     surveyUserData:
       type: object
@@ -1008,16 +1018,6 @@ components:
               type:
               - string
               - 'null'
-  parameters:
-    survey:
-      name: survey
-      in: path
-      required: true
-      description: The survey path.
-      example: selfserve/1a/123456
-      schema:
-        type: string
-        format: uri
   securitySchemes:
     APIKey:
       type: apiKey
