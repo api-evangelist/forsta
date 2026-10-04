@@ -84,16 +84,6 @@ paths:
         '403':
           $ref: '#/components/responses/403'
 components:
-  parameters:
-    survey:
-      name: survey
-      in: path
-      required: true
-      description: The survey path.
-      example: selfserve/1a/123456
-      schema:
-        type: string
-        format: uri
   responses:
     '401':
       description: The request is unauthorized.
@@ -136,6 +126,16 @@ components:
           description: Additional error information.
           type: object
           additionalProperties: true
+  parameters:
+    survey:
+      name: survey
+      in: path
+      required: true
+      description: The survey path.
+      example: selfserve/1a/123456
+      schema:
+        type: string
+        format: uri
   securitySchemes:
     APIKey:
       type: apiKey

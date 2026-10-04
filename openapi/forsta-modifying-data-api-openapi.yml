@@ -1040,20 +1040,6 @@ components:
       schema:
         type: string
         format: uri
-  schemas:
-    error:
-      type: object
-      properties:
-        $code:
-          description: The error code.
-          type: integer
-        $error:
-          description: The error message.
-          type: string
-        extra:
-          description: Additional error information.
-          type: object
-          additionalProperties: true
   responses:
     '500':
       description: An unexpected server error.
@@ -1073,6 +1059,20 @@ components:
           example:
             $code: 403
             $error: API key is valid but access to requested resource is forbidden.
+  schemas:
+    error:
+      type: object
+      properties:
+        $code:
+          description: The error code.
+          type: integer
+        $error:
+          description: The error message.
+          type: string
+        extra:
+          description: Additional error information.
+          type: object
+          additionalProperties: true
   securitySchemes:
     APIKey:
       type: apiKey

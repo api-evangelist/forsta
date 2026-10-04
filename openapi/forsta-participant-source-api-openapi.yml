@@ -63,6 +63,50 @@ paths:
       operationId: patchV10AppSamplesource
       x-operation-id-source: derived
 components:
+  responses:
+    '401':
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                description: Error code and message
+                properties:
+                  status:
+                    type: string
+                    description: HTTP status Code
+                    enum:
+                    - 401
+                  message:
+                    type: string
+                    example: Unauthorized
+                    description: Status message
+                    enum:
+                    - Unauthorized
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                description: Error code and message
+                properties:
+                  status:
+                    type: string
+                    description: HTTP status Code
+                    enum:
+                    - 500
+                  message:
+                    type: string
+                    description: Status message
+                    enum:
+                    - Internal Server Error
   schemas:
     ParticipantSource:
       type: object
@@ -109,50 +153,6 @@ components:
                 type: string
               example: []
               description: Extra query parameter's provided on entry links
-  responses:
-    '401':
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              error:
-                type: object
-                description: Error code and message
-                properties:
-                  status:
-                    type: string
-                    description: HTTP status Code
-                    enum:
-                    - 401
-                  message:
-                    type: string
-                    example: Unauthorized
-                    description: Status message
-                    enum:
-                    - Unauthorized
-    '500':
-      description: Internal Server Error
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              error:
-                type: object
-                description: Error code and message
-                properties:
-                  status:
-                    type: string
-                    description: HTTP status Code
-                    enum:
-                    - 500
-                  message:
-                    type: string
-                    description: Status message
-                    enum:
-                    - Internal Server Error
   securitySchemes:
     OAuth2:
       type: oauth2

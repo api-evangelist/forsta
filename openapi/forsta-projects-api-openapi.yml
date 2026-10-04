@@ -118,6 +118,49 @@ paths:
           $ref: '#/components/responses/500'
 components:
   responses:
+    '401':
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                description: Error code and message
+                properties:
+                  status:
+                    type: string
+                    description: HTTP status Code
+                    enum:
+                    - 401
+                  message:
+                    type: string
+                    example: Unauthorized
+                    description: Status message
+                    enum:
+                    - Unauthorized
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                description: Error code and message
+                properties:
+                  status:
+                    type: string
+                    description: HTTP status Code
+                    enum:
+                    - 500
+                  message:
+                    type: string
+                    description: Status message
+                    enum:
+                    - Internal Server Error
     '422':
       description: Unprocessable entity
       content:
@@ -154,28 +197,6 @@ components:
                           type: string
                         message:
                           type: string
-    '401':
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              error:
-                type: object
-                description: Error code and message
-                properties:
-                  status:
-                    type: string
-                    description: HTTP status Code
-                    enum:
-                    - 401
-                  message:
-                    type: string
-                    example: Unauthorized
-                    description: Status message
-                    enum:
-                    - Unauthorized
     '404':
       description: Not Found
       content:
@@ -198,27 +219,6 @@ components:
                     description: Status message
                     enum:
                     - Not found
-    '500':
-      description: Internal Server Error
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              error:
-                type: object
-                description: Error code and message
-                properties:
-                  status:
-                    type: string
-                    description: HTTP status Code
-                    enum:
-                    - 500
-                  message:
-                    type: string
-                    description: Status message
-                    enum:
-                    - Internal Server Error
   schemas:
     Projects:
       type: object

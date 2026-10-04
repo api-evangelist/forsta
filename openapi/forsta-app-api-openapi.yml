@@ -38,48 +38,6 @@ paths:
       operationId: getV10App
       x-operation-id-source: derived
 components:
-  schemas:
-    GetAppResponse:
-      type: object
-      properties:
-        id:
-          type: string
-          example: hd6cb443h
-          description: Generated ID for the partner
-        name:
-          type: string
-          example: FVSupplier
-          description: Name of the partner
-          maxLength: 50
-        status:
-          type: string
-          example: approved
-          description: Status of the partner
-          enum:
-          - pending
-          - approved
-          - denied
-          - inactive
-        logo_link:
-          type: string
-          format: uri
-          example: https://s3.partnerlogos.focusvision.com/somelogo.png
-          description: Link to the current logo used for this vendor in the marketplace.
-        marketing_text:
-          type: string
-          example: Quality sample at a quality price
-          description: Text shown to users at the results page of the marketplace.
-          maxLength: 240
-        email:
-          type: string
-          format: email
-          example: contact-us@email.com
-          description: Contact email
-        phone_number:
-          type: string
-          format: phone number
-          example: 1-555-555-5555
-          description: Contact phone number
   responses:
     '401':
       description: Unauthorized
@@ -124,6 +82,48 @@ components:
                     description: Status message
                     enum:
                     - Internal Server Error
+  schemas:
+    GetAppResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: hd6cb443h
+          description: Generated ID for the partner
+        name:
+          type: string
+          example: FVSupplier
+          description: Name of the partner
+          maxLength: 50
+        status:
+          type: string
+          example: approved
+          description: Status of the partner
+          enum:
+          - pending
+          - approved
+          - denied
+          - inactive
+        logo_link:
+          type: string
+          format: uri
+          example: https://s3.partnerlogos.focusvision.com/somelogo.png
+          description: Link to the current logo used for this vendor in the marketplace.
+        marketing_text:
+          type: string
+          example: Quality sample at a quality price
+          description: Text shown to users at the results page of the marketplace.
+          maxLength: 240
+        email:
+          type: string
+          format: email
+          example: contact-us@email.com
+          description: Contact email
+        phone_number:
+          type: string
+          format: phone number
+          example: 1-555-555-5555
+          description: Contact phone number
   securitySchemes:
     OAuth2:
       type: oauth2

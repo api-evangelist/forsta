@@ -3768,37 +3768,6 @@ components:
       description: Method
       schema:
         type: string
-    projectidfilter:
-      in: query
-      name: filter[project_id]
-      description: Filter by project id
-      schema:
-        type: string
-      examples:
-        single:
-          value: 1
-          summary: Single project
-        multiple:
-          value: 1,2,3,4
-          summary: Multiple projects
-    panelid:
-      name: panelId
-      in: path
-      required: true
-      description: A Panel ID
-      schema:
-        type: integer
-    after:
-      in: query
-      name: after
-      required: false
-      description: Pagination parameter for cursor based pagination
-      schema:
-        type: string
-      examples:
-        example 1:
-          value: 123
-          description: Request values after id 123
     panelistidfilter:
       in: query
       description: Filter by panelist identifier
@@ -3812,6 +3781,37 @@ components:
         multiple:
           value: y36uhip5r8j7,oa85aha25i,gjore8o7237,zx69g6ybzue
           summary: Multiple panelists
+    projectidfilter:
+      in: query
+      name: filter[project_id]
+      description: Filter by project id
+      schema:
+        type: string
+      examples:
+        single:
+          value: 1
+          summary: Single project
+        multiple:
+          value: 1,2,3,4
+          summary: Multiple projects
+    after:
+      in: query
+      name: after
+      required: false
+      description: Pagination parameter for cursor based pagination
+      schema:
+        type: string
+      examples:
+        example 1:
+          value: 123
+          description: Request values after id 123
+    panelid:
+      name: panelId
+      in: path
+      required: true
+      description: A Panel ID
+      schema:
+        type: integer
   securitySchemes:
     ApiKey:
       type: apiKey

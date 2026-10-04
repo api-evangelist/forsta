@@ -627,127 +627,7 @@ paths:
                   $error: User (user3@example.com) not found in this survey
                   extra: null
 components:
-  parameters:
-    survey:
-      name: survey
-      in: path
-      required: true
-      description: The survey path.
-      example: selfserve/1a/123456
-      schema:
-        type: string
-        format: uri
   schemas:
-    surveyUserData:
-      type: object
-      properties:
-        user_id:
-          type: integer
-          description: The ID of the user.
-        added_on:
-          type: string
-          format: date-time
-          description: Date when the user was added to the survey.
-        group_id:
-          type:
-          - integer
-          - 'null'
-          description: The ID of the group the user belongs to, null if not in a group.
-        email:
-          type: string
-          format: email
-          description: Email address of the survey user.
-        added_by:
-          type: object
-          description: Information about the user that added the specified user to the survey.
-          properties:
-            email:
-              type: string
-              format: email
-              description: Email address of the user that added the user to the survey.
-            id:
-              type: integer
-              description: The ID of the user that added the user to the survey.
-        permissions:
-          description: Information about the user's permissions.
-          oneOf:
-          - type: string
-            description: The grouped alias for the user's permissions.
-            enum:
-            - full
-            - edit
-            - view_data
-            - view
-            - vendor
-            - interviewer_only
-            - none
-          - type: object
-            description: 'The user''s permissions if they do not align with one of the standard aliases.
-
-              '
-            properties:
-              survey:
-                type:
-                - string
-                - 'null'
-                enum:
-                - build
-                - edit
-                - view
-              reporting_crosstabs:
-                type:
-                - string
-                - 'null'
-                enum:
-                - edit
-                - view
-              data:
-                type:
-                - string
-                - 'null'
-                enum:
-                - edit
-                - download
-              response_summary:
-                type:
-                - string
-                - 'null'
-                enum:
-                - edit
-                - view
-              campaign_manager:
-                type:
-                - string
-                - 'null'
-                enum:
-                - build
-              research_dashboard:
-                type:
-                - string
-                - 'null'
-                enum:
-                - build
-                - view
-              admin:
-                type:
-                - string
-                - 'null'
-                enum:
-                - full
-              theme_editor:
-                type: string
-                enum:
-                - full
-                - all
-                - company
-                - system
-                - none
-              offline:
-                type:
-                - string
-                - 'null'
-                enum:
-                - full
     userPermissionsMap:
       type: object
       description: Information about the preset permissions for a user.
@@ -1018,6 +898,126 @@ components:
               type:
               - string
               - 'null'
+    surveyUserData:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          description: The ID of the user.
+        added_on:
+          type: string
+          format: date-time
+          description: Date when the user was added to the survey.
+        group_id:
+          type:
+          - integer
+          - 'null'
+          description: The ID of the group the user belongs to, null if not in a group.
+        email:
+          type: string
+          format: email
+          description: Email address of the survey user.
+        added_by:
+          type: object
+          description: Information about the user that added the specified user to the survey.
+          properties:
+            email:
+              type: string
+              format: email
+              description: Email address of the user that added the user to the survey.
+            id:
+              type: integer
+              description: The ID of the user that added the user to the survey.
+        permissions:
+          description: Information about the user's permissions.
+          oneOf:
+          - type: string
+            description: The grouped alias for the user's permissions.
+            enum:
+            - full
+            - edit
+            - view_data
+            - view
+            - vendor
+            - interviewer_only
+            - none
+          - type: object
+            description: 'The user''s permissions if they do not align with one of the standard aliases.
+
+              '
+            properties:
+              survey:
+                type:
+                - string
+                - 'null'
+                enum:
+                - build
+                - edit
+                - view
+              reporting_crosstabs:
+                type:
+                - string
+                - 'null'
+                enum:
+                - edit
+                - view
+              data:
+                type:
+                - string
+                - 'null'
+                enum:
+                - edit
+                - download
+              response_summary:
+                type:
+                - string
+                - 'null'
+                enum:
+                - edit
+                - view
+              campaign_manager:
+                type:
+                - string
+                - 'null'
+                enum:
+                - build
+              research_dashboard:
+                type:
+                - string
+                - 'null'
+                enum:
+                - build
+                - view
+              admin:
+                type:
+                - string
+                - 'null'
+                enum:
+                - full
+              theme_editor:
+                type: string
+                enum:
+                - full
+                - all
+                - company
+                - system
+                - none
+              offline:
+                type:
+                - string
+                - 'null'
+                enum:
+                - full
+  parameters:
+    survey:
+      name: survey
+      in: path
+      required: true
+      description: The survey path.
+      example: selfserve/1a/123456
+      schema:
+        type: string
+        format: uri
   securitySchemes:
     APIKey:
       type: apiKey
