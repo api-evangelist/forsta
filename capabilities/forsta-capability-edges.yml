@@ -1,0 +1,90 @@
+slug: forsta
+provider: Forsta
+generated_by: planning/capability-mapping/scripts/classify_capabilities.py
+model: claude-opus-5
+frame:
+- Software & Technology
+min_confidence: 0.7
+capability_model:
+  source: https://github.com/vincentmakes/turbo-ea-capabilities
+  license: CC-BY-4.0
+  attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
+    CC BY 4.0
+  notice: NOTICE
+edge_count: 7
+edges:
+- tag: Users
+  spec_file: forsta-users-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.8
+  evidence: '"Update user active status or company", "Create password reset", "Reset 2FA Device", "Retrieve
+    a user''s audit log"'
+  reason: 'The operations administer platform user accounts: activation status, password resets, two-factor
+    device resets and per-user audit logs. That is identity and access administration, not survey research
+    content.'
+- tag: Samples
+  spec_file: forsta-samples-api-openapi.yml
+  capability_id: BC-400.30
+  capability_id_l1: BC-400
+  capability_name: Market Intelligence Management
+  confidence: 0.78
+  evidence: 'Sample providers that wish to be added to the Forsta Sample Marketplace must implement an
+    API following the specifications ... schemas: en_US_Qualifications, grocery_shopper, company_revenue,
+    primary_decision_maker'
+  reason: Partner contract for supplying research respondent samples with demographic/qualification screening
+    schemas — this is market research sample sourcing, a market intelligence capability, not a generic
+    data or commerce function.
+- tag: Survey
+  spec_file: forsta-survey-api-openapi.yml
+  capability_id: BC-400.30
+  capability_id_l1: BC-400
+  capability_name: Market Intelligence Management
+  confidence: 0.72
+  evidence: portal.survey.available  Returns all available surveys for the panelist; portal.survey.completedCount  Retrieves
+    the number of surveys completed by the panelist
+  reason: Panel portal operations exposing available and completed surveys to a research panelist — this
+    is survey-based market research/panel participation, mapping to market research and customer insight
+    gathering rather than any IT or commercial capability.
+- tag: Discrete Choice Model API Calls
+  spec_file: forsta-discrete-choice-model-api-calls-api-openapi.yml
+  capability_id: BC-400.30
+  capability_id_l1: BC-400
+  capability_name: Market Intelligence Management
+  confidence: 0.7
+  evidence: GET /surveys/{survey}/conjoint/report/{question_label}  Get survey conjoint utilities
+  reason: Conjoint (discrete choice) status and utility reporting is a market-research analysis technique;
+    the surface delivers research insight outputs, mapping to Market Intelligence Management (market research,
+    customer insights).
+- tag: Estimates
+  spec_file: forsta-estimates-api-openapi.yml
+  capability_id: BC-400.30
+  capability_id_l1: BC-400
+  capability_name: Market Intelligence Management
+  confidence: 0.7
+  evidence: POST /estimates  demo.post_estimate  Sample Estimates
+  reason: Sample Marketplace partner feasibility estimates with respondent qualification schemas (age,
+    income, education, grocery_shopper) are research sample/feasibility sizing — part of market research
+    execution.
+- tag: Panelist
+  spec_file: forsta-panelist-api-openapi.yml
+  capability_id: BC-400.30
+  capability_id_l1: BC-400
+  capability_name: Market Intelligence Management
+  confidence: 0.7
+  evidence: portal.panelist.create Create a new panelist; portal.panelist.optOut Unsubscribes a panelist;
+    portal.panelist.contactFrequenciesSet Set the contact frequencies for the current panelist
+  reason: Full lifecycle of research panelists — creation, update, confirmation of panel join, opt-out
+    and contact-frequency preferences — which is panel/sample management underpinning market research
+    insight gathering.
+- tag: Survey State
+  spec_file: forsta-survey-state-api-openapi.yml
+  capability_id: BC-400.30
+  capability_id_l1: BC-400
+  capability_name: Market Intelligence Management
+  confidence: 0.7
+  evidence: POST /surveys/{survey}/state/live "Launch survey"; POST /surveys/{survey}/state/close "Close
+    survey"
+  reason: Launching and closing surveys with launch warnings is the fielding lifecycle of research data
+    collection, the core of this vendor's market-research platform; mapped to Market Intelligence Management.

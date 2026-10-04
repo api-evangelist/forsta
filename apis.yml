@@ -5053,6 +5053,9 @@ apis:
   - type: OAuthScopes
     url: scopes/forsta-scopes.yml
 common:
+- type: CapabilityMap
+  url: capabilities/forsta-capability-edges.yml
+  name: Forsta Business Capability Map
 - type: Overlay
   url: overlays/forsta-decipher-rest-api-overlay.yaml
 - type: Overlay
