@@ -5053,6 +5053,8 @@ apis:
   - type: OAuthScopes
     url: scopes/forsta-scopes.yml
 common:
+- type: FinOps
+  url: finops/forsta-finops.yml
 - type: CapabilityMap
   url: capabilities/forsta-capability-edges.yml
   name: Forsta Business Capability Map
