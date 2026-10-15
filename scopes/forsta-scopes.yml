@@ -1,17 +1,51 @@
-generated: '2026-09-10'
-method: derived
-source: openapi/forsta-sample-marketplace-partner-contract-openapi.yml, openapi/forsta-sample-marketplace-partner-setup-openapi.yml
+generated: '2026-10-14'
+method: none
+source: openapi/forsta-apispec-api-openapi.yml, openapi/forsta-app-api-openapi.yml, openapi/forsta-estimates-api-openapi.yml,
+  openapi/forsta-oauth2-api-openapi.yml, openapi/forsta-participant-source-api-openapi.yml,
+  openapi/forsta-projects-api-openapi.yml, openapi/forsta-samples-api-openapi.yml
 schemes:
 - name: OAuth2
-  source: openapi/forsta-sample-marketplace-partner-contract-openapi.yml
+  source: openapi/forsta-apispec-api-openapi.yml
   flows:
   - flow: clientCredentials
     tokenUrl: /oauth2/token/
   description: See https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html
 - name: OAuth2
-  source: openapi/forsta-sample-marketplace-partner-setup-openapi.yml
+  source: openapi/forsta-app-api-openapi.yml
+  flows:
+  - flow: clientCredentials
+    tokenUrl: /oauth2/token/
+  description: See https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html
+- name: OAuth2
+  source: openapi/forsta-estimates-api-openapi.yml
+  flows:
+  - flow: clientCredentials
+    tokenUrl: /oauth2/token/
+  description: See https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html
+- name: OAuth2
+  source: openapi/forsta-oauth2-api-openapi.yml
+  flows:
+  - flow: clientCredentials
+    tokenUrl: /oauth2/token/
+  description: See https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html
+- name: OAuth2
+  source: openapi/forsta-participant-source-api-openapi.yml
+  flows:
+  - flow: clientCredentials
+    tokenUrl: /oauth2/token/
+  description: See https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html
+- name: OAuth2
+  source: openapi/forsta-projects-api-openapi.yml
+  flows:
+  - flow: clientCredentials
+    tokenUrl: /oauth2/token/
+  description: See https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html
+- name: OAuth2
+  source: openapi/forsta-samples-api-openapi.yml
   flows:
   - flow: clientCredentials
     tokenUrl: /oauth2/token/
   description: See https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html
 scopes: []
+note: The OAuth2 security scheme(s) in the OpenAPI declare no scopes, and no security requirement
+  references one.
