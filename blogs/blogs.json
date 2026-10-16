@@ -2,8 +2,8 @@
   "repo": "forsta",
   "feeds": [
     {
-      "source": "https://help.forsta.com/",
-      "feed_url": "https://help.forsta.com/blog/feed/",
+      "source": "https://www.forsta.com/resources/blog/",
+      "feed_url": "https://www.forsta.com/resources/blog/blog/feed/",
       "title": "",
       "saved": 0,
       "method": "discovered"
@@ -30,7 +30,7 @@
       "method": "feed"
     }
   ],
-  "fetched": "2026-10-03T12:30:02Z",
+  "fetched": "2026-10-10T13:15:00Z",
   "post_count": 45,
   "feed_nature": "vendor-blog",
   "feed_nature_basis": "path_blog",
