@@ -3748,18 +3748,6 @@ paths:
           default: staging.panel.dev.focusvision.com/
           description: Server domain
 components:
-  schemas:
-    error:
-      type: object
-      properties:
-        success:
-          type: boolean
-        error:
-          description: The error message.
-          type: string
-        errno:
-          description: The error code.
-          type: string
   parameters:
     method:
       name: method
@@ -3768,19 +3756,6 @@ components:
       description: Method
       schema:
         type: string
-    panelistidfilter:
-      in: query
-      description: Filter by panelist identifier
-      name: filter[panelist_id]
-      schema:
-        type: string
-      examples:
-        single:
-          value: y36uhip5r8j7
-          summary: Single panelist
-        multiple:
-          value: y36uhip5r8j7,oa85aha25i,gjore8o7237,zx69g6ybzue
-          summary: Multiple panelists
     projectidfilter:
       in: query
       name: filter[project_id]
@@ -3794,6 +3769,13 @@ components:
         multiple:
           value: 1,2,3,4
           summary: Multiple projects
+    panelid:
+      name: panelId
+      in: path
+      required: true
+      description: A Panel ID
+      schema:
+        type: integer
     after:
       in: query
       name: after
@@ -3805,13 +3787,31 @@ components:
         example 1:
           value: 123
           description: Request values after id 123
-    panelid:
-      name: panelId
-      in: path
-      required: true
-      description: A Panel ID
+    panelistidfilter:
+      in: query
+      description: Filter by panelist identifier
+      name: filter[panelist_id]
       schema:
-        type: integer
+        type: string
+      examples:
+        single:
+          value: y36uhip5r8j7
+          summary: Single panelist
+        multiple:
+          value: y36uhip5r8j7,oa85aha25i,gjore8o7237,zx69g6ybzue
+          summary: Multiple panelists
+  schemas:
+    error:
+      type: object
+      properties:
+        success:
+          type: boolean
+        error:
+          description: The error message.
+          type: string
+        errno:
+          description: The error code.
+          type: string
   securitySchemes:
     ApiKey:
       type: apiKey

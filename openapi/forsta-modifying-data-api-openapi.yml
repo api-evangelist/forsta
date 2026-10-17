@@ -1030,6 +1030,20 @@ paths:
         '500':
           $ref: '#/components/responses/500'
 components:
+  schemas:
+    error:
+      type: object
+      properties:
+        $code:
+          description: The error code.
+          type: integer
+        $error:
+          description: The error message.
+          type: string
+        extra:
+          description: Additional error information.
+          type: object
+          additionalProperties: true
   parameters:
     survey:
       name: survey
@@ -1059,20 +1073,6 @@ components:
           example:
             $code: 403
             $error: API key is valid but access to requested resource is forbidden.
-  schemas:
-    error:
-      type: object
-      properties:
-        $code:
-          description: The error code.
-          type: integer
-        $error:
-          description: The error message.
-          type: string
-        extra:
-          description: Additional error information.
-          type: object
-          additionalProperties: true
   securitySchemes:
     APIKey:
       type: apiKey

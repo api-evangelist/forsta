@@ -165,6 +165,13 @@ paths:
           '
 components:
   parameters:
+    datasource:
+      name: datasource
+      in: path
+      required: true
+      description: Datasource label, must be composed of a-zA-Z_ characters only
+      schema:
+        type: string
     survey:
       name: survey
       in: path
@@ -174,13 +181,6 @@ components:
       schema:
         type: string
         format: uri
-    datasource:
-      name: datasource
-      in: path
-      required: true
-      description: Datasource label, must be composed of a-zA-Z_ characters only
-      schema:
-        type: string
   securitySchemes:
     APIKey:
       type: apiKey

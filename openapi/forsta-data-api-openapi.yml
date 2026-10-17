@@ -616,34 +616,6 @@ paths:
                           type: string
 components:
   schemas:
-    surveyDatamap:
-      type: object
-      properties:
-        variables:
-          type: array
-          items:
-            $ref: '#/components/schemas/surveyVariables'
-        questions:
-          type: array
-          items:
-            type: object
-            properties:
-              variables:
-                type: array
-                items:
-                  $ref: '#/components/schemas/surveyVariables'
-              grouping:
-                type: string
-                example: rows
-              type:
-                type: string
-                example: number
-              qtitle:
-                type: string
-                example: How likely are you to recommend our company, product or service to a friend or colleague?
-              qlabel:
-                type: string
-                example: Q1
     surveyData:
       type: object
       properties:
@@ -825,6 +797,34 @@ components:
                 type: integer
               title:
                 type: string
+    surveyDatamap:
+      type: object
+      properties:
+        variables:
+          type: array
+          items:
+            $ref: '#/components/schemas/surveyVariables'
+        questions:
+          type: array
+          items:
+            type: object
+            properties:
+              variables:
+                type: array
+                items:
+                  $ref: '#/components/schemas/surveyVariables'
+              grouping:
+                type: string
+                example: rows
+              type:
+                type: string
+                example: number
+              qtitle:
+                type: string
+                example: How likely are you to recommend our company, product or service to a friend or colleague?
+              qlabel:
+                type: string
+                example: Q1
   parameters:
     survey:
       name: survey

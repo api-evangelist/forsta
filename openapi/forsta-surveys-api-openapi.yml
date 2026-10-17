@@ -740,17 +740,6 @@ paths:
                                 example: '9999'
 components:
   schemas:
-    surveyWithKeep:
-      allOf:
-      - $ref: '#/components/schemas/survey'
-      - type: object
-        properties:
-          keep:
-            example: false
-            type: boolean
-            description: '`true` if the survey has been marked to prevent archival.
-
-              '
     survey:
       type: object
       properties:
@@ -1113,6 +1102,17 @@ components:
           example: 1
           type: integer
           description: Beacon = 1, email = 2, SPSS = 4.
+    surveyWithKeep:
+      allOf:
+      - $ref: '#/components/schemas/survey'
+      - type: object
+        properties:
+          keep:
+            example: false
+            type: boolean
+            description: '`true` if the survey has been marked to prevent archival.
+
+              '
   parameters:
     survey:
       name: survey

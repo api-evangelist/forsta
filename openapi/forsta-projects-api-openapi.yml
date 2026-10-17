@@ -140,27 +140,6 @@ components:
                     description: Status message
                     enum:
                     - Unauthorized
-    '500':
-      description: Internal Server Error
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              error:
-                type: object
-                description: Error code and message
-                properties:
-                  status:
-                    type: string
-                    description: HTTP status Code
-                    enum:
-                    - 500
-                  message:
-                    type: string
-                    description: Status message
-                    enum:
-                    - Internal Server Error
     '422':
       description: Unprocessable entity
       content:
@@ -219,6 +198,27 @@ components:
                     description: Status message
                     enum:
                     - Not found
+    '500':
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                description: Error code and message
+                properties:
+                  status:
+                    type: string
+                    description: HTTP status Code
+                    enum:
+                    - 500
+                  message:
+                    type: string
+                    description: Status message
+                    enum:
+                    - Internal Server Error
   schemas:
     Projects:
       type: object

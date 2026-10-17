@@ -590,16 +590,6 @@ paths:
                     type: string
                     example: null
 components:
-  parameters:
-    survey:
-      name: survey
-      in: path
-      required: true
-      description: The survey path.
-      example: selfserve/1a/123456
-      schema:
-        type: string
-        format: uri
   schemas:
     surveyTask:
       type: object
@@ -668,6 +658,16 @@ components:
           type: boolean
           example: false
           description: "Whether the task is related to a question or comment element label that \nno longer exists.\n"
+  parameters:
+    survey:
+      name: survey
+      in: path
+      required: true
+      description: The survey path.
+      example: selfserve/1a/123456
+      schema:
+        type: string
+        format: uri
   securitySchemes:
     APIKey:
       type: apiKey
