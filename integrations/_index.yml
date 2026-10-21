@@ -59,3 +59,30 @@
     detected: '2026-10-18'
   status: not-a-workflow
   arazzo: null
+- slug: forsta-insights-association
+  label: Insights Association
+  partner_name: Insights Association
+  category: market research trade association membership
+  type: register
+  channel: standard-directory
+  evidence: https://www.insightsassociation.org/Membership/Our-Members
+  source: edge
+  relationship: standard-participant
+  contract_reference:
+    register: Insights Association member organisations (insightsassociation.org/Membership/Our-Members, organizationdll.dll/List)
+    standard: Insights Association Code of Standards
+    spec_file: null
+    role: insights-association-member
+    registered_name: Forsta
+    partner_tier: Agency/Supplier
+    register_location: Hampton Falls, NH
+    matched_domain: forsta.com
+    matched_by: domain
+    signal_note: 'participation: member organisation bound by the IA Code of Standards; CIRQ certifications -> certified_products
+      (one per certification type); GDQ Pledge / Privacy Framework are context, never counted'
+    detected_by: sweep-surveys-research.py
+    detected: '2026-10-20'
+    participation_signals:
+    - GDQ Pledge
+  status: not-a-workflow
+  arazzo: null

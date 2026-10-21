@@ -55,6 +55,33 @@ edges:
     detected: '2026-10-18'
   detected_by: sweep-official-sdks.py
   first_seen: '2026-10-18'
+- partner_name: Insights Association
+  partner: null
+  partner_match: register
+  type: register
+  channel: standard-directory
+  relationship: standard-participant
+  direction: partner-built
+  evidence: https://www.insightsassociation.org/Membership/Our-Members
+  category: market research trade association membership
+  contract_reference:
+    register: Insights Association member organisations (insightsassociation.org/Membership/Our-Members, organizationdll.dll/List)
+    standard: Insights Association Code of Standards
+    spec_file: null
+    role: insights-association-member
+    registered_name: Forsta
+    partner_tier: Agency/Supplier
+    register_location: Hampton Falls, NH
+    matched_domain: forsta.com
+    matched_by: domain
+    signal_note: 'participation: member organisation bound by the IA Code of Standards; CIRQ certifications -> certified_products
+      (one per certification type); GDQ Pledge / Privacy Framework are context, never counted'
+    detected_by: sweep-surveys-research.py
+    detected: '2026-10-20'
+    participation_signals:
+    - GDQ Pledge
+  detected_by: sweep-surveys-research.py
+  first_seen: '2026-10-20'
 method: searched
 checked:
 - https://api.nuget.org/v3
@@ -65,5 +92,7 @@ checked:
 - https://repo1.maven.org/maven2
 - https://rubygems.org/api/v1
 - https://zapier.com/api/v4/apps/
+- https://www.insightsassociation.org/Membership/Our-Members
+- https://www.insightsassociation.org/cv5/cgi-bin/organizationdll.dll/List
 source:
 - https://zapier.com/api/v4/apps/
